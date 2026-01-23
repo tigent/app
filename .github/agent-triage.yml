@@ -1,0 +1,40 @@
+confidence: 0.6
+theme: mono
+
+labels:
+  bug: critical
+  security: critical
+  p0: critical
+  p1: high
+  p2: medium
+  feature: medium
+  enhancement: medium
+  documentation: muted
+  maintenance: light
+  stale: light
+  ai/core: high
+  ai/ui: medium
+  ai/gateway: medium
+  ai/mcp: medium
+  ai/rsc: medium
+  ai/telemetry: low
+  ai/provider: medium
+  provider/openai: low
+  provider/anthropic: low
+  provider/google: low
+  provider/community: muted
+
+rules:
+  - match: "crash|broken|not working"
+    add: [bug, p1]
+  - match: "security|vulnerability|cve"
+    add: [security, p0]
+  - match: "docs|readme|typo"
+    add: [documentation]
+
+reactions:
+  start: eyes
+
+ignore:
+  users: [dependabot, renovate]
+  labels: [wontfix, duplicate]
