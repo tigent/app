@@ -1,44 +1,15 @@
-confidence: 0.6
-theme: mono
+confidence: "invalid"
+theme: 123
 
 labels:
   bug: critical
   security: critical
-  p0: critical
-  p1: high
-  p2: medium
-  feature: medium
-  enhancement: medium
-  documentation: muted
-  config: medium
-  webhook: medium
-  github-api: medium
-  maintenance: light
-  stale: light
-  duplicate: muted
-  good-first-issue: muted
-  help-wanted: muted
 
 rules:
-  - match: "crash|broken|not working"
-    add: [bug, p1]
-  - match: "security|vulnerability|cve"
-    add: [security, p0]
-  - match: "docs|readme|typo"
-    add: [documentation]
-  - match: "config|yaml|yml"
-    add: [config]
-  - match: "webhook|payload"
-    add: [webhook]
-
-reactions:
-  start: eyes
+  - match: "crash|broken"
+    add: "should-be-array"
+  - wrongkey: true
 
 duplicates:
-  enabled: true
-  threshold: 0.8
-  label: duplicate
-  comment: true
-
-ignore:
-  users: [dependabot, renovate]
+  enabled: "yes"
+  threshold: 5
