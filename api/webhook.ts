@@ -76,6 +76,14 @@ interface TriageConfig {
     comment: boolean
     close: boolean
   }
+  stale: {
+    enabled: boolean
+    warn: string
+    close: string
+    label: string
+    message: string
+    exempt: string[]
+  }
 }
 
 const defaultconfig: TriageConfig = {
@@ -116,6 +124,14 @@ const defaultconfig: TriageConfig = {
     threshold: 0.8,
     comment: true,
     close: false
+  },
+  stale: {
+    enabled: false,
+    warn: '30d',
+    close: '7d',
+    label: 'stale',
+    message: 'this issue has been automatically marked as stale due to inactivity.',
+    exempt: ['p0', 'p1', 'security']
   }
 }
 
@@ -154,6 +170,14 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
         label: parsed.duplicates?.label,
         comment: parsed.duplicates?.comment ?? true,
         close: parsed.duplicates?.close ?? false
+      },
+      stale: {
+        enabled: parsed.stale?.enabled ?? false,
+        warn: parsed.stale?.warn ?? '30d',
+        close: parsed.stale?.close ?? '7d',
+        label: parsed.stale?.label ?? 'stale',
+        message: parsed.stale?.message ?? 'this issue has been automatically marked as stale due to inactivity.',
+        exempt: parsed.stale?.exempt ?? ['p0', 'p1', 'security']
       }
     }
   } catch {

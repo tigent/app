@@ -1,8 +1,16 @@
 {
   "functions": {
     "api/webhook.ts": {
-      "maxDuration": 60,
-      "includeFiles": "src/**"
+      "maxDuration": 60
+    },
+    "api/cron/stale.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/stale",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
