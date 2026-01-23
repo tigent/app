@@ -166,3 +166,43 @@ export async function getfiles(config: GithubConfig, number: number): Promise<st
   const data = await response.json() as { filename: string }[]
   return data.map(f => f.filename)
 }
+
+export async function createissue(config: GithubConfig, title: string, body: string): Promise<number> {
+  const response = await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/issues`,
+    {
+      method: 'POST',
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ title, body })
+    }
+  )
+  if (!response.ok) {
+    throw new Error(`failed to create issue: ${response.status}`)
+  }
+  const data = await response.json() as { number: number }
+  return data.number
+}
+
+export async function createlabel(config: GithubConfig, name: string, color: string): Promise<void> {
+  const response = await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/labels`,
+    {
+      method: 'POST',
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ name, color })
+    }
+  )
+  if (!response.ok && response.status !== 422) {
+    throw new Error(`failed to create label: ${response.status}`)
+  }
+}

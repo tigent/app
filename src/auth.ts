@@ -1,3 +1,5 @@
+import { SignJWT, importPKCS8 } from 'jose'
+
 interface AppConfig {
   appid: string
   privatekey: string
@@ -59,42 +61,52 @@ async function getinstallationid(jwt: string, owner: string, repo: string): Prom
 }
 
 async function createjwt(appid: string, privatekey: string): Promise<string> {
+  const normalized = privatekey.replace(/\\n/g, '\n')
+  const pkcs8 = convertpkcs1topkcs8(normalized)
+  const key = await importPKCS8(pkcs8, 'RS256')
+
   const now = Math.floor(Date.now() / 1000)
-  const payload = {
-    iat: now - 60,
-    exp: now + 600,
-    iss: appid
-  }
 
-  const header = { alg: 'RS256', typ: 'JWT' }
-  const enc = new TextEncoder()
-
-  const headerb64 = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-  const payloadb64 = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-
-  const data = enc.encode(`${headerb64}.${payloadb64}`)
-
-  const key = await crypto.subtle.importKey(
-    'pkcs8',
-    pemtobuffer(privatekey),
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
-  )
-
-  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, data)
-  const sigb64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-
-  return `${headerb64}.${payloadb64}.${sigb64}`
+  return await new SignJWT({})
+    .setProtectedHeader({ alg: 'RS256' })
+    .setIssuedAt(now - 60)
+    .setExpirationTime(now + 600)
+    .setIssuer(appid)
+    .sign(key)
 }
 
-function pemtobuffer(pem: string): ArrayBuffer {
-  const lines = pem.split('\n').filter(l => !l.includes('-----'))
-  const b64 = lines.join('')
-  const binary = atob(b64)
-  const buffer = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    buffer[i] = binary.charCodeAt(i)
+function convertpkcs1topkcs8(pem: string): string {
+  if (pem.includes('BEGIN PRIVATE KEY')) {
+    return pem
   }
-  return buffer.buffer
+
+  const lines = pem.split('\n')
+  const b64 = lines.filter(l => !l.includes('-----')).join('')
+  const der = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+
+  const pkcs8header = new Uint8Array([
+    0x30, 0x82, 0x00, 0x00,
+    0x02, 0x01, 0x00,
+    0x30, 0x0d,
+    0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01,
+    0x05, 0x00,
+    0x04, 0x82, 0x00, 0x00
+  ])
+
+  const keylen = der.length
+  const totallen = pkcs8header.length + keylen
+
+  pkcs8header[2] = ((totallen - 4) >> 8) & 0xff
+  pkcs8header[3] = (totallen - 4) & 0xff
+  pkcs8header[pkcs8header.length - 2] = (keylen >> 8) & 0xff
+  pkcs8header[pkcs8header.length - 1] = keylen & 0xff
+
+  const pkcs8 = new Uint8Array(totallen)
+  pkcs8.set(pkcs8header)
+  pkcs8.set(der, pkcs8header.length)
+
+  const b64out = btoa(String.fromCharCode(...pkcs8))
+  const formatted = b64out.match(/.{1,64}/g)?.join('\n') || b64out
+
+  return `-----BEGIN PRIVATE KEY-----\n${formatted}\n-----END PRIVATE KEY-----`
 }
