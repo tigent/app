@@ -74,6 +74,7 @@ interface TriageConfig {
     threshold: number
     label?: string
     comment: boolean
+    close: boolean
   }
 }
 
@@ -113,7 +114,8 @@ const defaultconfig: TriageConfig = {
   duplicates: {
     enabled: false,
     threshold: 0.8,
-    comment: true
+    comment: true,
+    close: false
   }
 }
 
@@ -150,7 +152,8 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
         enabled: parsed.duplicates?.enabled ?? false,
         threshold: parsed.duplicates?.threshold ?? 0.8,
         label: parsed.duplicates?.label,
-        comment: parsed.duplicates?.comment ?? true
+        comment: parsed.duplicates?.comment ?? true,
+        close: parsed.duplicates?.close ?? false
       }
     }
   } catch {
@@ -431,6 +434,10 @@ ${issuelist}`
       await label(ghconfig, number, [config.duplicates.label])
     }
 
+    if (config.duplicates.close) {
+      await closeissue(ghconfig, number)
+    }
+
     return true
   }
 
@@ -466,6 +473,22 @@ async function comment(config: GhConfig, issue: number, body: string) {
         'content-type': 'application/json'
       },
       body: JSON.stringify({ body })
+    }
+  )
+}
+
+async function closeissue(config: GhConfig, issue: number) {
+  await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ state: 'closed', state_reason: 'not_planned' })
     }
   )
 }
