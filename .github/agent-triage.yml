@@ -10,19 +10,13 @@ labels:
   feature: medium
   enhancement: medium
   documentation: muted
+  config: medium
+  webhook: medium
+  github-api: medium
   maintenance: light
   stale: light
-  ai/core: high
-  ai/ui: medium
-  ai/gateway: medium
-  ai/mcp: medium
-  ai/rsc: medium
-  ai/telemetry: low
-  ai/provider: medium
-  provider/openai: low
-  provider/anthropic: low
-  provider/google: low
-  provider/community: muted
+  good-first-issue: muted
+  help-wanted: muted
 
 rules:
   - match: "crash|broken|not working"
@@ -31,10 +25,13 @@ rules:
     add: [security, p0]
   - match: "docs|readme|typo"
     add: [documentation]
+  - match: "config|yaml|yml"
+    add: [config]
+  - match: "webhook|payload"
+    add: [webhook]
 
 reactions:
   start: eyes
 
 ignore:
   users: [dependabot, renovate]
-  labels: [wontfix, duplicate]
