@@ -5,8 +5,8 @@ import { readFileSync, existsSync } from 'fs'
 const schema = z.object({
   confidence: z.number().min(0).max(1).optional(),
   theme: z.string().optional(),
-  themes: z.record(z.record(z.string())).optional(),
-  labels: z.record(z.string()).optional(),
+  themes: z.record(z.string(), z.record(z.string(), z.string())).optional(),
+  labels: z.record(z.string(), z.string()).optional(),
   rules: z.array(z.object({
     match: z.string(),
     add: z.array(z.string())
