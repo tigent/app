@@ -1,0 +1,17 @@
+name: validate config
+
+on:
+  pull_request:
+    paths:
+      - '.github/agent-triage.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: validate schema
+        run: bun run .github/scripts/validate.ts
