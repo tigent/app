@@ -14,7 +14,6 @@
   1. eyes reaction when starting
   2. ai classifies content
   3. applies labels if confidence > 0.6
-  4. rocket reaction when done
 
 > setup?
 

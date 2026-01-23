@@ -42,8 +42,6 @@ export async function triagepr(config: Config, number: number): Promise<Result> 
     await gh.label(config, number, validlabels)
   }
 
-  await gh.react(config, number, 'rocket')
-
   return { labels: validlabels, confidence: output.confidence, reasoning: output.reasoning }
 }
 
@@ -67,8 +65,6 @@ export async function triageissue(config: Config, number: number): Promise<Resul
   if (output.confidence > 0.6 && validlabels.length > 0) {
     await gh.label(config, number, validlabels)
   }
-
-  await gh.react(config, number, 'rocket')
 
   return { labels: validlabels, confidence: output.confidence, reasoning: output.reasoning }
 }
