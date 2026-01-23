@@ -2,6 +2,7 @@ import { Webhooks } from '@octokit/webhooks'
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { SignJWT, importPKCS8 } from 'jose'
+import { parse } from 'yaml'
 
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
@@ -18,7 +19,10 @@ webhooks.on('issues.opened', async ({ payload }) => {
     repo
   })
 
-  await triageissue({ token, owner, repo }, payload.issue.number)
+  const ghconfig = { token, owner, repo }
+  const config = await getconfig(ghconfig)
+  await synclabels(ghconfig, config)
+  await triageissue(ghconfig, config, payload.issue.number)
 })
 
 webhooks.on('pull_request.opened', async ({ payload }) => {
@@ -32,7 +36,10 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
     repo
   })
 
-  await triagepr({ token, owner, repo }, payload.pull_request.number)
+  const ghconfig = { token, owner, repo }
+  const config = await getconfig(ghconfig)
+  await synclabels(ghconfig, config)
+  await triagepr(ghconfig, config, payload.pull_request.number)
 })
 
 export async function POST(req: Request) {
@@ -48,10 +55,120 @@ export async function POST(req: Request) {
   return new Response('ok')
 }
 
-interface Config {
+interface GhConfig {
   token: string
   owner: string
   repo: string
+}
+
+interface TriageConfig {
+  confidence: number
+  theme: string
+  themes: Record<string, Record<string, string>>
+  labels: Record<string, string>
+  rules: { match: string; add: string[] }[]
+  reactions: { start?: string; complete?: string }
+  ignore: { users: string[]; labels: string[] }
+}
+
+const defaultconfig: TriageConfig = {
+  confidence: 0.6,
+  theme: 'mono',
+  themes: {
+    mono: {
+      critical: '000000',
+      high: '1a1a1a',
+      medium: '4a4a4a',
+      low: '8a8a8a',
+      muted: 'c0c0c0',
+      light: 'e5e5e5'
+    },
+    colorful: {
+      critical: 'd73a4a',
+      high: 'd93f0b',
+      medium: 'fbca04',
+      low: '0e8a16',
+      muted: '0052cc',
+      light: '5319e7'
+    },
+    pastel: {
+      critical: 'ffb3b3',
+      high: 'ffd9b3',
+      medium: 'fff2b3',
+      low: 'b3ffb3',
+      muted: 'b3d9ff',
+      light: 'd9b3ff'
+    }
+  },
+  labels: {},
+  rules: [],
+  reactions: { start: 'eyes' },
+  ignore: { users: [], labels: [] }
+}
+
+async function getconfig(config: GhConfig): Promise<TriageConfig> {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/.github/agent-triage.yml`,
+      {
+        headers: {
+          'accept': 'application/vnd.github.raw+json',
+          'authorization': `Bearer ${config.token}`,
+          'x-github-api-version': '2022-11-28'
+        }
+      }
+    )
+
+    if (!response.ok) {
+      return defaultconfig
+    }
+
+    const yaml = await response.text()
+    const parsed = parse(yaml) as Partial<TriageConfig>
+
+    return {
+      ...defaultconfig,
+      ...parsed,
+      themes: { ...defaultconfig.themes, ...parsed.themes },
+      reactions: { ...defaultconfig.reactions, ...parsed.reactions },
+      ignore: {
+        users: parsed.ignore?.users || [],
+        labels: parsed.ignore?.labels || []
+      }
+    }
+  } catch {
+    return defaultconfig
+  }
+}
+
+async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
+  if (Object.keys(config.labels).length === 0) return
+
+  const existing = await fetchlabels(ghconfig)
+  const theme = config.themes[config.theme] || config.themes.mono
+
+  for (const [name, colorkey] of Object.entries(config.labels)) {
+    if (existing.includes(name)) continue
+
+    const color = theme[colorkey] || colorkey
+    await createlabel(ghconfig, name, color)
+  }
+}
+
+async function createlabel(config: GhConfig, name: string, color: string) {
+  await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/labels`,
+    {
+      method: 'POST',
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ name, color })
+    }
+  )
 }
 
 interface AppConfig {
@@ -171,117 +288,164 @@ function convertpkcs1topkcs8(pem: string): string {
   return `-----BEGIN PRIVATE KEY-----\n${formatted}\n-----END PRIVATE KEY-----`
 }
 
-async function triagepr(config: Config, number: number) {
-  await react(config, number, 'eyes')
+async function triagepr(ghconfig: GhConfig, config: TriageConfig, number: number) {
+  if (config.reactions.start) {
+    await react(ghconfig, number, config.reactions.start as any)
+  }
 
   const [pr, files, repolabels] = await Promise.all([
-    getpr(config, number),
-    getfiles(config, number),
-    fetchlabels(config)
+    getpr(ghconfig, number),
+    getfiles(ghconfig, number),
+    fetchlabels(ghconfig)
   ])
+
+  const rulelabels = applyrules(config.rules, pr.title, pr.body || '')
 
   const { output } = await generateText({
     model: 'anthropic/claude-sonnet-4.5',
     output: Output.object({ schema: classifyschema }),
-    system: buildprsystem(repolabels),
+    system: buildprsystem(repolabels, config.rules),
     prompt: buildprprompt(pr.title, pr.body, files)
   })
 
-  const validlabels = output.labels.filter(l => repolabels.includes(l))
+  const ailabels = output.labels.filter(l => repolabels.includes(l))
+  const alllabels = [...new Set([...rulelabels, ...ailabels])]
+  const validlabels = alllabels.filter(l => repolabels.includes(l))
 
-  if (output.confidence > 0.6 && validlabels.length > 0) {
-    await label(config, number, validlabels)
+  if (output.confidence > config.confidence && validlabels.length > 0) {
+    await label(ghconfig, number, validlabels)
   }
 }
 
-async function triageissue(config: Config, number: number) {
-  await react(config, number, 'eyes')
+async function triageissue(ghconfig: GhConfig, config: TriageConfig, number: number) {
+  if (config.reactions.start) {
+    await react(ghconfig, number, config.reactions.start as any)
+  }
 
   const [issue, repolabels] = await Promise.all([
-    getissue(config, number),
-    fetchlabels(config)
+    getissue(ghconfig, number),
+    fetchlabels(ghconfig)
   ])
+
+  if (config.ignore.users.includes(issue.user?.login || '')) return
+  if (issue.labels.some(l => config.ignore.labels.includes(l.name))) return
+
+  const rulelabels = applyrules(config.rules, issue.title, issue.body || '')
 
   const { output } = await generateText({
     model: 'anthropic/claude-sonnet-4.5',
     output: Output.object({ schema: classifyschema }),
-    system: buildissuesystem(repolabels),
+    system: buildissuesystem(repolabels, config.rules),
     prompt: buildissueprompt(issue.title, issue.body, issue.labels)
   })
 
-  const validlabels = output.labels.filter(l => repolabels.includes(l))
+  const ailabels = output.labels.filter(l => repolabels.includes(l))
+  const alllabels = [...new Set([...rulelabels, ...ailabels])]
+  const validlabels = alllabels.filter(l => repolabels.includes(l))
 
-  if (output.confidence > 0.6 && validlabels.length > 0) {
-    await label(config, number, validlabels)
+  if (output.confidence > config.confidence && validlabels.length > 0) {
+    await label(ghconfig, number, validlabels)
   }
 }
 
-function buildprsystem(labels: string[]): string {
-  return `You classify pull requests. Assign appropriate labels.
+function applyrules(rules: { match: string; add: string[] }[], title: string, body: string): string[] {
+  const text = `${title} ${body}`.toLowerCase()
+  const labels: string[] = []
 
-Available labels: ${labels.join(', ')}
+  for (const rule of rules) {
+    const regex = new RegExp(rule.match, 'i')
+    if (regex.test(text)) {
+      labels.push(...rule.add)
+    }
+  }
 
-Rules:
-- If title includes "Version Packages" or starts with "Backport:", use "maintenance" only
-- UI changes (Vue, Angular, React): ai/ui
-- AI gateway changes: ai/gateway
-- MCP changes: ai/mcp
-- RSC changes: ai/rsc
-- Telemetry changes: ai/telemetry
-- Core SDK changes (text/image/audio generation): ai/core
-- Provider-related: add ai/provider plus specific provider labels
-- React Native/Expo: ai/ui and expo
+  return labels
+}
+
+function buildprsystem(labels: string[], rules: { match: string; add: string[] }[]): string {
+  let system = `you classify pull requests. assign appropriate labels.
+
+available labels: ${labels.join(', ')}
+
+rules:
+- if title includes "version packages" or starts with "backport:", use "maintenance" only
+- ui changes (vue, angular, react): ai/ui
+- ai gateway changes: ai/gateway
+- mcp changes: ai/mcp
+- rsc changes: ai/rsc
+- telemetry changes: ai/telemetry
+- core sdk changes (text/image/audio generation): ai/core
+- provider-related: add ai/provider plus specific provider labels
+- react native/expo: ai/ui and expo
 - .github or build file updates only: maintenance
-- New provider: ai/provider and provider/community
-- Docs/examples only: documentation
-- If files match providers/<name>, add ai/provider and provider/<name>
-- Max 4 provider labels, otherwise use ai/core`
+- new provider: ai/provider and provider/community
+- docs/examples only: documentation
+- if files match providers/<name>, add ai/provider and provider/<name>
+- max 4 provider labels, otherwise use ai/core`
+
+  if (rules.length > 0) {
+    system += '\n\ncustom rules:'
+    for (const rule of rules) {
+      system += `\n- if matches "${rule.match}": add ${rule.add.join(', ')}`
+    }
+  }
+
+  return system
 }
 
 function buildprprompt(title: string, body: string, files: string[]): string {
-  return `Title: ${title}
+  return `title: ${title}
 
-Body:
-${body || 'No description'}
+body:
+${body || 'no description'}
 
-Changed files:
+changed files:
 ${files.join('\n')}`
 }
 
-function buildissuesystem(labels: string[]): string {
-  return `You classify issues. Assign appropriate labels.
+function buildissuesystem(labels: string[], rules: { match: string; add: string[] }[]): string {
+  let system = `you classify issues. assign appropriate labels.
 
-Available labels: ${labels.join(', ')}
+available labels: ${labels.join(', ')}
 
-Rules:
-- UI issues (Vue, Angular, React, AI Elements): ai/ui
-- AI gateway issues: ai/gateway
-- MCP issues: ai/mcp
-- RSC issues: ai/rsc
-- Telemetry issues: ai/telemetry
-- Core SDK issues (text/image/audio generation): ai/core
-- Provider-related: add ai/provider plus specific provider labels
-- Look for @ai-sdk/<provider> package mentions
-- Community/third-party providers: provider/community
-- OpenAI-compatible APIs: provider/openai-compatible not provider/openai
+rules:
+- ui issues (vue, angular, react, ai elements): ai/ui
+- ai gateway issues: ai/gateway
+- mcp issues: ai/mcp
+- rsc issues: ai/rsc
+- telemetry issues: ai/telemetry
+- core sdk issues (text/image/audio generation): ai/core
+- provider-related: add ai/provider plus specific provider labels
+- look for @ai-sdk/<provider> package mentions
+- community/third-party providers: provider/community
+- openai-compatible apis: provider/openai-compatible not provider/openai
 - provider/vercel only for v0 issues
-- React Native/Expo: ai/ui and expo
-- New provider requests: ai/provider and provider/community
-- "Provider API update - <name>@version": ai/provider and provider/<name>`
+- react native/expo: ai/ui and expo
+- new provider requests: ai/provider and provider/community
+- "provider api update - <name>@version": ai/provider and provider/<name>`
+
+  if (rules.length > 0) {
+    system += '\n\ncustom rules:'
+    for (const rule of rules) {
+      system += `\n- if matches "${rule.match}": add ${rule.add.join(', ')}`
+    }
+  }
+
+  return system
 }
 
 function buildissueprompt(title: string, body: string, labels: { name: string }[]): string {
-  return `Title: ${title}
+  return `title: ${title}
 
-Body:
-${body || 'No description'}
+body:
+${body || 'no description'}
 
-Existing labels: ${labels.map(l => l.name).join(', ') || 'none'}`
+existing labels: ${labels.map(l => l.name).join(', ') || 'none'}`
 }
 
 type Reaction = '+1' | '-1' | 'laugh' | 'confused' | 'heart' | 'hooray' | 'rocket' | 'eyes'
 
-async function react(config: Config, issue: number, content: Reaction) {
+async function react(config: GhConfig, issue: number, content: Reaction) {
   await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/reactions`,
     {
@@ -297,7 +461,7 @@ async function react(config: Config, issue: number, content: Reaction) {
   )
 }
 
-async function label(config: Config, issue: number, labels: string[]) {
+async function label(config: GhConfig, issue: number, labels: string[]) {
   await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/labels`,
     {
@@ -313,7 +477,7 @@ async function label(config: Config, issue: number, labels: string[]) {
   )
 }
 
-async function fetchlabels(config: Config): Promise<string[]> {
+async function fetchlabels(config: GhConfig): Promise<string[]> {
   const response = await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/labels`,
     {
@@ -333,7 +497,7 @@ interface PullRequest {
   body: string
 }
 
-async function getpr(config: Config, number: number): Promise<PullRequest> {
+async function getpr(config: GhConfig, number: number): Promise<PullRequest> {
   const response = await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/pulls/${number}`,
     {
@@ -351,9 +515,10 @@ interface Issue {
   title: string
   body: string
   labels: { name: string }[]
+  user?: { login: string }
 }
 
-async function getissue(config: Config, number: number): Promise<Issue> {
+async function getissue(config: GhConfig, number: number): Promise<Issue> {
   const response = await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${number}`,
     {
@@ -367,7 +532,7 @@ async function getissue(config: Config, number: number): Promise<Issue> {
   return response.json() as Promise<Issue>
 }
 
-async function getfiles(config: Config, number: number): Promise<string[]> {
+async function getfiles(config: GhConfig, number: number): Promise<string[]> {
   const response = await fetch(
     `https://api.github.com/repos/${config.owner}/${config.repo}/pulls/${number}/files`,
     {
