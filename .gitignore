@@ -17,3 +17,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 *.tsbuildinfo
 .idea
 .DS_Store
+.vercel
+.env*.local

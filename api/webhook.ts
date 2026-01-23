@@ -1,5 +1,6 @@
 import { Webhooks } from '@octokit/webhooks'
-import { triagepr, triageissue, gettoken } from '../index'
+import { triagepr, triageissue } from '../src/triage'
+import { gettoken } from '../src/auth'
 
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
