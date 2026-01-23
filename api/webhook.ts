@@ -69,6 +69,12 @@ interface TriageConfig {
   rules: { match: string; add: string[] }[]
   reactions: { start?: string; complete?: string }
   ignore: { users: string[]; labels: string[] }
+  duplicates: {
+    enabled: boolean
+    threshold: number
+    label?: string
+    comment: boolean
+  }
 }
 
 const defaultconfig: TriageConfig = {
@@ -103,7 +109,12 @@ const defaultconfig: TriageConfig = {
   labels: {},
   rules: [],
   reactions: { start: 'eyes' },
-  ignore: { users: [], labels: [] }
+  ignore: { users: [], labels: [] },
+  duplicates: {
+    enabled: false,
+    threshold: 0.8,
+    comment: true
+  }
 }
 
 async function getconfig(config: GhConfig): Promise<TriageConfig> {
@@ -134,6 +145,12 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
       ignore: {
         users: parsed.ignore?.users || [],
         labels: parsed.ignore?.labels || []
+      },
+      duplicates: {
+        enabled: parsed.duplicates?.enabled ?? false,
+        threshold: parsed.duplicates?.threshold ?? 0.8,
+        label: parsed.duplicates?.label,
+        comment: parsed.duplicates?.comment ?? true
       }
     }
   } catch {
@@ -182,6 +199,13 @@ interface AppConfig {
 const classifyschema = z.object({
   labels: z.array(z.string()),
   confidence: z.number().min(0).max(1),
+  reasoning: z.string()
+})
+
+const duplicateschema = z.object({
+  isduplicate: z.boolean(),
+  confidence: z.number().min(0).max(1),
+  duplicateof: z.number().nullable(),
   reasoning: z.string()
 })
 
@@ -330,6 +354,11 @@ async function triageissue(ghconfig: GhConfig, config: TriageConfig, number: num
   if (config.ignore.users.includes(issue.user?.login || '')) return
   if (issue.labels.some(l => config.ignore.labels.includes(l.name))) return
 
+  if (config.duplicates.enabled) {
+    const duplicate = await checkduplicates(ghconfig, config, issue, number)
+    if (duplicate) return
+  }
+
   const rulelabels = applyrules(config.rules, issue.title, issue.body || '')
 
   const { output } = await generateText({
@@ -360,6 +389,85 @@ function applyrules(rules: { match: string; add: string[] }[], title: string, bo
   }
 
   return labels
+}
+
+async function checkduplicates(
+  ghconfig: GhConfig,
+  config: TriageConfig,
+  issue: Issue,
+  number: number
+): Promise<boolean> {
+  const openissues = await searchissues(ghconfig, number)
+  if (openissues.length === 0) return false
+
+  const issuelist = openissues
+    .map(i => `#${i.number}: ${i.title}`)
+    .join('\n')
+
+  const { output } = await generateText({
+    model: 'anthropic/claude-sonnet-4.5',
+    output: Output.object({ schema: duplicateschema }),
+    system: `you detect duplicate issues. compare the new issue against existing open issues.
+if the new issue is asking about the same problem or feature as an existing issue, mark it as duplicate.
+be strict - only mark as duplicate if they are clearly about the same thing.`,
+    prompt: `new issue:
+title: ${issue.title}
+body: ${issue.body || 'no description'}
+
+existing open issues:
+${issuelist}`
+  })
+
+  if (output.isduplicate && output.confidence >= config.duplicates.threshold && output.duplicateof) {
+    if (config.duplicates.comment) {
+      await comment(
+        ghconfig,
+        number,
+        `this issue may be a duplicate of #${output.duplicateof}\n\n${output.reasoning}`
+      )
+    }
+
+    if (config.duplicates.label) {
+      await label(ghconfig, number, [config.duplicates.label])
+    }
+
+    return true
+  }
+
+  return false
+}
+
+async function searchissues(config: GhConfig, excludenumber: number): Promise<{ number: number; title: string }[]> {
+  const response = await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/issues?state=open&per_page=50`,
+    {
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28'
+      }
+    }
+  )
+  const data = await response.json() as { number: number; title: string; pull_request?: unknown }[]
+  return data
+    .filter(i => i.number !== excludenumber && !i.pull_request)
+    .slice(0, 20)
+}
+
+async function comment(config: GhConfig, issue: number, body: string) {
+  await fetch(
+    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/comments`,
+    {
+      method: 'POST',
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${config.token}`,
+        'x-github-api-version': '2022-11-28',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ body })
+    }
+  )
 }
 
 function buildprsystem(labels: string[], rules: { match: string; add: string[] }[]): string {

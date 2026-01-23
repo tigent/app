@@ -15,6 +15,7 @@ labels:
   github-api: medium
   maintenance: light
   stale: light
+  duplicate: muted
   good-first-issue: muted
   help-wanted: muted
 
@@ -32,6 +33,12 @@ rules:
 
 reactions:
   start: eyes
+
+duplicates:
+  enabled: true
+  threshold: 0.8
+  label: duplicate
+  comment: true
 
 ignore:
   users: [dependabot, renovate]
