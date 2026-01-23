@@ -1,13 +1,12 @@
 # agent-triage
 
-github agent for automated pr and issue triage
+github agent for automated pr and issue labeling
 
 ## what it does
 
-- adds eyes reaction when it starts reviewing
-- classifies prs/issues using ai and applies labels
-- verifies test coverage by reverting code and checking tests fail
-- sends webhook notifications with verdicts
+- adds eyes reaction when it starts
+- classifies prs/issues using ai
+- applies labels if confidence > 0.6
 - adds rocket reaction when done
 
 ## install
@@ -28,25 +27,8 @@ const token = await gettoken({
   repo: 'your-repo'
 })
 
-await triagepr({
-  github: {
-    token,
-    owner: 'your-org',
-    repo: 'your-repo'
-  },
-  webhook: {
-    url: 'https://your-webhook.com/endpoint'
-  },
-  testcmd: 'bun test'
-}, 123)
-
-await triageissue({
-  github: {
-    token,
-    owner: 'your-org',
-    repo: 'your-repo'
-  }
-}, 456)
+await triagepr({ token, owner: 'your-org', repo: 'your-repo' }, 123)
+await triageissue({ token, owner: 'your-org', repo: 'your-repo' }, 456)
 ```
 
 ## auth
@@ -54,37 +36,26 @@ await triageissue({
 ### github app (recommended)
 
 1. create github app at https://github.com/settings/apps/new
-2. permissions: issues (r/w), pull requests (r/w), contents (read)
+2. permissions: issues (r/w), pull requests (r/w)
 3. generate private key
 4. install app on repo
 
 ```
 GITHUB_APP_ID=123456
 GITHUB_APP_PRIVATE_KEY_PATH=./private-key.pem
+AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 ```
 
 ### personal token
 
 ```
 GITHUB_TOKEN=ghp_xxx
-```
-
-## env
-
-```
 AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 ```
 
-## verdicts
+## test
 
-### pull requests
-
-- score 1-10
-- verdict: skip / review / priority
-- test verification result
-
-### issues
-
-- urgency: low / medium / high / critical
-- category
-- suggested assignee
+```bash
+bun test.ts pr 1
+bun test.ts issue 2
+```

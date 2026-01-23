@@ -36,9 +36,7 @@ if (!process.env.AI_GATEWAY_API_KEY) {
 }
 
 const token = await getghtoken()
-const config = {
-  github: { token, owner, repo }
-}
+const config = { token, owner, repo }
 
 if (mode === 'pr') {
   const result = await triagepr(config, number)

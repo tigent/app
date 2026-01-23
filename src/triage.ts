@@ -1,9 +1,6 @@
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import * as gh from './github'
-import { notify } from './webhook'
-import { verifytests } from './verify'
-import type { PrVerdict, IssueVerdict } from './schema'
 
 const classifyschema = z.object({
   labels: z.array(z.string()),
@@ -12,28 +9,24 @@ const classifyschema = z.object({
 })
 
 interface Config {
-  github: {
-    token: string
-    owner: string
-    repo: string
-  }
-  webhook?: {
-    url: string
-    secret?: string
-  }
-  testcmd?: string
+  token: string
+  owner: string
+  repo: string
 }
 
-export async function triagepr(config: Config, number: number): Promise<PrVerdict> {
-  const github = config.github
+interface Result {
+  labels: string[]
+  confidence: number
+  reasoning: string
+}
 
-  await gh.react(github, number, 'eyes')
+export async function triagepr(config: Config, number: number): Promise<Result> {
+  await gh.react(config, number, 'eyes')
 
-  const [pr, diff, files, repolabels] = await Promise.all([
-    gh.getpr(github, number),
-    gh.getdiff(github, number),
-    gh.getfiles(github, number),
-    gh.fetchlabels(github)
+  const [pr, files, repolabels] = await Promise.all([
+    gh.getpr(config, number),
+    gh.getfiles(config, number),
+    gh.fetchlabels(config)
   ])
 
   const { output } = await generateText({
@@ -46,49 +39,20 @@ export async function triagepr(config: Config, number: number): Promise<PrVerdic
   const validlabels = output.labels.filter(l => repolabels.includes(l))
 
   if (output.confidence > 0.6 && validlabels.length > 0) {
-    await gh.label(github, number, validlabels)
+    await gh.label(config, number, validlabels)
   }
 
-  let tests = undefined
-  if (config.testcmd && files.some(f => f.includes('.test.') || f.includes('.spec.'))) {
-    tests = await verifytests({
-      repo: `https://github.com/${github.owner}/${github.repo}`,
-      pr: number,
-      base: pr.base.ref,
-      testcmd: config.testcmd
-    })
-  }
+  await gh.react(config, number, 'rocket')
 
-  const verdict: PrVerdict = {
-    score: Math.round(output.confidence * 10),
-    verdict: output.confidence > 0.8 ? 'priority' : output.confidence > 0.5 ? 'review' : 'skip',
-    summary: output.reasoning,
-    flags: [],
-    tests
-  }
-
-  await gh.react(github, number, 'rocket')
-
-  if (config.webhook) {
-    await notify(config.webhook, {
-      type: 'pull_request',
-      number,
-      url: pr.html_url,
-      verdict
-    })
-  }
-
-  return verdict
+  return { labels: validlabels, confidence: output.confidence, reasoning: output.reasoning }
 }
 
-export async function triageissue(config: Config, number: number): Promise<IssueVerdict> {
-  const github = config.github
-
-  await gh.react(github, number, 'eyes')
+export async function triageissue(config: Config, number: number): Promise<Result> {
+  await gh.react(config, number, 'eyes')
 
   const [issue, repolabels] = await Promise.all([
-    gh.getissue(github, number),
-    gh.fetchlabels(github)
+    gh.getissue(config, number),
+    gh.fetchlabels(config)
   ])
 
   const { output } = await generateText({
@@ -101,32 +65,16 @@ export async function triageissue(config: Config, number: number): Promise<Issue
   const validlabels = output.labels.filter(l => repolabels.includes(l))
 
   if (output.confidence > 0.6 && validlabels.length > 0) {
-    await gh.label(github, number, validlabels)
+    await gh.label(config, number, validlabels)
   }
 
-  const verdict: IssueVerdict = {
-    urgency: output.confidence > 0.8 ? 'high' : output.confidence > 0.5 ? 'medium' : 'low',
-    category: validlabels[0] || 'uncategorized',
-    assignee: 'community',
-    summary: output.reasoning
-  }
+  await gh.react(config, number, 'rocket')
 
-  await gh.react(github, number, 'rocket')
-
-  if (config.webhook) {
-    await notify(config.webhook, {
-      type: 'issue',
-      number,
-      url: issue.html_url,
-      verdict
-    })
-  }
-
-  return verdict
+  return { labels: validlabels, confidence: output.confidence, reasoning: output.reasoning }
 }
 
 function buildprsystem(labels: string[]): string {
-  return `You classify pull requests for a repository. Assign appropriate labels.
+  return `You classify pull requests. Assign appropriate labels.
 
 Available labels: ${labels.join(', ')}
 
@@ -158,7 +106,7 @@ ${files.join('\n')}`
 }
 
 function buildissuesystem(labels: string[]): string {
-  return `You classify issues for a repository. Assign appropriate labels.
+  return `You classify issues. Assign appropriate labels.
 
 Available labels: ${labels.join(', ')}
 

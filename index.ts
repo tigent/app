@@ -1,7 +1,3 @@
 export { triagepr, triageissue } from './src/triage'
-export { verifytests } from './src/verify'
-export { notify } from './src/webhook'
 export { gettoken } from './src/auth'
 export * as github from './src/github'
-export { prverdict, issueverdict, testresult } from './src/schema'
-export type { PrVerdict, IssueVerdict, TestResult } from './src/schema'
