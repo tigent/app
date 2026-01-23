@@ -21,18 +21,39 @@ GITHUB_WEBHOOK_SECRET=your-webhook-secret
 AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 ```
 
-## local testing
+## local dev
+
+1. create your own github app, name it `agent-triage-local-<github username>`
+2. go to smee.io and create a new channel
+3. set your github app webhook url to your smee channel url
+4. configure credentials in `.env.local`:
+
+```
+GITHUB_APP_ID=your-app-id
+GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+GITHUB_WEBHOOK_SECRET=your-webhook-secret
+AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
+```
+
+5. start dev server and smee in separate terminals:
 
 ```bash
-# create labels on repo
-bun test.ts setup
+bun run dev
+```
 
-# create test issue and triage it
-bun test.ts create
+```bash
+npx smee -u https://smee.io/<your-channel-id> -t http://localhost:3000/api/webhook
+```
 
-# triage existing
-bun test.ts issue 1
-bun test.ts pr 1
+use smee's "resend" feature to re-send webhooks when debugging instead of creating new issues/prs.
+
+## test commands
+
+```bash
+bun test.ts setup         # create labels on repo
+bun test.ts create        # create test issue and triage it
+bun test.ts issue 1       # triage existing issue
+bun test.ts pr 1          # triage existing pr
 ```
 
 ## deploy to vercel
