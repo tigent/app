@@ -19,11 +19,18 @@ bun add agent-triage
 ## usage
 
 ```typescript
-import { triagepr, triageissue } from 'agent-triage'
+import { triagepr, triageissue, gettoken } from 'agent-triage'
+
+const token = await gettoken({
+  appid: process.env.GITHUB_APP_ID,
+  privatekey: process.env.GITHUB_APP_PRIVATE_KEY,
+  owner: 'your-org',
+  repo: 'your-repo'
+})
 
 await triagepr({
   github: {
-    token: process.env.GITHUB_TOKEN,
+    token,
     owner: 'your-org',
     repo: 'your-repo'
   },
@@ -35,18 +42,37 @@ await triagepr({
 
 await triageissue({
   github: {
-    token: process.env.GITHUB_TOKEN,
+    token,
     owner: 'your-org',
     repo: 'your-repo'
   }
 }, 456)
 ```
 
+## auth
+
+### github app (recommended)
+
+1. create github app at https://github.com/settings/apps/new
+2. permissions: issues (r/w), pull requests (r/w), contents (read)
+3. generate private key
+4. install app on repo
+
+```
+GITHUB_APP_ID=123456
+GITHUB_APP_PRIVATE_KEY_PATH=./private-key.pem
+```
+
+### personal token
+
+```
+GITHUB_TOKEN=ghp_xxx
+```
+
 ## env
 
 ```
 AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
-GITHUB_TOKEN=your-github-token
 ```
 
 ## verdicts
