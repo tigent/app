@@ -1,20 +1,12 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { getpage } from "./config";
 
-const pages: Record<string, { title: string; section: string }> = {
-	"/docs": { title: "Introduction", section: "start" },
-	"/docs/installation": { title: "Installation", section: "start" },
-	"/docs/quickstart": { title: "Quickstart", section: "start" },
-	"/docs/config": { title: "Config File", section: "config" },
-	"/docs/labels": { title: "Labels", section: "config" },
-	"/docs/rules": { title: "Rules", section: "config" },
-	"/docs/duplicates": { title: "Duplicates", section: "config" },
-	"/docs/autorespond": { title: "Autorespond", section: "config" },
-	"/docs/themes": { title: "Themes", section: "config" },
-	"/docs/webhooks": { title: "Webhooks", section: "integrations" },
-	"/docs/slack": { title: "Slack", section: "integrations" },
-	"/docs/discord": { title: "Discord", section: "integrations" },
+const sectionNames: Record<string, string> = {
+	start: "Get Started",
+	config: "Configuration",
+	integrations: "Integrations",
 };
 
 const chevron = (
@@ -29,15 +21,9 @@ const homeIcon = (
 	</svg>
 );
 
-const sectionNames: Record<string, string> = {
-	start: "Get Started",
-	config: "Configuration",
-	integrations: "Integrations",
-};
-
 export function Breadcrumb() {
 	const pathname = usePathname();
-	const page = pages[pathname] || { title: "Docs", section: "start" };
+	const page = getpage(pathname);
 
 	return (
 		<div className="flex items-center">

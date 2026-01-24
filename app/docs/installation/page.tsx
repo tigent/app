@@ -1,14 +1,21 @@
+import type { Metadata } from "next";
+import { Header, Section, Card, Prevnext } from "../components";
+
+export const metadata: Metadata = {
+	title: "Installation",
+	description: "Install Tigent on your GitHub repositories to automate issue and PR triage.",
+};
+
 export default function Installation() {
 	return (
 		<article className="py-12">
-			<div className="mb-12">
-				<p className="text-sm text-white/40 mb-2">Get Started</p>
-				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Installation</h1>
-				<p className="text-xl text-white/60 max-w-2xl">Install Tigent on your GitHub repositories.</p>
-			</div>
+			<Header
+				section="Get Started"
+				title="Installation"
+				description="Install Tigent on your GitHub repositories."
+			/>
 
-			<section className="mb-16">
-				<h2 id="github-app" className="text-3xl font-semibold mb-6 text-white">GitHub App</h2>
+			<Section id="github-app" title="GitHub App">
 				<p className="text-white/60 mb-8 max-w-2xl">Click the button below to install Tigent on your repositories.</p>
 				<a href="https://github.com/apps/tigent" className="inline-flex items-center gap-2 px-6 py-4 bg-accent text-fg rounded-xl hover:opacity-90 transition-opacity text-lg font-medium">
 					<svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -16,43 +23,26 @@ export default function Installation() {
 					</svg>
 					Install GitHub App
 				</a>
-			</section>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="permissions" className="text-3xl font-semibold mb-6 text-white">Permissions</h2>
+			<Section id="permissions" title="Permissions">
 				<p className="text-white/60 mb-6 max-w-2xl">Tigent requires the following permissions:</p>
 				<div className="grid md:grid-cols-2 gap-4 max-w-2xl">
-					<div className="p-4 border border-white/10 rounded-xl">
-						<code className="text-sm text-accent">issues: write</code>
-						<p className="text-sm text-white/50 mt-2">To add labels and comments</p>
-					</div>
-					<div className="p-4 border border-white/10 rounded-xl">
-						<code className="text-sm text-accent">pull_requests: write</code>
-						<p className="text-sm text-white/50 mt-2">To add labels to PRs</p>
-					</div>
-					<div className="p-4 border border-white/10 rounded-xl">
-						<code className="text-sm text-accent">contents: read</code>
-						<p className="text-sm text-white/50 mt-2">To read config file</p>
-					</div>
-					<div className="p-4 border border-white/10 rounded-xl">
-						<code className="text-sm text-accent">metadata: read</code>
-						<p className="text-sm text-white/50 mt-2">To access repository info</p>
-					</div>
+					<Card code="issues: write" description="To add labels and comments" />
+					<Card code="pull_requests: write" description="To add labels to PRs" />
+					<Card code="contents: read" description="To read config file" />
+					<Card code="metadata: read" description="To access repository info" />
 				</div>
-			</section>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="select-repos" className="text-3xl font-semibold mb-6 text-white">Select repositories</h2>
+			<Section id="select-repos" title="Select repositories">
 				<p className="text-white/60 max-w-2xl">
 					You can install Tigent on all repositories or select specific ones.
 					We recommend starting with a single repository to test the configuration.
 				</p>
-			</section>
+			</Section>
 
-			<div className="flex items-center justify-between pt-8 border-t border-white/10">
-				<a href="/docs" className="text-sm text-white/50 hover:text-white transition-colors">← Introduction</a>
-				<a href="/docs/quickstart" className="text-sm text-white/50 hover:text-white transition-colors">Quickstart →</a>
-			</div>
+			<Prevnext />
 		</article>
 	);
 }

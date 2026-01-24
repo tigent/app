@@ -1,29 +1,34 @@
+import type { Metadata } from "next";
+import { Header, Section, Code, Prevnext } from "../components";
+
+export const metadata: Metadata = {
+	title: "Quickstart",
+	description: "Get Tigent running on your GitHub repository in under 5 minutes.",
+};
+
 export default function Quickstart() {
 	return (
 		<article className="py-12">
-			<div className="mb-12">
-				<p className="text-sm text-white/40 mb-2">Get Started</p>
-				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Quickstart</h1>
-				<p className="text-xl text-white/60 max-w-2xl">Get Tigent running in under 5 minutes.</p>
-			</div>
+			<Header
+				section="Get Started"
+				title="Quickstart"
+				description="Get Tigent running in under 5 minutes."
+			/>
 
-			<section className="mb-16">
-				<h2 id="install" className="text-3xl font-semibold mb-6 text-white">1. Install the app</h2>
+			<Section id="install" title="1. Install the app">
 				<p className="text-white/60 mb-6 max-w-2xl">
 					First, install the Tigent GitHub App on your repository.
 				</p>
 				<a href="https://github.com/apps/tigent" className="inline-flex items-center gap-2 px-5 py-3 bg-accent text-fg rounded-xl hover:opacity-90 transition-opacity font-medium">
 					Install GitHub App
 				</a>
-			</section>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="create-config" className="text-3xl font-semibold mb-6 text-white">2. Create config</h2>
+			<Section id="create-config" title="2. Create config">
 				<p className="text-white/60 mb-6 max-w-2xl">
 					Create <code className="bg-white/10 px-2 py-1 rounded text-sm text-accent">.github/tigent.yml</code> in your repository:
 				</p>
-				<pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed max-w-2xl">
-{`confidence: 0.6
+				<Code className="max-w-2xl">{`confidence: 0.6
 theme: mono
 
 labels:
@@ -33,30 +38,24 @@ labels:
 
 duplicates:
   enabled: true
-  threshold: 0.8`}
-				</pre>
-			</section>
+  threshold: 0.8`}</Code>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="test" className="text-3xl font-semibold mb-6 text-white">3. Test it out</h2>
+			<Section id="test" title="3. Test it out">
 				<p className="text-white/60 max-w-2xl">
 					Create a new issue in your repository. Tigent will automatically analyze it
 					and apply the appropriate labels within a few seconds.
 				</p>
-			</section>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="customize" className="text-3xl font-semibold mb-6 text-white">4. Customize</h2>
+			<Section id="customize" title="4. Customize">
 				<p className="text-white/60 max-w-2xl">
 					Explore the configuration options to customize labels, add rules, enable webhooks,
 					and more. Check out the Configuration section for all available options.
 				</p>
-			</section>
+			</Section>
 
-			<div className="flex items-center justify-between pt-8 border-t border-white/10">
-				<a href="/docs/installation" className="text-sm text-white/50 hover:text-white transition-colors">← Installation</a>
-				<a href="/docs/config" className="text-sm text-white/50 hover:text-white transition-colors">Config File →</a>
-			</div>
+			<Prevnext />
 		</article>
 	);
 }

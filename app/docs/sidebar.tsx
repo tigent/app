@@ -1,36 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
-const navigation = [
-	{
-		title: "Get Started",
-		items: [
-			{ title: "Introduction", href: "/docs" },
-			{ title: "Installation", href: "/docs/installation" },
-			{ title: "Quickstart", href: "/docs/quickstart" },
-		],
-	},
-	{
-		title: "Configuration",
-		items: [
-			{ title: "Config File", href: "/docs/config" },
-			{ title: "Labels", href: "/docs/labels" },
-			{ title: "Rules", href: "/docs/rules" },
-			{ title: "Duplicates", href: "/docs/duplicates" },
-			{ title: "Autorespond", href: "/docs/autorespond" },
-			{ title: "Themes", href: "/docs/themes" },
-		],
-	},
-	{
-		title: "Integrations",
-		items: [
-			{ title: "Webhooks", href: "/docs/webhooks" },
-			{ title: "Slack", href: "/docs/slack" },
-			{ title: "Discord", href: "/docs/discord" },
-		],
-	},
-];
+import { navigation } from "./config";
 
 export function Sidebar() {
 	const pathname = usePathname();
