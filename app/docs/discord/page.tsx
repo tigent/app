@@ -8,12 +8,23 @@ export default function Discord() {
 			</div>
 
 			<section className="mb-16">
-				<h2 className="text-3xl font-semibold mb-6 text-white">Configuration</h2>
+				<h2 id="setup" className="text-3xl font-semibold mb-6 text-white">Setup</h2>
+				<p className="text-white/60 mb-6 max-w-2xl">
+					Create a webhook in your Discord server settings and add the URL to your config:
+				</p>
 				<pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono max-w-xl">
 {`webhooks:
   - url: https://discord.com/api/webhooks/123/abc
     events: [all]`}
 				</pre>
+			</section>
+
+			<section className="mb-16">
+				<h2 id="message-format" className="text-3xl font-semibold mb-6 text-white">Message format</h2>
+				<p className="text-white/60 max-w-2xl">
+					Discord notifications are sent as rich embeds with the issue title, labels,
+					and a direct link to the issue on GitHub.
+				</p>
 			</section>
 
 			<div className="flex items-center justify-between pt-8 border-t border-white/10">
