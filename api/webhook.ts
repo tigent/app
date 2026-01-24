@@ -8,6 +8,7 @@ import { getWorld } from 'workflow/runtime'
 import { stalechecker } from '../workflows/stale'
 import { sentimentchecker } from '../workflows/sentiment'
 import { getstalerunid, setstalerunid, deletestalerunid, getsentimentrunid, setsentimentrunid, deletesentimentrunid } from '../lib/redis'
+import { fetchpaginated } from '../lib/github'
 
 type StaleCheckerArgs = [number, string, string, string, string]
 type SentimentCheckerArgs = [number, string, string, string, string]
@@ -71,9 +72,12 @@ webhooks.on('issue_comment.created', async ({ payload }) => {
 
   await synclabels(ghconfig, config)
 
-  const issue = await getissue(ghconfig, payload.issue.number) as Issue & { number: number; created_at: string }
-  issue.number = payload.issue.number
-  issue.created_at = payload.issue.created_at
+  const issuedata = await getissue(ghconfig, payload.issue.number)
+  const issue = {
+    ...issuedata,
+    number: payload.issue.number,
+    created_at: payload.issue.created_at
+  }
 
   await handlesentiment(ghconfig, config, issue, payload.comment.body)
 
@@ -938,32 +942,6 @@ async function fetchlabels(config: GhConfig): Promise<string[]> {
   return data.map(l => l.name)
 }
 
-async function fetchpaginated<T>(url: string, token: string, maxpages = 10): Promise<T[]> {
-  const results: T[] = []
-  let nexturl: string | null = url
-
-  for (let page = 0; page < maxpages && nexturl; page++) {
-    const response: Response = await fetch(nexturl, {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    })
-
-    if (!response.ok) break
-
-    const data = await response.json() as T[]
-    results.push(...data)
-
-    const link = response.headers.get('link')
-    const match = link?.match(/<([^>]+)>;\s*rel="next"/)
-    nexturl = match?.[1] || null
-  }
-
-  return results
-}
-
 interface PullRequest {
   title: string
   body: string
@@ -1101,13 +1079,23 @@ interface WebhookPayload {
 }
 
 async function sendwebhook(url: string, payload: WebhookPayload): Promise<void> {
-  try {
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-  } catch {}
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok && response.status === 429) {
+    const retryafter = response.headers.get('retry-after')
+    if (retryafter) {
+      await new Promise(r => setTimeout(r, parseInt(retryafter) * 1000))
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+    }
+  }
 }
 
 async function mentionteam(
@@ -1115,10 +1103,10 @@ async function mentionteam(
   config: TriageConfig,
   issue: number,
   eventtype: string
-): Promise<void> {
+): Promise<boolean> {
   const mention = config.sentiment.actions.mention
-  if (!mention?.enabled) return
-  if (!mention.events.includes(eventtype)) return
+  if (!mention?.enabled) return false
+  if (!mention.events.includes(eventtype)) return false
 
   let users: string[]
   if (mention.users === 'auto') {
@@ -1127,11 +1115,12 @@ async function mentionteam(
     users = mention.users
   }
 
-  if (users.length === 0) return
+  if (users.length === 0) return false
 
   const mentions = users.map(u => `@${u}`).join(' ')
   const body = `${mentions}\n\n${mention.message}`
   await comment(ghconfig, issue, body)
+  return true
 }
 
 async function handlesentiment(
@@ -1165,13 +1154,15 @@ async function handlesentiment(
     })
   }
 
-  await mentionteam(ghconfig, config, issue.number, result.type)
+  const mentionposted = await mentionteam(ghconfig, config, issue.number, result.type)
 
-  const autocomment = config.sentiment.actions.comment
-  if (autocomment?.enabled) {
-    const commentmessage = autocomment[result.type]
-    if (commentmessage) {
-      await comment(ghconfig, issue.number, commentmessage)
+  if (!mentionposted) {
+    const autocomment = config.sentiment.actions.comment
+    if (autocomment?.enabled) {
+      const commentmessage = autocomment[result.type]
+      if (commentmessage) {
+        await comment(ghconfig, issue.number, commentmessage)
+      }
     }
   }
 }
@@ -1230,10 +1221,12 @@ async function checknoreply(
     })
   }
 
-  await mentionteam(ghconfig, config, issue.number, 'noreply')
+  const mentionposted = await mentionteam(ghconfig, config, issue.number, 'noreply')
 
-  const autocomment = config.sentiment.actions.comment
-  if (autocomment?.enabled && autocomment.noreply) {
-    await comment(ghconfig, issue.number, autocomment.noreply)
+  if (!mentionposted) {
+    const autocomment = config.sentiment.actions.comment
+    if (autocomment?.enabled && autocomment.noreply) {
+      await comment(ghconfig, issue.number, autocomment.noreply)
+    }
   }
 }
