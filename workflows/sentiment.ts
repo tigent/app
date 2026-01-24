@@ -287,6 +287,8 @@ async function getteammembers(token: string, owner: string, repo: string): Promi
 		},
 	});
 
+	if (!response.ok) return [];
+
 	const collaborators = (await response.json()) as { login: string; role_name: string }[];
 	return collaborators.filter((c) => ["admin", "maintain", "push"].includes(c.role_name)).map((c) => c.login);
 }

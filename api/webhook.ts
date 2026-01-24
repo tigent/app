@@ -1010,6 +1010,9 @@ async function getteammembers(config: GhConfig): Promise<string[]> {
       }
     }
   )
+
+  if (!response.ok) return []
+
   const collaborators = await response.json() as { login: string; role_name: string }[]
   const members = collaborators
     .filter(c => ['admin', 'maintain', 'push'].includes(c.role_name))
@@ -1193,11 +1196,12 @@ async function checknoreply(
   if (hasreply) return
 
   const labelname = config.sentiment.labels.noreply
+  const existinglabels = issue.labels.map(l => l.name)
+
+  if (labelname && existinglabels.includes(labelname)) return
+
   if (labelname) {
-    const existinglabels = issue.labels.map(l => l.name)
-    if (!existinglabels.includes(labelname)) {
-      await label(ghconfig, issue.number, [labelname])
-    }
+    await label(ghconfig, issue.number, [labelname])
   }
 
   if (config.sentiment.actions.webhook?.events.includes('noreply')) {
