@@ -3,15 +3,7 @@ import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { SignJWT, importPKCS8 } from 'jose'
 import { parse } from 'yaml'
-import { start } from 'workflow/api'
-import { getWorld } from 'workflow/runtime'
-import { stalechecker } from '@/workflows/stale'
-import { sentimentchecker } from '@/workflows/sentiment'
-import { getstalerunid, setstalerunid, deletestalerunid, getsentimentrunid, setsentimentrunid, deletesentimentrunid } from '@/lib/redis'
 import { fetchpaginated } from '@/lib/github'
-
-type StaleCheckerArgs = [number, string, string, string, string]
-type SentimentCheckerArgs = [number, string, string, string, string]
 
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
@@ -84,86 +76,6 @@ webhooks.on('issue_comment.created', async ({ payload }) => {
   if (config.sentiment.noreply.mode === 'reactive' || config.sentiment.noreply.mode === 'both') {
     if (payload.comment.user?.login === payload.issue.user?.login) {
       await checknoreply(ghconfig, config, issue)
-    }
-  }
-})
-
-webhooks.on('installation.created', async ({ payload }) => {
-  const appid = process.env.GITHUB_APP_ID!
-  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
-
-  for (const repository of payload.repositories || []) {
-    const [owner, repo] = repository.full_name.split('/')
-    const repoid = repository.id
-
-    const stalerun = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
-    await setstalerunid(repoid, stalerun.runId)
-
-    const sentimentrun = await start(sentimentchecker as any, [repoid, owner, repo, appid, privatekey] as SentimentCheckerArgs)
-    await setsentimentrunid(repoid, sentimentrun.runId)
-  }
-})
-
-webhooks.on('installation.deleted', async ({ payload }) => {
-  const world = getWorld()
-
-  for (const repository of payload.repositories || []) {
-    const repoid = repository.id
-
-    const stalerunid = await getstalerunid(repoid)
-    if (stalerunid) {
-      try {
-        await world.runs.cancel(stalerunid)
-      } catch {}
-      await deletestalerunid(repoid)
-    }
-
-    const sentimentrunid = await getsentimentrunid(repoid)
-    if (sentimentrunid) {
-      try {
-        await world.runs.cancel(sentimentrunid)
-      } catch {}
-      await deletesentimentrunid(repoid)
-    }
-  }
-})
-
-webhooks.on('installation_repositories.added', async ({ payload }) => {
-  const appid = process.env.GITHUB_APP_ID!
-  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
-
-  for (const repository of payload.repositories_added || []) {
-    const [owner, repo] = repository.full_name.split('/')
-    const repoid = repository.id
-
-    const stalerun = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
-    await setstalerunid(repoid, stalerun.runId)
-
-    const sentimentrun = await start(sentimentchecker as any, [repoid, owner, repo, appid, privatekey] as SentimentCheckerArgs)
-    await setsentimentrunid(repoid, sentimentrun.runId)
-  }
-})
-
-webhooks.on('installation_repositories.removed', async ({ payload }) => {
-  const world = getWorld()
-
-  for (const repository of payload.repositories_removed || []) {
-    const repoid = repository.id
-
-    const stalerunid = await getstalerunid(repoid)
-    if (stalerunid) {
-      try {
-        await world.runs.cancel(stalerunid)
-      } catch {}
-      await deletestalerunid(repoid)
-    }
-
-    const sentimentrunid = await getsentimentrunid(repoid)
-    if (sentimentrunid) {
-      try {
-        await world.runs.cancel(sentimentrunid)
-      } catch {}
-      await deletesentimentrunid(repoid)
     }
   }
 })
