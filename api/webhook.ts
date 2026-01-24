@@ -223,7 +223,7 @@ interface TriageConfig {
     actions: {
       webhook?: { url: string; events: string[] }
       mention?: { enabled: boolean; users: string[] | 'auto'; message: string; events: string[] }
-      comment?: { enabled: boolean; negative?: string; noreply?: string }
+      comment?: { enabled: boolean; negative?: string; frustrated?: string; confused?: string; noreply?: string }
     }
     threshold: number
     exempt: { labels: string[]; users: string[] }
@@ -371,10 +371,10 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
           mode: parsed.sentiment?.noreply?.mode ?? 'both'
         },
         labels: {
-          negative: parsed.sentiment?.labels?.negative ?? 'needs-attention',
-          frustrated: parsed.sentiment?.labels?.frustrated ?? 'needs-support',
-          confused: parsed.sentiment?.labels?.confused ?? 'needs-help',
-          noreply: parsed.sentiment?.labels?.noreply ?? 'awaiting-response'
+          negative: 'negative' in (parsed.sentiment?.labels || {}) ? parsed.sentiment?.labels?.negative : 'needs-attention',
+          frustrated: 'frustrated' in (parsed.sentiment?.labels || {}) ? parsed.sentiment?.labels?.frustrated : 'needs-support',
+          confused: 'confused' in (parsed.sentiment?.labels || {}) ? parsed.sentiment?.labels?.confused : 'needs-help',
+          noreply: 'noreply' in (parsed.sentiment?.labels || {}) ? parsed.sentiment?.labels?.noreply : 'awaiting-response'
         },
         actions: {
           webhook: parsed.sentiment?.actions?.webhook,
@@ -1058,7 +1058,8 @@ async function checksentiment(
   if (config.sentiment.exempt.labels.some(l => issue.labels.map(x => x.name).includes(l))) return null
   if (config.sentiment.exempt.users.includes(issue.user?.login || '')) return null
 
-  const content = latestcomment || `${issue.title}\n\n${issue.body || ''}`
+  const rawcontent = latestcomment || `${issue.title}\n\n${issue.body || ''}`
+  const content = rawcontent.slice(0, 4000)
   const detections = Object.entries(config.sentiment.detect)
     .filter(([, v]) => v)
     .map(([k]) => k)
@@ -1138,6 +1139,10 @@ async function handlesentiment(
   if (!result) return
 
   const labelname = config.sentiment.labels[result.type]
+  const existinglabels = issue.labels.map(l => l.name)
+
+  if (labelname && existinglabels.includes(labelname)) return
+
   if (labelname) {
     await label(ghconfig, issue.number, [labelname])
   }
@@ -1158,8 +1163,11 @@ async function handlesentiment(
   await mentionteam(ghconfig, config, issue.number, result.type)
 
   const autocomment = config.sentiment.actions.comment
-  if (autocomment?.enabled && autocomment[result.type as keyof typeof autocomment]) {
-    await comment(ghconfig, issue.number, autocomment[result.type as keyof typeof autocomment] as string)
+  if (autocomment?.enabled) {
+    const commentmessage = autocomment[result.type]
+    if (commentmessage) {
+      await comment(ghconfig, issue.number, commentmessage)
+    }
   }
 }
 

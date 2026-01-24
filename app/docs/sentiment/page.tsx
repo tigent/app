@@ -123,6 +123,30 @@ export default function Sentiment() {
         sorry for the delay - the team has been notified.`}</Code>
 			</Section>
 
+			<Section id="webhook-payload" title="Webhook payload">
+				<p className="text-white/60 mb-6 max-w-2xl">
+					Webhooks receive JSON payloads (not Slack-formatted):
+				</p>
+				<Code className="max-w-xl">{`{
+  "event": "sentiment",
+  "repository": { "owner": "...", "repo": "..." },
+  "issue": {
+    "number": 123,
+    "title": "...",
+    "url": "https://github.com/..."
+  },
+  "sentiment": {
+    "type": "frustrated",
+    "confidence": 0.85,
+    "indicators": ["phrases", "detected"]
+  }
+}`}</Code>
+				<p className="text-white/60 mt-4 max-w-2xl">
+					For Slack integration, use a middleware service to convert the payload
+					to Slack Block Kit format.
+				</p>
+			</Section>
+
 			<Section id="how-it-works" title="How it works">
 				<p className="text-white/60 max-w-2xl mb-4">
 					Tigent analyzes the emotional tone of issues and comments using AI.
