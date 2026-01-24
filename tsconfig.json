@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    // Path aliases
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
     // Environment setup & latest features
     "lib": [
       "ESNext",
