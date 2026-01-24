@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "agent-triage",
+      "name": "tigent",
       "dependencies": {
         "@octokit/webhooks": "^14.2.0",
         "@tailwindcss/postcss": "^4.1.18",
