@@ -2,6 +2,14 @@
 
 run your own tigent instance for development or self-hosting.
 
+## package manager
+
+use pnpm for all commands.
+
+```bash
+pnpm install
+```
+
 ## github app
 
 1. go to github.com/settings/apps/new
@@ -41,7 +49,7 @@ AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 5. start dev server and smee in separate terminals:
 
 ```bash
-bun run dev
+pnpm dev
 ```
 
 ```bash

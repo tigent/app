@@ -1,5 +1,8 @@
 next-env.d.ts
 *.tsbuildinfo
+package-lock.json
+yarn.lock
+bun.lock
 .eslintcache
 node_modules
 .env*.local
