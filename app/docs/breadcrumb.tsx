@@ -40,7 +40,7 @@ export function Breadcrumb() {
 
 	return (
 		<div className="flex items-center">
-			<a href="/" className="group flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-lg hover:bg-white/5 transition-colors">
+			<a href="/" className="group flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-lg hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
 				<div className="w-6 h-6 rounded-md bg-accent/10 flex items-center justify-center">
 					{homeIcon}
 				</div>

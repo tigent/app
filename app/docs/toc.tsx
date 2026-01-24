@@ -197,7 +197,7 @@ export function Toc() {
 							}}
 						>
 							<div
-								className="absolute w-full bg-accent transition-all duration-150"
+								className="absolute w-full bg-accent transition-[top,height] duration-150"
 								style={{ top: thumb.top, height: thumb.height }}
 							/>
 						</div>
@@ -218,7 +218,7 @@ export function Toc() {
 										e.preventDefault();
 										scrollTo(item.id);
 									}}
-									className={`relative py-1.5 text-sm transition-colors ${
+									className={`relative py-1.5 text-sm rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
 										isActive ? "text-accent font-medium" : "text-white/40 hover:text-white/70"
 									}`}
 									style={{ paddingLeft: getItemOffset(item.level) }}

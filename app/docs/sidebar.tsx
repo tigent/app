@@ -50,7 +50,7 @@ export function Sidebar() {
 										<li key={item.href}>
 											<a
 												href={item.href}
-												className={`block px-3 py-2 text-sm rounded-lg transition-colors ${
+												className={`block px-3 py-2 text-sm rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
 													isactive
 														? "bg-accent text-fg font-medium"
 														: "text-white/60 hover:text-white hover:bg-white/5"
