@@ -22,13 +22,13 @@ export default function Page() {
 				<div className="flex gap-3">
 					<a
 						href="/docs"
-						className="px-5 py-3 text-sm border border-border rounded-lg hover:bg-warm transition-colors"
+						className="px-5 py-3 text-sm border border-border rounded-lg hover:bg-warm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 					>
 						View Config
 					</a>
 					<a
 						href="https://github.com/apps/agent-triage"
-						className="px-5 py-3 text-sm bg-fg text-bg rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+						className="px-5 py-3 text-sm bg-fg text-bg rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 					>
 						Install Free →
 					</a>
@@ -52,7 +52,7 @@ export default function Page() {
 						</p>
 						<a
 							href="https://github.com/agent-triage/app"
-							className="text-sm font-medium underline underline-offset-4 hover:no-underline"
+							className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
 						>
 							View full documentation →
 						</a>
@@ -153,17 +153,17 @@ duplicates:
 			<footer className="px-8 pb-0">
 				<div className="max-w-5xl mx-auto bg-fg text-bg rounded-t-3xl px-8 py-12">
 					<div className="flex justify-between items-start mb-8">
-						<a href="/" className="font-semibold text-lg tracking-tight">
+						<a href="/" className="font-semibold text-lg tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 							Agent Triage
 						</a>
 						<div className="flex gap-6">
-							<a href="/docs" className="text-sm text-bg/70 hover:text-bg transition-colors">
+							<a href="/docs" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								Docs
 							</a>
-							<a href="https://github.com/agent-triage/app" className="text-sm text-bg/70 hover:text-bg transition-colors">
+							<a href="https://github.com/agent-triage/app" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								GitHub
 							</a>
-							<a href="https://github.com/apps/agent-triage" className="text-sm text-bg/70 hover:text-bg transition-colors">
+							<a href="https://github.com/apps/agent-triage" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								Install
 							</a>
 						</div>
@@ -174,7 +174,7 @@ duplicates:
 						</p>
 						<a
 							href="https://github.com/apps/agent-triage"
-							className="px-5 py-2.5 bg-bg text-fg rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+							className="px-5 py-2.5 bg-bg text-fg rounded-full text-sm font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 						>
 							Get Started
 						</a>

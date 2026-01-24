@@ -1,5 +1,6 @@
 import { Sidebar } from "./sidebar";
 import { Toc } from "./toc";
+import { Breadcrumb } from "./breadcrumb";
 
 export default function DocsLayout({
 	children,
@@ -9,22 +10,17 @@ export default function DocsLayout({
 			<div className="bg-fg rounded-3xl h-full flex flex-col overflow-hidden">
 				<header className="shrink-0 bg-fg border-b border-white/10">
 					<div className="flex items-center justify-between px-6 md:px-8 py-4">
-						<div className="flex items-center gap-6">
-							<a href="/" className="font-semibold text-sm tracking-tight text-white">
-								Agent Triage
-							</a>
-							<span className="text-white/50 text-sm">Docs</span>
-						</div>
+						<Breadcrumb />
 						<div className="flex items-center gap-4">
 							<a
 								href="https://github.com/agent-triage/app"
-								className="text-sm text-white/50 hover:text-white transition-colors"
+								className="text-sm text-white/50 hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 							>
 								GitHub
 							</a>
 							<a
 								href="https://github.com/apps/agent-triage"
-								className="px-4 py-2 text-sm bg-white text-fg rounded-lg hover:opacity-90 transition-opacity"
+								className="px-4 py-2 text-sm bg-white text-fg rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 							>
 								Install
 							</a>
@@ -34,7 +30,7 @@ export default function DocsLayout({
 
 				<div className="flex flex-1 min-h-0">
 					<Sidebar />
-					<main className="flex-1 min-w-0 px-6 md:px-8 lg:px-12 overflow-y-auto">
+					<main className="flex-1 min-w-0 px-6 md:px-8 lg:px-12 overflow-y-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
 						{children}
 					</main>
 					<Toc />
