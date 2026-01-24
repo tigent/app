@@ -16,6 +16,12 @@ function getItemOffset(depth: number): number {
 	return depth >= 3 ? 26 : 14;
 }
 
+const headerIcon = (
+	<svg className="w-4 h-4 text-white/30" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+	</svg>
+);
+
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
 	const [activeIds, setActiveIds] = useState<string[]>([]);
@@ -174,9 +180,7 @@ export function Toc() {
 		<aside className="hidden xl:block w-56 shrink-0 overflow-y-auto">
 			<div className="py-6 pr-6">
 				<div className="flex items-center gap-3 mb-5">
-					<svg className="w-4 h-4 text-white/30" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-						<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-					</svg>
+					{headerIcon}
 					<span className="text-xs uppercase tracking-wider text-white/30 font-medium">On this page</span>
 				</div>
 
