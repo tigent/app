@@ -1,11 +1,3 @@
-export const version = {
-	current: "v0.5",
-	all: [
-		{ label: "v0.5", href: "/docs", current: true },
-		{ label: "v1.0", href: null, current: false },
-	],
-};
-
 export const navigation = [
 	{
 		title: "Get Started",
@@ -17,26 +9,11 @@ export const navigation = [
 		],
 	},
 	{
-		title: "Configuration",
-		section: "config",
+		title: "Reference",
+		section: "reference",
 		items: [
-			{ title: "Config File", href: "/docs/config" },
+			{ title: "Configuration", href: "/docs/config" },
 			{ title: "Labels", href: "/docs/labels" },
-			{ title: "Rules", href: "/docs/rules" },
-			{ title: "Duplicates", href: "/docs/duplicates" },
-			{ title: "Autorespond", href: "/docs/autorespond" },
-			{ title: "Stale", href: "/docs/stale" },
-			{ title: "Sentiment", href: "/docs/sentiment" },
-			{ title: "Themes", href: "/docs/themes" },
-		],
-	},
-	{
-		title: "Integrations",
-		section: "integrations",
-		items: [
-			{ title: "Webhooks", href: "/docs/webhooks" },
-			{ title: "Slack", href: "/docs/slack" },
-			{ title: "Discord", href: "/docs/discord" },
 		],
 	},
 ];

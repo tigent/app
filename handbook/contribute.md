@@ -23,7 +23,7 @@ chore: update dependencies
 ### title
 
 ```
-feat: add autorespond feature
+feat: add new feature
 fix: hide scrollbar on docs sidebar
 ```
 
@@ -36,31 +36,20 @@ same format as commits.
 - bullet points
 - lowercase
 - simple
-
-## config (if applicable)
-\`\`\`yaml
-example: config
-\`\`\`
 ```
 
 - no fluff or extra sections
-- no "how it works" unless complex
 
 ## testing
 
 1. run build to check for errors:
 
 ```bash
-bun run build
+pnpm build
 ```
 
 2. test locally with smee.io webhook forwarding (see setup.md)
 3. create test issue/pr to verify changes
-4. check validation passes:
-
-```bash
-bun run .github/scripts/validate.ts
-```
 
 ## adding docs
 
@@ -83,7 +72,7 @@ export default function PageName() {
 			<Header section="Section" title="Title" description="Description." />
 
 			<Section id="section-id" title="Section Title">
-				<p className="text-muted mb-6 max-w-2xl">content here.</p>
+				<p className="text-white/60 mb-6 max-w-2xl">content here.</p>
 				<Code>{`code example`}</Code>
 			</Section>
 
@@ -93,6 +82,5 @@ export default function PageName() {
 }
 ```
 
-4. available components: `Header`, `Section`, `Code`, `Codeinline`, `Option`, `Card`, `Prevnext`
-5. update `app/docs/config/page.tsx` if adding a new config option
-6. follow existing ui patterns and styles
+4. available components: `Header`, `Section`, `Code`, `Codeinline`, `Card`, `Prevnext`
+5. follow existing ui patterns and styles

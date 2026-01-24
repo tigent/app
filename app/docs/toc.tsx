@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { version } from "./config";
 
 interface TocItem {
 	id: string;
@@ -55,11 +54,6 @@ const feedbackIcon = (
 	</svg>
 );
 
-const versionIcon = (
-	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-		<path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-	</svg>
-);
 
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
@@ -69,7 +63,6 @@ export function Toc() {
 	const [copied, setCopied] = useState(false);
 	const [linkCopied, setLinkCopied] = useState(false);
 	const [showTop, setShowTop] = useState(false);
-	const [showVersions, setShowVersions] = useState(false);
 	const [ready, setReady] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mainRef = useRef<HTMLElement | null>(null);
@@ -95,7 +88,6 @@ export function Toc() {
 		if (first) {
 			setActiveIds([first.id]);
 		}
-		setShowVersions(false);
 		setShowTop(false);
 
 		requestAnimationFrame(() => setReady(true));
@@ -386,30 +378,6 @@ export function Toc() {
 					>
 						{feedbackIcon}
 					</a>
-					<div className="relative">
-						<button
-							onClick={() => setShowVersions(!showVersions)}
-							className="p-2 rounded-md transition-all text-white/40 hover:text-white/70 hover:bg-white/5"
-							title="Switch version"
-						>
-							{versionIcon}
-						</button>
-						{showVersions && (
-							<div className="absolute bottom-full left-0 mb-1 py-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg min-w-[80px]">
-								{version.all.map((v) =>
-									v.href ? (
-										<a key={v.label} href={v.href} className={`block px-3 py-1.5 text-xs hover:bg-white/5 ${v.current ? "text-accent" : "text-white/60"}`}>
-											{v.label}
-										</a>
-									) : (
-										<span key={v.label} className="block px-3 py-1.5 text-xs text-white/30 cursor-not-allowed">
-											{v.label}
-										</span>
-									)
-								)}
-							</div>
-						)}
-					</div>
 					{showTop && (
 						<button
 							onClick={scrollToTop}

@@ -1,13 +1,14 @@
 ```bash
 / tigent
 
-  github agent for automated pr and issue labeling
+  ai-powered github issue and pr labeling
 
 > how it works?
 
   1. github webhook triggers on new issue/pr
-  2. ai classifies content
-  3. applies labels if confidence > 0.6
+  2. fetches your labels with descriptions
+  3. ai picks matching labels
+  4. applies labels if confidence > 0.6
 
 > stack?
 
@@ -17,5 +18,4 @@
 
   setup.md       → setup guide
   contribute.md  → contribution guidelines
-  version.md     → docs versioning
 ```

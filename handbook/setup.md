@@ -37,15 +37,7 @@ AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 1. create your own github app, name it `tigent-local-<github username>`
 2. go to smee.io and create a new channel
 3. set your github app webhook url to your smee channel url
-4. configure credentials in `.env.local`:
-
-```
-GITHUB_APP_ID=your-app-id
-GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your-webhook-secret
-AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
-```
-
+4. configure credentials in `.env.local`
 5. start dev server and smee in separate terminals:
 
 ```bash
