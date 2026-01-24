@@ -145,6 +145,15 @@ interface TriageConfig {
     requirements: Record<string, string[]>
     message: string
   }
+  stale: {
+    enabled: boolean
+    days: number
+    close: number
+    exempt: { labels: string[]; assignees: boolean }
+    label: string
+    message: string
+    closemessage: string
+  }
 }
 
 const defaultconfig: TriageConfig = {
@@ -194,6 +203,15 @@ const defaultconfig: TriageConfig = {
       default: ['clear description']
     },
     message: 'thanks for opening this issue! we need a bit more info to help you.'
+  },
+  stale: {
+    enabled: false,
+    days: 60,
+    close: 7,
+    exempt: { labels: [], assignees: false },
+    label: 'stale',
+    message: 'this issue has been inactive for {days} days and will be closed in {close} days if there is no further activity.',
+    closemessage: 'this issue has been closed due to inactivity.'
   }
 }
 
@@ -239,6 +257,18 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
         context: parsed.autorespond?.context ?? '',
         requirements: parsed.autorespond?.requirements ?? { default: ['clear description'] },
         message: parsed.autorespond?.message ?? defaultconfig.autorespond.message
+      },
+      stale: {
+        enabled: parsed.stale?.enabled ?? false,
+        days: parsed.stale?.days ?? 60,
+        close: parsed.stale?.close ?? 7,
+        exempt: {
+          labels: parsed.stale?.exempt?.labels || [],
+          assignees: parsed.stale?.exempt?.assignees ?? false
+        },
+        label: parsed.stale?.label ?? 'stale',
+        message: parsed.stale?.message ?? defaultconfig.stale.message,
+        closemessage: parsed.stale?.closemessage ?? defaultconfig.stale.closemessage
       }
     }
   } catch {
@@ -258,6 +288,10 @@ async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
 
   if (config.autorespond.enabled && !existing.includes(config.autorespond.label)) {
     await createlabel(ghconfig, config.autorespond.label, theme.muted || 'c0c0c0')
+  }
+
+  if (config.stale.enabled && !existing.includes(config.stale.label)) {
+    await createlabel(ghconfig, config.stale.label, theme.muted || 'c0c0c0')
   }
 }
 
