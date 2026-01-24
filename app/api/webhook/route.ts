@@ -5,10 +5,10 @@ import { SignJWT, importPKCS8 } from 'jose'
 import { parse } from 'yaml'
 import { start } from 'workflow/api'
 import { getWorld } from 'workflow/runtime'
-import { stalechecker } from '../workflows/stale'
-import { sentimentchecker } from '../workflows/sentiment'
-import { getstalerunid, setstalerunid, deletestalerunid, getsentimentrunid, setsentimentrunid, deletesentimentrunid } from '../lib/redis'
-import { fetchpaginated } from '../lib/github'
+import { stalechecker } from '@/workflows/stale'
+import { sentimentchecker } from '@/workflows/sentiment'
+import { getstalerunid, setstalerunid, deletestalerunid, getsentimentrunid, setsentimentrunid, deletesentimentrunid } from '@/lib/redis'
+import { fetchpaginated } from '@/lib/github'
 
 type StaleCheckerArgs = [number, string, string, string, string]
 type SentimentCheckerArgs = [number, string, string, string, string]
