@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 interface TocItem {
 	id: string;
@@ -22,13 +23,35 @@ const headerIcon = (
 	</svg>
 );
 
+const copyIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+		<path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5" stroke="currentColor" strokeWidth="1.5" />
+	</svg>
+);
+
+const checkIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M3 8l4 4 6-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+const arrowUpIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M8 12V4M4 7l4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
 	const [activeIds, setActiveIds] = useState<string[]>([]);
 	const [svg, setSvg] = useState<{ path: string; width: number; height: number } | null>(null);
 	const [thumb, setThumb] = useState<{ top: number; height: number }>({ top: 0, height: 0 });
+	const [copied, setCopied] = useState(false);
+	const [showTop, setShowTop] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mainRef = useRef<HTMLElement | null>(null);
+	const pathname = usePathname();
 
 	useEffect(() => {
 		const headings = Array.from(
@@ -61,6 +84,8 @@ export function Toc() {
 			const viewTop = mainRect.top;
 			const viewBottom = mainRect.bottom;
 			const active: string[] = [];
+
+			setShowTop(mainEl.scrollTop > 200);
 
 			for (const item of items) {
 				const el = document.getElementById(item.id);
@@ -174,6 +199,45 @@ export function Toc() {
 		}
 	}, []);
 
+	const scrollToTop = useCallback(() => {
+		const container = mainRef.current;
+		if (container) {
+			container.scrollTo({ top: 0, behavior: "smooth" });
+		}
+	}, []);
+
+	const copyAsMarkdown = useCallback(async () => {
+		const article = document.querySelector("article");
+		if (!article) return;
+
+		const title = article.querySelector("h1")?.textContent || "";
+		const sections: string[] = [`# ${title}`, ""];
+
+		const headings = article.querySelectorAll("h2[id], h3[id]");
+		headings.forEach((heading) => {
+			const level = heading.tagName === "H2" ? "##" : "###";
+			const text = heading.textContent || "";
+			sections.push(`${level} ${text}`);
+
+			let sibling = heading.nextElementSibling;
+			while (sibling && !sibling.matches("h2, h3")) {
+				if (sibling.matches("p")) {
+					sections.push(sibling.textContent || "");
+				} else if (sibling.matches("pre, code")) {
+					const code = sibling.textContent || "";
+					sections.push("```", code.trim(), "```");
+				}
+				sibling = sibling.nextElementSibling;
+			}
+			sections.push("");
+		});
+
+		const markdown = sections.join("\n").trim();
+		await navigator.clipboard.writeText(markdown);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	}, []);
+
 	if (items.length === 0) return null;
 
 	return (
@@ -251,6 +315,31 @@ export function Toc() {
 						})}
 					</div>
 				</nav>
+
+				<div className="flex items-center gap-1 mt-6 pt-6 border-t border-white/10">
+					<button
+						onClick={copyAsMarkdown}
+						className={`flex items-center gap-2 px-3 py-1.5 text-xs rounded-md transition-all ${
+							copied
+								? "text-accent bg-accent/10"
+								: "text-white/40 hover:text-white/70 hover:bg-white/5"
+						}`}
+						title="Copy as markdown"
+					>
+						{copied ? checkIcon : copyIcon}
+						<span>{copied ? "Copied!" : "Copy"}</span>
+					</button>
+					{showTop && (
+						<button
+							onClick={scrollToTop}
+							className="flex items-center gap-2 px-3 py-1.5 text-xs text-white/40 hover:text-white/70 hover:bg-white/5 rounded-md transition-all animate-in fade-in duration-200"
+							title="Scroll to top"
+						>
+							{arrowUpIcon}
+							<span>Top</span>
+						</button>
+					)}
+				</div>
 			</div>
 		</aside>
 	);
