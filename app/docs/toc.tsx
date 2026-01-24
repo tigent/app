@@ -70,11 +70,14 @@ export function Toc() {
 	const [linkCopied, setLinkCopied] = useState(false);
 	const [showTop, setShowTop] = useState(false);
 	const [showVersions, setShowVersions] = useState(false);
+	const [ready, setReady] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mainRef = useRef<HTMLElement | null>(null);
 	const pathname = usePathname();
 
 	useEffect(() => {
+		setReady(false);
+
 		const headings = Array.from(
 			document.querySelectorAll("article h2[id], article h3[id]")
 		) as HTMLElement[];
@@ -92,7 +95,11 @@ export function Toc() {
 		if (first) {
 			setActiveIds([first.id]);
 		}
-	}, []);
+		setShowVersions(false);
+		setShowTop(false);
+
+		requestAnimationFrame(() => setReady(true));
+	}, [pathname]);
 
 	useEffect(() => {
 		if (items.length === 0) return;
@@ -232,24 +239,28 @@ export function Toc() {
 		if (!article) return;
 
 		const title = article.querySelector("h1")?.textContent || "";
-		const sections: string[] = [`# ${title}`, ""];
+		const description = article.querySelector(".mb-12 > p.text-xl")?.textContent || "";
+		const sections: string[] = [`# ${title}`, "", description, ""];
 
-		const headings = article.querySelectorAll("h2[id], h3[id]");
-		headings.forEach((heading) => {
-			const level = heading.tagName === "H2" ? "##" : "###";
-			const text = heading.textContent || "";
-			sections.push(`${level} ${text}`);
-
-			let sibling = heading.nextElementSibling;
-			while (sibling && !sibling.matches("h2, h3")) {
-				if (sibling.matches("p")) {
-					sections.push(sibling.textContent || "");
-				} else if (sibling.matches("pre, code")) {
-					const code = sibling.textContent || "";
-					sections.push("```", code.trim(), "```");
-				}
-				sibling = sibling.nextElementSibling;
+		const allSections = article.querySelectorAll("section");
+		allSections.forEach((section) => {
+			const h2 = section.querySelector("h2[id]");
+			if (h2) {
+				sections.push(`## ${h2.textContent || ""}`);
+				sections.push("");
 			}
+
+			section.querySelectorAll("p, pre, h3[id]").forEach((el) => {
+				if (el.tagName === "H3") {
+					sections.push(`### ${el.textContent || ""}`);
+				} else if (el.tagName === "P") {
+					const text = el.textContent || "";
+					if (text.trim()) sections.push(text);
+				} else if (el.tagName === "PRE") {
+					const code = el.textContent || "";
+					sections.push("```yaml", code.trim(), "```");
+				}
+			});
 			sections.push("");
 		});
 
@@ -275,7 +286,7 @@ export function Toc() {
 					<span className="text-xs uppercase tracking-wider text-white/30 font-medium">On this page</span>
 				</div>
 
-				<nav className="relative">
+				<nav className={`relative transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}>
 					{svg && (
 						<div
 							className="absolute left-0 top-0"

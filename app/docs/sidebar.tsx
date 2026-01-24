@@ -1,10 +1,17 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigation } from "./config";
 
 export function Sidebar() {
 	const pathname = usePathname();
+	const activeRef = useRef<HTMLAnchorElement>(null);
+
+	useEffect(() => {
+		activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+	}, [pathname]);
 
 	return (
 		<aside className="hidden md:block w-56 shrink-0 border-r border-white/10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -20,7 +27,8 @@ export function Sidebar() {
 									const isactive = pathname === item.href;
 									return (
 										<li key={item.href}>
-											<a
+											<Link
+												ref={isactive ? activeRef : null}
 												href={item.href}
 												className={`block px-3 py-2 text-sm rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
 													isactive
@@ -29,7 +37,7 @@ export function Sidebar() {
 												}`}
 											>
 												{item.title}
-											</a>
+											</Link>
 										</li>
 									);
 								})}

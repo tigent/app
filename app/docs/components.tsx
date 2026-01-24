@@ -1,12 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getprevnext } from "./config";
 
 const linkIcon = (
 	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 		<path d="M6.5 9.5l3-3M7 11.5l-1.5 1.5a2.121 2.121 0 01-3-3L4 8.5M9 4.5l1.5-1.5a2.121 2.121 0 013 3L12 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+const copyIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+		<path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5" stroke="currentColor" strokeWidth="1.5" />
 	</svg>
 );
 
@@ -32,7 +40,7 @@ function Anchor({ id }: { id?: string }) {
 	return (
 		<button
 			onClick={copy}
-			className={`opacity-0 group-hover:opacity-100 p-1 rounded transition-all ${
+			className={`opacity-0 group-hover/heading:opacity-100 p-1 rounded transition-all ${
 				copied ? "text-accent opacity-100" : "text-white/30 hover:text-white/60"
 			}`}
 			title="Copy link"
@@ -54,9 +62,9 @@ export function Header({
 	id?: string;
 }) {
 	return (
-		<div className="mb-12 group">
+		<div className="mb-12">
 			<p className="text-sm text-white/40 mb-2">{section}</p>
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-2 group/heading">
 				<h1 id={id} className="text-5xl font-semibold tracking-tight text-white">
 					{title}
 				</h1>
@@ -68,16 +76,37 @@ export function Header({
 }
 
 export function Code({ children, className = "" }: { children: string; className?: string }) {
+	const [copied, setCopied] = useState(false);
+
+	const copy = async () => {
+		await navigator.clipboard.writeText(children);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
 	return (
-		<pre className={`bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed ${className}`}>
-			{children}
-		</pre>
+		<div className={`relative group/code ${className}`}>
+			<button
+				onClick={copy}
+				className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
+					copied
+						? "text-accent bg-accent/10"
+						: "text-white/30 hover:text-white/60 hover:bg-white/5 opacity-0 group-hover/code:opacity-100"
+				}`}
+				title="Copy code"
+			>
+				{copied ? checkIcon : copyIcon}
+			</button>
+			<pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed">
+				{children}
+			</pre>
+		</div>
 	);
 }
 
 export function Codeinline({ children, className = "" }: { children: string; className?: string }) {
 	return (
-		<pre className={`bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono ${className}`}>
+		<pre className={`bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono w-fit ${className}`}>
 			{children}
 		</pre>
 	);
@@ -90,22 +119,22 @@ export function Prevnext() {
 	return (
 		<div className="flex items-center justify-between pt-8 border-t border-white/10">
 			{prev ? (
-				<a
+				<Link
 					href={prev.href}
 					className="text-sm text-white/50 hover:text-white transition-colors"
 				>
 					← {prev.title}
-				</a>
+				</Link>
 			) : (
 				<span />
 			)}
 			{next ? (
-				<a
+				<Link
 					href={next.href}
 					className="text-sm text-white/50 hover:text-white transition-colors"
 				>
 					{next.title} →
-				</a>
+				</Link>
 			) : (
 				<span />
 			)}
@@ -143,8 +172,8 @@ export function Option({
 	children: React.ReactNode;
 }) {
 	return (
-		<div className="group">
-			<div className="flex items-center gap-2 mb-3">
+		<div>
+			<div className="flex items-center gap-2 mb-3 group/heading">
 				<h3 id={id} className="text-xl font-semibold text-white">
 					{title}
 				</h3>
@@ -166,8 +195,8 @@ export function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="mb-16 group">
-			<div className="flex items-center gap-2 mb-6">
+		<section className="mb-16 overflow-hidden">
+			<div className="flex items-center gap-2 mb-6 group/heading">
 				<h2 id={id} className="text-3xl font-semibold text-white">
 					{title}
 				</h2>
