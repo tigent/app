@@ -36,8 +36,9 @@ export function Toc() {
 
 		setItems(tocItems);
 
-		if (tocItems.length > 0) {
-			setActiveIds([tocItems[0].id]);
+		const first = tocItems[0];
+		if (first) {
+			setActiveIds([first.id]);
 		}
 	}, []);
 
