@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Header, Section, Code, Prevnext } from "../components";
+import { Header, Section, Prevnext } from "../components";
 
 export const metadata: Metadata = {
 	title: "Quickstart",
-	description: "Get Tigent running on your GitHub repository in under 5 minutes.",
+	description: "Get Tigent running on your GitHub repository in 2 minutes.",
 };
 
 export default function Quickstart() {
@@ -12,46 +12,33 @@ export default function Quickstart() {
 			<Header
 				section="Get Started"
 				title="Quickstart"
-				description="Get Tigent running in under 5 minutes."
+				description="Get Tigent running in 2 minutes."
 			/>
 
 			<Section id="install" title="1. Install the app">
 				<p className="text-white/60 mb-6 max-w-2xl">
-					First, install the Tigent GitHub App on your repository.
+					Install the Tigent GitHub App on your repository.
 				</p>
 				<a href="https://github.com/apps/tigent" className="inline-flex items-center gap-2 px-5 py-3 bg-accent text-fg rounded-xl hover:opacity-90 transition-opacity font-medium">
 					Install GitHub App
 				</a>
 			</Section>
 
-			<Section id="create-config" title="2. Create config">
-				<p className="text-white/60 mb-6 max-w-2xl">
-					Create <code className="bg-white/10 px-2 py-1 rounded text-sm text-accent">.github/tigent.yml</code> in your repository:
+			<Section id="add-descriptions" title="2. Add label descriptions">
+				<p className="text-white/60 mb-4 max-w-2xl">
+					Go to your repository settings and add descriptions to your labels.
+					Tigent uses these descriptions to understand when to apply each label.
 				</p>
-				<Code className="max-w-2xl">{`confidence: 0.6
-theme: mono
-
-labels:
-  bug: critical
-  feature: medium
-  docs: low
-
-duplicates:
-  enabled: true
-  threshold: 0.8`}</Code>
+				<p className="text-white/60 max-w-2xl">
+					<span className="text-white/40">Example:</span> For a label named <code className="bg-white/10 px-2 py-1 rounded text-sm text-accent">bug</code>,
+					add a description like &quot;Something is not working as expected&quot;.
+				</p>
 			</Section>
 
 			<Section id="test" title="3. Test it out">
 				<p className="text-white/60 max-w-2xl">
-					Create a new issue in your repository. Tigent will automatically analyze it
-					and apply the appropriate labels within a few seconds.
-				</p>
-			</Section>
-
-			<Section id="customize" title="4. Customize">
-				<p className="text-white/60 max-w-2xl">
-					Explore the configuration options to customize labels, add rules, enable webhooks,
-					and more. Check out the Configuration section for all available options.
+					Create a new issue in your repository. Tigent will analyze it and apply
+					matching labels within a few seconds.
 				</p>
 			</Section>
 

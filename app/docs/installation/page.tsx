@@ -3,7 +3,7 @@ import { Header, Section, Card, Prevnext } from "../components";
 
 export const metadata: Metadata = {
 	title: "Installation",
-	description: "Install Tigent on your GitHub repositories to automate issue and PR triage.",
+	description: "Install Tigent on your GitHub repositories to automate issue and PR labeling.",
 };
 
 export default function Installation() {
@@ -28,17 +28,16 @@ export default function Installation() {
 			<Section id="permissions" title="Permissions">
 				<p className="text-white/60 mb-6 max-w-2xl">Tigent requires the following permissions:</p>
 				<div className="grid md:grid-cols-2 gap-4 max-w-2xl">
-					<Card code="issues: write" description="To add labels and comments" />
+					<Card code="issues: write" description="To add labels" />
 					<Card code="pull_requests: write" description="To add labels to PRs" />
-					<Card code="contents: read" description="To read config file" />
-					<Card code="metadata: read" description="To access repository info" />
+					<Card code="contents: read" description="To read optional config" />
 				</div>
 			</Section>
 
 			<Section id="select-repos" title="Select repositories">
 				<p className="text-white/60 max-w-2xl">
 					You can install Tigent on all repositories or select specific ones.
-					We recommend starting with a single repository to test the configuration.
+					We recommend starting with a single repository to test.
 				</p>
 			</Section>
 

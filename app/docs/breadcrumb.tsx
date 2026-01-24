@@ -5,8 +5,7 @@ import { getpage } from "./config";
 
 const sectionNames: Record<string, string> = {
 	start: "Get Started",
-	config: "Configuration",
-	integrations: "Integrations",
+	reference: "Reference",
 };
 
 const chevron = (
