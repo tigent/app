@@ -1,17 +1,22 @@
+import type { Metadata } from "next";
+import { Header, Section, Code, Codeinline, Prevnext } from "../components";
+
+export const metadata: Metadata = {
+	title: "Themes",
+	description: "Color themes for auto-created GitHub labels with Tigent.",
+};
+
 export default function Themes() {
 	return (
 		<article className="py-12">
-			<div className="mb-12">
-				<p className="text-sm text-white/40 mb-2">Configuration</p>
-				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Themes</h1>
-				<p className="text-xl text-white/60 max-w-2xl">
-					Color themes for auto-created labels.
-				</p>
-			</div>
+			<Header
+				section="Configuration"
+				title="Themes"
+				description="Color themes for auto-created labels."
+			/>
 
-			<section className="mb-16">
-				<h2 id="built-in" className="text-3xl font-semibold mb-8 text-white">Built-in themes</h2>
-				<div className="grid md:grid-cols-3 gap-6">
+			<Section id="built-in" title="Built-in themes">
+				<div className="grid md:grid-cols-3 gap-6 mb-8">
 					<div className="border border-white/10 rounded-2xl p-6">
 						<h3 id="mono" className="font-semibold text-lg mb-4 text-white">mono</h3>
 						<p className="text-sm text-white/50 mb-6">Grayscale for a clean look.</p>
@@ -46,14 +51,12 @@ export default function Themes() {
 						</div>
 					</div>
 				</div>
-				<pre className="bg-white/5 border border-white/10 text-accent p-6 rounded-2xl text-sm font-mono mt-8 inline-block">theme: mono</pre>
-			</section>
+				<Codeinline>theme: mono</Codeinline>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="custom" className="text-3xl font-semibold mb-6 text-white">Custom themes</h2>
+			<Section id="custom" title="Custom themes">
 				<p className="text-white/60 mb-6 max-w-2xl">Define your own theme with hex colors:</p>
-				<pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed max-w-lg">
-					{`theme: custom
+				<Code className="max-w-lg">{`theme: custom
 
 themes:
   custom:
@@ -62,12 +65,10 @@ themes:
     medium: ffcc00
     low: 00cc00
     muted: 0066ff
-    light: cc00ff`}
-				</pre>
-			</section>
+    light: cc00ff`}</Code>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="priority-levels" className="text-3xl font-semibold mb-6 text-white">Priority levels</h2>
+			<Section id="priority-levels" title="Priority levels">
 				<p className="text-white/60 mb-6 max-w-2xl">Each theme maps these priority levels to colors:</p>
 				<div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
 					<div className="p-3 border border-white/10 rounded-lg text-center">
@@ -89,12 +90,9 @@ themes:
 						<code className="text-sm text-white">light</code>
 					</div>
 				</div>
-			</section>
+			</Section>
 
-			<div className="flex items-center justify-between pt-8 border-t border-white/10">
-				<a href="/docs/duplicates" className="text-sm text-white/50 hover:text-white transition-colors">← Duplicates</a>
-				<a href="/docs/webhooks" className="text-sm text-white/50 hover:text-white transition-colors">Webhooks →</a>
-			</div>
+			<Prevnext />
 		</article>
 	);
 }

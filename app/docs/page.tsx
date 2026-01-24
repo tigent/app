@@ -1,17 +1,21 @@
+import type { Metadata } from "next";
+import { Header, Section } from "./components";
+
+export const metadata: Metadata = {
+	title: "Introduction",
+	description: "Tigent is an AI-powered GitHub bot that automatically labels, prioritizes, and detects duplicate issues and pull requests.",
+};
+
 export default function Docs() {
 	return (
 		<article className="py-12">
-			<div className="mb-12">
-				<p className="text-sm text-white/40 mb-2">Get Started</p>
-				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Introduction</h1>
-				<p className="text-xl text-white/60 max-w-2xl">
-					Tigent is an AI-powered GitHub bot that automatically labels,
-					prioritizes, and detects duplicate issues and pull requests.
-				</p>
-			</div>
+			<Header
+				section="Get Started"
+				title="Introduction"
+				description="Tigent is an AI-powered GitHub bot that automatically labels, prioritizes, and detects duplicate issues and pull requests."
+			/>
 
-			<section className="mb-16">
-				<h2 id="overview" className="text-3xl font-semibold mb-6 text-white">Overview</h2>
+			<Section id="overview" title="Overview">
 				<p className="text-white/60 mb-4 max-w-2xl">
 					Managing GitHub issues at scale is tedious. Tigent uses AI to
 					understand the content of issues and PRs, then automatically applies
@@ -21,55 +25,50 @@ export default function Docs() {
 					It works with any repository and requires minimal configuration. Just
 					install the GitHub App and add a simple YAML config file.
 				</p>
-			</section>
+			</Section>
 
-			<section className="mb-16">
-				<h2 id="features" className="text-3xl font-semibold mb-8 text-white">Features</h2>
-
-				<div className="mb-8">
-					<h3 id="auto-labeling" className="text-xl font-semibold mb-3 text-white">Auto-labeling</h3>
-					<p className="text-white/60 max-w-2xl mb-4">
-						AI analyzes issue content and applies relevant labels based on your configuration.
-						No more manual triage.
-					</p>
+			<Section id="features" title="Features">
+				<div className="space-y-8">
+					<div>
+						<h3 id="auto-labeling" className="text-xl font-semibold mb-3 text-white">Auto-labeling</h3>
+						<p className="text-white/60 max-w-2xl">
+							AI analyzes issue content and applies relevant labels based on your configuration.
+							No more manual triage.
+						</p>
+					</div>
+					<div>
+						<h3 id="duplicate-detection" className="text-xl font-semibold mb-3 text-white">Duplicate detection</h3>
+						<p className="text-white/60 max-w-2xl">
+							Identifies similar issues using semantic search and links them together.
+							Optionally auto-close duplicates.
+						</p>
+					</div>
+					<div>
+						<h3 id="priority-assignment" className="text-xl font-semibold mb-3 text-white">Priority assignment</h3>
+						<p className="text-white/60 max-w-2xl">
+							Set urgency levels based on keywords and AI analysis. Critical issues get flagged immediately.
+						</p>
+					</div>
+					<div>
+						<h3 id="custom-rules" className="text-xl font-semibold mb-3 text-white">Custom rules</h3>
+						<p className="text-white/60 max-w-2xl">
+							Define regex patterns to trigger specific labels. Full control over your labeling logic.
+						</p>
+					</div>
+					<div>
+						<h3 id="webhooks-feature" className="text-xl font-semibold mb-3 text-white">Webhooks</h3>
+						<p className="text-white/60 max-w-2xl">
+							Send notifications to Slack, Discord, or any HTTP endpoint when issues are triaged.
+						</p>
+					</div>
+					<div>
+						<h3 id="themes-feature" className="text-xl font-semibold mb-3 text-white">Themes</h3>
+						<p className="text-white/60 max-w-2xl">
+							Choose from built-in color themes for labels or create your own custom palette.
+						</p>
+					</div>
 				</div>
-
-				<div className="mb-8">
-					<h3 id="duplicate-detection" className="text-xl font-semibold mb-3 text-white">Duplicate detection</h3>
-					<p className="text-white/60 max-w-2xl mb-4">
-						Identifies similar issues using semantic search and links them together.
-						Optionally auto-close duplicates.
-					</p>
-				</div>
-
-				<div className="mb-8">
-					<h3 id="priority-assignment" className="text-xl font-semibold mb-3 text-white">Priority assignment</h3>
-					<p className="text-white/60 max-w-2xl mb-4">
-						Set urgency levels based on keywords and AI analysis. Critical issues get flagged immediately.
-					</p>
-				</div>
-
-				<div className="mb-8">
-					<h3 id="custom-rules" className="text-xl font-semibold mb-3 text-white">Custom rules</h3>
-					<p className="text-white/60 max-w-2xl mb-4">
-						Define regex patterns to trigger specific labels. Full control over your labeling logic.
-					</p>
-				</div>
-
-				<div className="mb-8">
-					<h3 id="webhooks-feature" className="text-xl font-semibold mb-3 text-white">Webhooks</h3>
-					<p className="text-white/60 max-w-2xl mb-4">
-						Send notifications to Slack, Discord, or any HTTP endpoint when issues are triaged.
-					</p>
-				</div>
-
-				<div className="mb-8">
-					<h3 id="themes-feature" className="text-xl font-semibold mb-3 text-white">Themes</h3>
-					<p className="text-white/60 max-w-2xl">
-						Choose from built-in color themes for labels or create your own custom palette.
-					</p>
-				</div>
-			</section>
+			</Section>
 
 			<section className="mb-12">
 				<h2 id="next-steps" className="text-3xl font-semibold mb-8 text-white">Next steps</h2>
