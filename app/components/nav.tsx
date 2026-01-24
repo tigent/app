@@ -16,10 +16,10 @@ export function Nav() {
 	return (
 		<header className="fixed top-0 left-0 right-0 z-50 px-4">
 			<nav
-				className={`mx-auto flex items-center justify-between transition-[margin,max-width,background-color,padding,box-shadow,border-radius] duration-500 ${
+				className={`mx-auto flex items-center justify-between rounded-full transition-[margin,max-width,background-color,padding,box-shadow] duration-500 ${
 					scrolled
-						? "mt-4 max-w-md bg-fg text-bg px-6 py-3 rounded-full shadow-2xl"
-						: "mt-0 max-w-3xl bg-transparent px-4 py-6 rounded-none"
+						? "mt-4 max-w-md bg-fg text-bg px-6 py-3 shadow-2xl"
+						: "mt-0 max-w-3xl bg-transparent px-4 py-6"
 				}`}
 			>
 				<a href="/" className="flex items-center gap-2 font-semibold text-sm tracking-tight rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">

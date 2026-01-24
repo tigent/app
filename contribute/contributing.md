@@ -65,33 +65,34 @@ bun run .github/scripts/validate.ts
 ## adding docs
 
 1. create new page at `app/docs/<name>/page.tsx`
-2. add to `app/docs/sidebar.tsx` navigation array
-3. add to `app/docs/breadcrumb.tsx` pages mapping
-4. follow existing page structure:
+2. add to navigation in `app/docs/config.ts`
+3. use shared components from `app/docs/components.tsx`:
 
 ```tsx
+import type { Metadata } from "next";
+import { Header, Section, Code, Prevnext } from "../components";
+
+export const metadata: Metadata = {
+	title: "Page Title",
+	description: "page description for seo",
+};
+
 export default function PageName() {
 	return (
 		<article className="py-12">
-			<div className="mb-12">
-				<p className="text-sm text-white/40 mb-2">Section</p>
-				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Title</h1>
-				<p className="text-xl text-white/60 max-w-2xl">Description.</p>
-			</div>
+			<Header section="Section" title="Title" description="Description." />
 
-			<section className="mb-16">
-				<h2 id="section-id" className="text-3xl font-semibold mb-6 text-white">Section</h2>
-				<p className="text-white/60 mb-6 max-w-2xl">Content.</p>
-			</section>
+			<Section id="section-id" title="Section Title">
+				<p className="text-muted mb-6 max-w-2xl">content here.</p>
+				<Code>{`code example`}</Code>
+			</Section>
 
-			<div className="flex items-center justify-between pt-8 border-t border-white/10">
-				<a href="/docs/prev" className="text-sm text-white/50 hover:text-white transition-colors">← Previous</a>
-				<a href="/docs/next" className="text-sm text-white/50 hover:text-white transition-colors">Next →</a>
-			</div>
+			<Prevnext />
 		</article>
 	);
 }
 ```
 
+4. available components: `Header`, `Section`, `Code`, `Codeinline`, `Option`, `Card`, `Prevnext`
 5. update `app/docs/config/page.tsx` if adding a new config option
 6. follow existing ui patterns and styles
