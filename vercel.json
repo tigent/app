@@ -3,7 +3,7 @@
   "functions": {
     "api/webhook.ts": {
       "maxDuration": 60,
-      "includeFiles": "src/**"
+      "includeFiles": "{src,lib,workflows}/**"
     }
   }
 }
