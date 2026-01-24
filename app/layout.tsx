@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
 	title: {
-		default: "Tigent",
+		default: "Tigent - AI-powered GitHub Issue Triage",
 		template: "%s | Tigent",
 	},
 	description: "Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.",
@@ -13,27 +13,30 @@ export const metadata: Metadata = {
 	authors: [{ name: "Tigent" }],
 	creator: "Tigent",
 	metadataBase: new URL("https://tigent.xyz"),
+	alternates: {
+		canonical: "https://tigent.xyz",
+	},
 	openGraph: {
 		type: "website",
 		locale: "en_US",
 		url: "https://tigent.xyz",
 		siteName: "Tigent",
-		title: "Tigent",
-		description: "Automated PR and issue triage for GitHub powered by AI",
+		title: "Tigent - AI-powered GitHub Issue Triage",
+		description: "Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.",
 		images: [
 			{
-				url: "/og.png",
+				url: "https://tigent.xyz/og.png",
 				width: 1200,
 				height: 630,
-				alt: "Tigent - GitHub Issue Triage Bot",
+				alt: "Tigent - AI-powered GitHub Issue Triage",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Tigent",
-		description: "Automated PR and issue triage for GitHub powered by AI",
-		images: ["/og.png"],
+		title: "Tigent - AI-powered GitHub Issue Triage",
+		description: "Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.",
+		images: ["https://tigent.xyz/og.png"],
 	},
 	robots: {
 		index: true,
@@ -43,11 +46,37 @@ export const metadata: Metadata = {
 			follow: true,
 		},
 	},
+	viewport: {
+		width: "device-width",
+		initialScale: 1,
+	},
+	themeColor: "#0c0a09",
+};
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	name: "Tigent",
+	applicationCategory: "DeveloperApplication",
+	operatingSystem: "Web",
+	description: "AI-powered GitHub issue triage bot that auto-labels issues, detects duplicates, and streamlines your workflow.",
+	url: "https://tigent.xyz",
+	offers: {
+		"@type": "Offer",
+		price: "0",
+		priceCurrency: "USD",
+	},
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+			<head>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+				/>
+			</head>
 			<body>{children}</body>
 		</html>
 	);
