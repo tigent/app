@@ -42,3 +42,25 @@ duplicates:
 
 ignore:
   users: [dependabot, renovate]
+
+autorespond:
+  enabled: true
+  label: needs-info
+
+  context: |
+    tigent is a github bot that auto-labels issues and prs.
+    common issues involve webhook configuration and yaml syntax.
+
+  requirements:
+    bug:
+      - steps to reproduce
+      - expected vs actual behavior
+      - environment info
+    feature:
+      - use case description
+      - proposed solution
+    default:
+      - clear description
+
+  message: |
+    thanks for opening this issue! we need a bit more info to help you.

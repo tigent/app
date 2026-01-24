@@ -51,7 +51,7 @@ export default function Page() {
 							</code>
 						</p>
 						<a
-							href="https://github.com/tigent/app"
+							href="/docs/config"
 							className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
 						>
 							View full documentation →
