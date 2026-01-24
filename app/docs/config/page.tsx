@@ -66,6 +66,35 @@ autorespond:
   message: |
     thanks for opening this issue!
 
+stale:
+  enabled: true
+  days: 30
+  close: 7
+  exempt:
+    labels: [security, p0]
+    assignees: true
+  label: stale
+  message: |
+    this issue has been inactive for 30 days.
+  closemessage: |
+    closed due to inactivity.
+
+sentiment:
+  enabled: true
+  threshold: 0.7
+  detect:
+    negative: true
+    frustrated: true
+    confused: true
+  labels:
+    negative: needs-attention
+    frustrated: needs-support
+  actions:
+    comment:
+      enabled: true
+      frustrated: |
+        sorry for the frustration - we're on it!
+
 webhooks:
   - url: https://hooks.slack.com/...
     events: [labeled, duplicate]`}</Code>
@@ -109,6 +138,17 @@ webhooks:
 						<Codeinline>{`autorespond:
   enabled: true
   label: needs-info`}</Codeinline>
+					</Option>
+					<Option id="stale-config" title="stale" description="Close inactive issues after a period of time.">
+						<Codeinline>{`stale:
+  enabled: true
+  days: 30
+  close: 7`}</Codeinline>
+					</Option>
+					<Option id="sentiment-config" title="sentiment" description="Detect frustrated users and track unanswered issues.">
+						<Codeinline>{`sentiment:
+  enabled: true
+  threshold: 0.7`}</Codeinline>
 					</Option>
 					<Option id="webhooks-config" title="webhooks" description="Send notifications when issues are triaged.">
 						<Codeinline>{`webhooks:

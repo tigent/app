@@ -56,6 +56,18 @@ export default function Docs() {
 						</p>
 					</div>
 					<div>
+						<h3 id="stale-detection" className="text-xl font-semibold mb-3 text-white">Stale detection</h3>
+						<p className="text-white/60 max-w-2xl">
+							Automatically mark and close issues that have been inactive. Configurable time periods and exemptions.
+						</p>
+					</div>
+					<div>
+						<h3 id="sentiment-detection" className="text-xl font-semibold mb-3 text-white">Sentiment detection</h3>
+						<p className="text-white/60 max-w-2xl">
+							Detect frustrated users and track unanswered issues. Auto-respond with empathy and notify your team.
+						</p>
+					</div>
+					<div>
 						<h3 id="webhooks-feature" className="text-xl font-semibold mb-3 text-white">Webhooks</h3>
 						<p className="text-white/60 max-w-2xl">
 							Send notifications to Slack, Discord, or any HTTP endpoint when issues are triaged.
