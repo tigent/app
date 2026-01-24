@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getprevnext } from "./config";
 
@@ -90,22 +91,22 @@ export function Prevnext() {
 	return (
 		<div className="flex items-center justify-between pt-8 border-t border-white/10">
 			{prev ? (
-				<a
+				<Link
 					href={prev.href}
 					className="text-sm text-white/50 hover:text-white transition-colors"
 				>
 					← {prev.title}
-				</a>
+				</Link>
 			) : (
 				<span />
 			)}
 			{next ? (
-				<a
+				<Link
 					href={next.href}
 					className="text-sm text-white/50 hover:text-white transition-colors"
 				>
 					{next.title} →
-				</a>
+				</Link>
 			) : (
 				<span />
 			)}
