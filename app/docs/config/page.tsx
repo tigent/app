@@ -27,6 +27,7 @@ export default function Config() {
 					Here is a complete configuration file with all available options:
 				</p>
 				<Code className="max-w-3xl">{`confidence: 0.6
+model: anthropic/claude-sonnet-4.5
 theme: mono
 
 labels:
@@ -74,6 +75,9 @@ webhooks:
 				<div className="space-y-8">
 					<Option id="confidence" title="confidence" description="Minimum confidence threshold for applying labels. Range: 0.0 to 1.0">
 						<Codeinline>confidence: 0.6</Codeinline>
+					</Option>
+					<Option id="model" title="model" description="AI model to use for classification. Default: anthropic/claude-sonnet-4.5">
+						<Codeinline>model: anthropic/claude-sonnet-4.5</Codeinline>
 					</Option>
 					<Option id="theme" title="theme" description="Color theme for auto-created labels. Options: mono, colorful, pastel, or custom">
 						<Codeinline>theme: mono</Codeinline>

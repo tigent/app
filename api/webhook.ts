@@ -189,6 +189,7 @@ interface GhConfig {
 
 interface TriageConfig {
   confidence: number
+  model: string
   theme: string
   themes: Record<string, Record<string, string>>
   labels: Record<string, string>
@@ -236,6 +237,7 @@ interface TriageConfig {
 
 const defaultconfig: TriageConfig = {
   confidence: 0.6,
+  model: 'anthropic/claude-sonnet-4.5',
   theme: 'mono',
   themes: {
     mono: {
@@ -594,7 +596,7 @@ async function triagepr(ghconfig: GhConfig, config: TriageConfig, number: number
   const rulelabels = applyrules(config.rules, pr.title, pr.body || '')
 
   const { output } = await generateText({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: config.model,
     output: Output.object({ schema: classifyschema }),
     system: buildprsystem(repolabels, config.rules),
     prompt: buildprprompt(pr.title, pr.body, files)
@@ -639,7 +641,7 @@ async function triageissue(ghconfig: GhConfig, config: TriageConfig, number: num
   const rulelabels = applyrules(config.rules, issue.title, issue.body || '')
 
   const { output } = await generateText({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: config.model,
     output: Output.object({ schema: classifyschema }),
     system: buildissuesystem(repolabels, config.rules),
     prompt: buildissueprompt(issue.title, issue.body, issue.labels)
@@ -682,7 +684,7 @@ async function checkduplicates(
     .join('\n')
 
   const { output } = await generateText({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: config.model,
     output: Output.object({ schema: duplicateschema }),
     system: `you detect duplicate issues. compare the new issue against existing open issues.
 if the new issue is asking about the same problem or feature as an existing issue, mark it as duplicate.
@@ -725,7 +727,7 @@ async function checkcompleteness(
   number: number
 ): Promise<boolean> {
   const { output } = await generateText({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: config.model,
     output: Output.object({ schema: completenessschema }),
     system: buildcompletenessprompt(config),
     prompt: buildcompletenessissue(issue)
@@ -1048,7 +1050,7 @@ async function checksentiment(
     .map(([k]) => k)
 
   const { output } = await generateText({
-    model: 'anthropic/claude-sonnet-4.5',
+    model: config.model,
     output: Output.object({ schema: sentimentschema }),
     system: `you analyze the emotional tone of github issues and comments.
 detect if the user is ${detections.join(', ')}.
