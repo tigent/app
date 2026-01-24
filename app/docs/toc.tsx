@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { version } from "./config";
 
 interface TocItem {
 	id: string;
@@ -42,13 +43,33 @@ const arrowUpIcon = (
 	</svg>
 );
 
+const linkIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M6.5 9.5l3-3M7 11.5l-1.5 1.5a2.121 2.121 0 01-3-3L4 8.5M9 4.5l1.5-1.5a2.121 2.121 0 013 3L12 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+const feedbackIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M8 1a7 7 0 100 14A7 7 0 008 1zM8 4v5M8 11v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+	</svg>
+);
+
+const versionIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+	</svg>
+);
+
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
 	const [activeIds, setActiveIds] = useState<string[]>([]);
 	const [svg, setSvg] = useState<{ path: string; width: number; height: number } | null>(null);
 	const [thumb, setThumb] = useState<{ top: number; height: number }>({ top: 0, height: 0 });
 	const [copied, setCopied] = useState(false);
+	const [linkCopied, setLinkCopied] = useState(false);
 	const [showTop, setShowTop] = useState(false);
+	const [showVersions, setShowVersions] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mainRef = useRef<HTMLElement | null>(null);
 	const pathname = usePathname();
@@ -238,6 +259,12 @@ export function Toc() {
 		setTimeout(() => setCopied(false), 2000);
 	}, []);
 
+	const copyLink = useCallback(async () => {
+		await navigator.clipboard.writeText(window.location.href);
+		setLinkCopied(true);
+		setTimeout(() => setLinkCopied(false), 2000);
+	}, []);
+
 	if (items.length === 0) return null;
 
 	return (
@@ -319,7 +346,7 @@ export function Toc() {
 				<div className="flex items-center gap-1 mt-6 pt-6 border-t border-white/10">
 					<button
 						onClick={copyAsMarkdown}
-						className={`flex items-center gap-2 px-3 py-1.5 text-xs rounded-md transition-all ${
+						className={`p-2 rounded-md transition-all ${
 							copied
 								? "text-accent bg-accent/10"
 								: "text-white/40 hover:text-white/70 hover:bg-white/5"
@@ -327,16 +354,58 @@ export function Toc() {
 						title="Copy as markdown"
 					>
 						{copied ? checkIcon : copyIcon}
-						<span>{copied ? "Copied!" : "Copy"}</span>
 					</button>
+					<button
+						onClick={copyLink}
+						className={`p-2 rounded-md transition-all ${
+							linkCopied
+								? "text-accent bg-accent/10"
+								: "text-white/40 hover:text-white/70 hover:bg-white/5"
+						}`}
+						title="Copy link"
+					>
+						{linkCopied ? checkIcon : linkIcon}
+					</button>
+					<a
+						href={`https://github.com/tigent/app/issues/new?title=Docs feedback: ${pathname}&body=Page: ${pathname}%0A%0AFeedback:%0A`}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="p-2 rounded-md transition-all text-white/40 hover:text-white/70 hover:bg-white/5"
+						title="Send feedback"
+					>
+						{feedbackIcon}
+					</a>
+					<div className="relative">
+						<button
+							onClick={() => setShowVersions(!showVersions)}
+							className="p-2 rounded-md transition-all text-white/40 hover:text-white/70 hover:bg-white/5"
+							title="Switch version"
+						>
+							{versionIcon}
+						</button>
+						{showVersions && (
+							<div className="absolute bottom-full left-0 mb-1 py-1 bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg min-w-[80px]">
+								{version.all.map((v) =>
+									v.href ? (
+										<a key={v.label} href={v.href} className={`block px-3 py-1.5 text-xs hover:bg-white/5 ${v.current ? "text-accent" : "text-white/60"}`}>
+											{v.label}
+										</a>
+									) : (
+										<span key={v.label} className="block px-3 py-1.5 text-xs text-white/30 cursor-not-allowed">
+											{v.label}
+										</span>
+									)
+								)}
+							</div>
+						)}
+					</div>
 					{showTop && (
 						<button
 							onClick={scrollToTop}
-							className="flex items-center gap-2 px-3 py-1.5 text-xs text-white/40 hover:text-white/70 hover:bg-white/5 rounded-md transition-all animate-in fade-in duration-200"
+							className="p-2 rounded-md transition-all text-white/40 hover:text-white/70 hover:bg-white/5 animate-in fade-in duration-200"
 							title="Scroll to top"
 						>
 							{arrowUpIcon}
-							<span>Top</span>
 						</button>
 					)}
 				</div>

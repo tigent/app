@@ -1,3 +1,11 @@
+export const version = {
+	current: "v0.5",
+	all: [
+		{ label: "v0.5", href: "/docs", current: true },
+		{ label: "v1.0", href: null, current: false },
+	],
+};
+
 export const navigation = [
 	{
 		title: "Get Started",

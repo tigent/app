@@ -13,8 +13,8 @@
 
   ai sdk · ai gateway · github app · vercel · octokit
 
-> docs?
-
-  contribute/setup.md         → setup guide
-  contribute/contributing.md  → contribution guidelines
 ```
+
+[handbook/setup.md](handbook/setup.md) · setup guide
+[handbook/contribute.md](handbook/contribute.md) · contribution guidelines
+[handbook/version.md](handbook/version.md) · docs versioning

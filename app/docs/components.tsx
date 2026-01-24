@@ -1,24 +1,68 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { getprevnext } from "./config";
+
+const linkIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M6.5 9.5l3-3M7 11.5l-1.5 1.5a2.121 2.121 0 01-3-3L4 8.5M9 4.5l1.5-1.5a2.121 2.121 0 013 3L12 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+const checkIcon = (
+	<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M3 8l4 4 6-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+);
+
+function Anchor({ id }: { id?: string }) {
+	const [copied, setCopied] = useState(false);
+	const pathname = usePathname();
+
+	if (!id) return null;
+
+	const copy = async () => {
+		const url = `${window.location.origin}${pathname}#${id}`;
+		await navigator.clipboard.writeText(url);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		<button
+			onClick={copy}
+			className={`opacity-0 group-hover:opacity-100 p-1 rounded transition-all ${
+				copied ? "text-accent opacity-100" : "text-white/30 hover:text-white/60"
+			}`}
+			title="Copy link"
+		>
+			{copied ? checkIcon : linkIcon}
+		</button>
+	);
+}
 
 export function Header({
 	section,
 	title,
 	description,
+	id,
 }: {
 	section: string;
 	title: string;
 	description: string;
+	id?: string;
 }) {
 	return (
-		<div className="mb-12">
+		<div className="mb-12 group">
 			<p className="text-sm text-white/40 mb-2">{section}</p>
-			<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">
-				{title}
-			</h1>
-			<p className="text-xl text-white/60 max-w-2xl">{description}</p>
+			<div className="flex items-center gap-2">
+				<h1 id={id} className="text-5xl font-semibold tracking-tight text-white">
+					{title}
+				</h1>
+				<Anchor id={id} />
+			</div>
+			<p className="text-xl text-white/60 max-w-2xl mt-6">{description}</p>
 		</div>
 	);
 }
@@ -99,10 +143,13 @@ export function Option({
 	children: React.ReactNode;
 }) {
 	return (
-		<div>
-			<h3 id={id} className="text-xl font-semibold mb-3 text-white">
-				{title}
-			</h3>
+		<div className="group">
+			<div className="flex items-center gap-2 mb-3">
+				<h3 id={id} className="text-xl font-semibold text-white">
+					{title}
+				</h3>
+				<Anchor id={id} />
+			</div>
 			<p className="text-white/60 mb-4">{description}</p>
 			{children}
 		</div>
@@ -119,10 +166,13 @@ export function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="mb-16">
-			<h2 id={id} className="text-3xl font-semibold mb-6 text-white">
-				{title}
-			</h2>
+		<section className="mb-16 group">
+			<div className="flex items-center gap-2 mb-6">
+				<h2 id={id} className="text-3xl font-semibold text-white">
+					{title}
+				</h2>
+				<Anchor id={id} />
+			</div>
 			{children}
 		</section>
 	);
