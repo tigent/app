@@ -5,9 +5,9 @@ export default function DocsLayout({
 	children,
 }: { children: React.ReactNode }) {
 	return (
-		<div className="min-h-screen bg-warm p-4 md:p-6 lg:p-8">
-			<div className="bg-fg rounded-3xl min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] overflow-hidden">
-				<header className="sticky top-0 z-50 bg-fg/80 backdrop-blur-sm border-b border-white/10">
+		<div className="h-screen bg-warm p-4 md:p-6 lg:p-8 overflow-hidden">
+			<div className="bg-fg rounded-3xl h-full flex flex-col overflow-hidden">
+				<header className="shrink-0 bg-fg border-b border-white/10">
 					<div className="flex items-center justify-between px-6 md:px-8 py-4">
 						<div className="flex items-center gap-6">
 							<a href="/" className="font-semibold text-sm tracking-tight text-white">
@@ -32,9 +32,11 @@ export default function DocsLayout({
 					</div>
 				</header>
 
-				<div className="flex">
+				<div className="flex flex-1 min-h-0">
 					<Sidebar />
-					<main className="flex-1 min-w-0 px-6 md:px-8 lg:px-12 pb-12">{children}</main>
+					<main className="flex-1 min-w-0 px-6 md:px-8 lg:px-12 overflow-y-auto">
+						{children}
+					</main>
 					<Toc />
 				</div>
 			</div>

@@ -35,8 +35,8 @@ export function Sidebar() {
 	const pathname = usePathname();
 
 	return (
-		<aside className="hidden md:block w-56 shrink-0 border-r border-white/10">
-			<nav className="sticky top-16 h-[calc(100vh-8rem)] overflow-y-auto p-6">
+		<aside className="hidden md:block w-56 shrink-0 border-r border-white/10 overflow-y-auto">
+			<nav className="p-6">
 				<div className="space-y-8">
 					{navigation.map((group) => (
 						<div key={group.title}>

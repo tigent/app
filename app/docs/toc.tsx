@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 interface TocItem {
 	id: string;
@@ -11,6 +11,7 @@ interface TocItem {
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
 	const [active, setActive] = useState<string>("");
+	const containerRef = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {
 		const headings = Array.from(
@@ -28,39 +29,39 @@ export function Toc() {
 		if (tocItems.length > 0) {
 			setActive(tocItems[0].id);
 		}
+
+		containerRef.current = document.querySelector("main");
 	}, []);
 
 	useEffect(() => {
-		if (items.length === 0) return;
+		if (items.length === 0 || !containerRef.current) return;
 
-		const headings = items
-			.map((item) => document.getElementById(item.id))
-			.filter(Boolean) as HTMLElement[];
+		const container = containerRef.current;
 
-		const observer = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					if (entry.isIntersecting) {
-						setActive(entry.target.id);
-						break;
-					}
+		const handleScroll = () => {
+			const headings = items
+				.map((item) => document.getElementById(item.id))
+				.filter(Boolean) as HTMLElement[];
+
+			for (const heading of headings) {
+				const rect = heading.getBoundingClientRect();
+				if (rect.top >= 0 && rect.top <= 200) {
+					setActive(heading.id);
+					break;
 				}
-			},
-			{ rootMargin: "-100px 0px -60% 0px", threshold: 0 }
-		);
+			}
+		};
 
-		for (const heading of headings) {
-			observer.observe(heading);
-		}
-
-		return () => observer.disconnect();
+		container.addEventListener("scroll", handleScroll);
+		return () => container.removeEventListener("scroll", handleScroll);
 	}, [items]);
 
 	const scrollTo = useCallback((id: string) => {
 		const element = document.getElementById(id);
-		if (element) {
+		const container = containerRef.current;
+		if (element && container) {
 			const top = element.offsetTop - 100;
-			window.scrollTo({ top, behavior: "smooth" });
+			container.scrollTo({ top, behavior: "smooth" });
 		}
 	}, []);
 
@@ -71,8 +72,8 @@ export function Toc() {
 	const pathHeight = items.length * itemHeight;
 
 	return (
-		<aside className="hidden xl:block w-52 shrink-0">
-			<div className="sticky top-24">
+		<aside className="hidden xl:block w-52 shrink-0 overflow-y-auto pr-4">
+			<div className="py-6">
 				<div className="flex items-center gap-3 mb-5">
 					<svg className="w-4 h-4 text-white/30" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 						<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -127,7 +128,7 @@ export function Toc() {
 					)}
 
 					<nav className="space-y-0">
-						{items.map((item, index) => {
+						{items.map((item) => {
 							const isActive = item.id === active;
 							const indent = item.level > 2 ? 12 : 0;
 							return (
