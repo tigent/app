@@ -8,19 +8,20 @@ interface TocItem {
 	level: number;
 }
 
-interface PathData {
-	path: string;
-	width: number;
-	height: number;
+function getLineOffset(depth: number): number {
+	return depth >= 3 ? 10 : 0;
+}
+
+function getItemOffset(depth: number): number {
+	return depth >= 3 ? 26 : 14;
 }
 
 export function Toc() {
 	const [items, setItems] = useState<TocItem[]>([]);
 	const [activeIds, setActiveIds] = useState<string[]>([]);
-	const [pathData, setPathData] = useState<PathData>({ path: "", width: 20, height: 0 });
-	const [thumbStyle, setThumbStyle] = useState({ top: 0, height: 0 });
+	const [svg, setSvg] = useState<{ path: string; width: number; height: number } | null>(null);
+	const [thumb, setThumb] = useState<{ top: number; height: number }>({ top: 0, height: 0 });
 	const containerRef = useRef<HTMLDivElement>(null);
-	const mainRef = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {
 		const headings = Array.from(
@@ -34,7 +35,6 @@ export function Toc() {
 		}));
 
 		setItems(tocItems);
-		mainRef.current = document.querySelector("main");
 
 		if (tocItems.length > 0) {
 			setActiveIds([tocItems[0].id]);
@@ -42,126 +42,115 @@ export function Toc() {
 	}, []);
 
 	useEffect(() => {
-		if (items.length === 0 || !containerRef.current) return;
+		if (items.length === 0) return;
 
-		const generatePath = () => {
-			const container = containerRef.current;
-			if (!container) return;
+		const mainEl = document.querySelector("main");
+		if (!mainEl) return;
 
-			const segments: string[] = [];
-			let maxWidth = 0;
-			let maxHeight = 0;
-			const radius = 6;
+		const handleScroll = () => {
+			const mainRect = mainEl.getBoundingClientRect();
+			const viewTop = mainRect.top;
+			const viewBottom = mainRect.bottom;
+			const active: string[] = [];
 
-			for (let i = 0; i < items.length; i++) {
-				const element = container.querySelector(`button[data-id="${items[i].id}"]`) as HTMLElement;
-				if (!element) continue;
+			for (const item of items) {
+				const el = document.getElementById(item.id);
+				if (!el) continue;
 
-				const depth = items[i].level;
-				const nextDepth = items[i + 1]?.level || depth;
-				const prevDepth = items[i - 1]?.level || depth;
+				const rect = el.getBoundingClientRect();
+				const headingTop = rect.top;
+				const headingBottom = rect.bottom;
 
-				const xOffset = depth >= 3 ? 14 : 2;
-				const top = element.offsetTop + 10;
-				const bottom = element.offsetTop + element.offsetHeight - 10;
+				const isVisible = headingBottom > viewTop && headingTop < viewBottom - 100;
 
-				maxWidth = Math.max(maxWidth, xOffset + 4);
-				maxHeight = Math.max(maxHeight, bottom);
-
-				if (i === 0) {
-					segments.push(`M ${xOffset} ${top}`);
-				} else {
-					const prevX = prevDepth >= 3 ? 14 : 2;
-					if (prevX !== xOffset) {
-						const cornerY = top;
-						if (xOffset > prevX) {
-							segments.push(`L ${prevX} ${cornerY - radius}`);
-							segments.push(`Q ${prevX} ${cornerY}, ${prevX + radius} ${cornerY}`);
-							segments.push(`L ${xOffset} ${cornerY}`);
-						} else {
-							segments.push(`L ${prevX} ${cornerY}`);
-							segments.push(`Q ${prevX} ${cornerY}, ${prevX - radius} ${cornerY}`);
-							segments.push(`L ${xOffset} ${cornerY}`);
-						}
-					}
-					segments.push(`L ${xOffset} ${top}`);
-				}
-
-				segments.push(`L ${xOffset} ${bottom}`);
-
-				if (i < items.length - 1) {
-					const nextX = nextDepth >= 3 ? 14 : 2;
-					if (nextX !== xOffset) {
-						const nextElement = container.querySelector(`button[data-id="${items[i + 1].id}"]`) as HTMLElement;
-						if (nextElement) {
-							const nextTop = nextElement.offsetTop + 10;
-							const cornerY = nextTop;
-
-							if (nextX > xOffset) {
-								segments.push(`L ${xOffset} ${cornerY}`);
-								segments.push(`Q ${xOffset} ${cornerY}, ${xOffset + radius} ${cornerY}`);
-								segments.push(`L ${nextX - radius} ${cornerY}`);
-								segments.push(`Q ${nextX} ${cornerY}, ${nextX} ${cornerY + radius}`);
-							} else {
-								segments.push(`L ${xOffset} ${cornerY}`);
-								segments.push(`Q ${xOffset} ${cornerY}, ${xOffset - radius} ${cornerY}`);
-								segments.push(`L ${nextX + radius} ${cornerY}`);
-								segments.push(`Q ${nextX} ${cornerY}, ${nextX} ${cornerY + radius}`);
-							}
-						}
-					}
+				if (isVisible) {
+					active.push(item.id);
 				}
 			}
 
-			setPathData({ path: segments.join(" "), width: maxWidth + 4, height: maxHeight + 10 });
+			if (active.length === 0) {
+				let lastAbove: string | null = null;
+				for (const item of items) {
+					const el = document.getElementById(item.id);
+					if (!el) continue;
+					const rect = el.getBoundingClientRect();
+					if (rect.top < viewTop + 100) {
+						lastAbove = item.id;
+					}
+				}
+				setActiveIds(lastAbove ? [lastAbove] : [items[0].id]);
+			} else {
+				setActiveIds(active);
+			}
 		};
 
-		const timer = setTimeout(generatePath, 50);
-		return () => clearTimeout(timer);
+		mainEl.addEventListener("scroll", handleScroll);
+		handleScroll();
+
+		return () => mainEl.removeEventListener("scroll", handleScroll);
 	}, [items]);
 
 	useEffect(() => {
-		if (items.length === 0 || !mainRef.current) return;
+		if (!containerRef.current || items.length === 0) return;
 
-		const container = mainRef.current;
+		const container = containerRef.current;
 
-		const handleScroll = () => {
-			const visible: string[] = [];
+		function buildPath() {
+			if (container.clientHeight === 0) return;
 
-			for (const item of items) {
-				const heading = document.getElementById(item.id);
-				if (heading) {
-					const rect = heading.getBoundingClientRect();
-					if (rect.top >= -50 && rect.top <= 300) {
-						visible.push(item.id);
-					}
-				}
+			let w = 0;
+			let h = 0;
+			const d: string[] = [];
+
+			for (let i = 0; i < items.length; i++) {
+				const element = container.querySelector(`a[href="#${items[i].id}"]`) as HTMLElement | null;
+				if (!element) continue;
+
+				const styles = getComputedStyle(element);
+				const offset = getLineOffset(items[i].level) + 1;
+				const top = element.offsetTop + parseFloat(styles.paddingTop);
+				const bottom = element.offsetTop + element.clientHeight - parseFloat(styles.paddingBottom);
+
+				w = Math.max(offset, w);
+				h = Math.max(h, bottom);
+
+				d.push(`${i === 0 ? "M" : "L"}${offset} ${top}`);
+				d.push(`L${offset} ${bottom}`);
 			}
 
-			if (visible.length > 0) {
-				setActiveIds(visible);
-				updateThumb(visible);
-			}
-		};
+			setSvg({ path: d.join(" "), width: w + 1, height: h });
+		}
 
-		const updateThumb = (ids: string[]) => {
-			if (!containerRef.current || ids.length === 0) return;
+		const observer = new ResizeObserver(buildPath);
+		buildPath();
+		observer.observe(container);
 
-			const firstEl = containerRef.current.querySelector(`button[data-id="${ids[0]}"]`) as HTMLElement;
-			const lastEl = containerRef.current.querySelector(`button[data-id="${ids[ids.length - 1]}"]`) as HTMLElement;
-
-			if (firstEl && lastEl) {
-				const top = firstEl.offsetTop + 8;
-				const bottom = lastEl.offsetTop + lastEl.offsetHeight - 8;
-				setThumbStyle({ top, height: bottom - top });
-			}
-		};
-
-		container.addEventListener("scroll", handleScroll);
-		handleScroll();
-
-		return () => container.removeEventListener("scroll", handleScroll);
+		return () => observer.disconnect();
 	}, [items]);
+
+	useEffect(() => {
+		if (!containerRef.current || activeIds.length === 0) return;
+
+		const container = containerRef.current;
+		let upperBound = Infinity;
+		let lowerBound = 0;
+
+		for (const id of activeIds) {
+			const element = container.querySelector(`a[href="#${id}"]`) as HTMLElement | null;
+			if (!element) continue;
+
+			const styles = getComputedStyle(element);
+			const top = element.offsetTop + parseFloat(styles.paddingTop);
+			const bottom = element.offsetTop + element.clientHeight - parseFloat(styles.paddingBottom);
+
+			upperBound = Math.min(upperBound, top);
+			lowerBound = Math.max(lowerBound, bottom);
+		}
+
+		if (upperBound !== Infinity) {
+			setThumb({ top: upperBound, height: lowerBound - upperBound });
+		}
+	}, [activeIds]);
 
 	const scrollTo = useCallback((id: string) => {
 		const element = document.getElementById(id);
@@ -174,13 +163,9 @@ export function Toc() {
 
 	if (items.length === 0) return null;
 
-	const svgMask = `url("data:image/svg+xml,${encodeURIComponent(
-		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pathData.width} ${pathData.height}"><path d="${pathData.path}" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-	)}")`;
-
 	return (
 		<aside className="hidden xl:block w-56 shrink-0 overflow-y-auto">
-			<div ref={containerRef} className="py-6 pr-6">
+			<div className="py-6 pr-6">
 				<div className="flex items-center gap-3 mb-5">
 					<svg className="w-4 h-4 text-white/30" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 						<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -188,69 +173,73 @@ export function Toc() {
 					<span className="text-xs uppercase tracking-wider text-white/30 font-medium">On this page</span>
 				</div>
 
-				<div className="relative">
-					<svg
-						className="absolute left-0 top-0 pointer-events-none"
-						width={pathData.width}
-						height={pathData.height}
-						viewBox={`0 0 ${pathData.width} ${pathData.height}`}
-						fill="none"
-						aria-hidden="true"
-					>
-						<path
-							d={pathData.path}
-							stroke="rgba(255,255,255,0.12)"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							fill="none"
-						/>
-					</svg>
-
-					<div
-						className="absolute left-0 top-0 pointer-events-none transition-all duration-300 ease-out"
-						style={{
-							width: pathData.width,
-							height: pathData.height,
-							maskImage: svgMask,
-							WebkitMaskImage: svgMask,
-							maskSize: "100% 100%",
-							WebkitMaskSize: "100% 100%",
-						}}
-					>
+				<nav className="relative">
+					{svg && (
 						<div
-							className="bg-accent transition-all duration-300 ease-out"
+							className="absolute left-0 top-0"
 							style={{
-								width: 2,
-								marginLeft: 1,
-								marginTop: thumbStyle.top,
-								height: thumbStyle.height,
+								width: svg.width,
+								height: svg.height,
+								maskImage: `url("data:image/svg+xml,${encodeURIComponent(
+									`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svg.width} ${svg.height}"><path d="${svg.path}" stroke="black" stroke-width="1" fill="none" /></svg>`
+								)}")`,
 							}}
-						/>
-					</div>
+						>
+							<div
+								className="absolute w-full bg-accent transition-all duration-150"
+								style={{ top: thumb.top, height: thumb.height }}
+							/>
+						</div>
+					)}
 
-					<nav className="relative">
-						{items.map((item) => {
+					<div ref={containerRef} className="flex flex-col relative">
+						{items.map((item, i) => {
 							const isActive = activeIds.includes(item.id);
-							const indent = item.level >= 3 ? 20 : 8;
+							const offset = getLineOffset(item.level);
+							const upperOffset = getLineOffset(items[i - 1]?.level ?? item.level);
+							const lowerOffset = getLineOffset(items[i + 1]?.level ?? item.level);
+
 							return (
-								<button
+								<a
 									key={item.id}
-									data-id={item.id}
-									onClick={() => scrollTo(item.id)}
-									className={`block w-full text-left py-2.5 text-sm transition-all duration-200 ${
-										isActive
-											? "text-accent font-medium"
-											: "text-white/40 hover:text-white/70"
+									href={`#${item.id}`}
+									onClick={(e) => {
+										e.preventDefault();
+										scrollTo(item.id);
+									}}
+									className={`relative py-1.5 text-sm transition-colors ${
+										isActive ? "text-accent font-medium" : "text-white/40 hover:text-white/70"
 									}`}
-									style={{ paddingLeft: indent }}
+									style={{ paddingLeft: getItemOffset(item.level) }}
 								>
+									{offset !== upperOffset && (
+										<svg
+											viewBox="0 0 16 16"
+											className="absolute -top-1.5 left-0 size-4"
+											aria-hidden="true"
+										>
+											<line
+												x1={upperOffset}
+												y1="0"
+												x2={offset}
+												y2="12"
+												className="stroke-white/10"
+												strokeWidth="1"
+											/>
+										</svg>
+									)}
+									<div
+										className={`absolute inset-y-0 w-px bg-white/10 ${
+											offset !== upperOffset ? "top-1.5" : ""
+										} ${offset !== lowerOffset ? "bottom-1.5" : ""}`}
+										style={{ left: offset }}
+									/>
 									{item.text}
-								</button>
+								</a>
 							);
 						})}
-					</nav>
-				</div>
+					</div>
+				</nav>
 			</div>
 		</aside>
 	);
