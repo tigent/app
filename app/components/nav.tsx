@@ -27,7 +27,7 @@ export function Nav() {
 				</a>
 				<div className="flex items-center gap-5">
 					<a
-						href="#config"
+						href="/docs"
 						className={`text-sm transition-colors ${
 							scrolled ? "text-bg/70 hover:text-bg" : "text-muted hover:text-fg"
 						}`}

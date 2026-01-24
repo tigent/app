@@ -1,0 +1,75 @@
+export default function Themes() {
+	return (
+		<article className="py-12">
+			<div className="mb-12">
+				<p className="text-sm text-muted mb-2">Configuration</p>
+				<h1 className="text-5xl font-semibold tracking-tight mb-6">Themes</h1>
+				<p className="text-xl text-muted max-w-2xl">
+					Color themes for auto-created labels.
+				</p>
+			</div>
+
+			<section className="mb-16">
+				<h2 className="text-3xl font-semibold mb-8">Built-in themes</h2>
+				<div className="grid md:grid-cols-3 gap-6">
+					<div className="border border-border rounded-2xl p-6">
+						<h3 className="font-semibold text-lg mb-4">mono</h3>
+						<p className="text-sm text-muted mb-6">Grayscale for a clean look.</p>
+						<div className="flex gap-2">
+							<span className="w-6 h-6 rounded bg-black" />
+							<span className="w-6 h-6 rounded bg-neutral-700" />
+							<span className="w-6 h-6 rounded bg-neutral-500" />
+							<span className="w-6 h-6 rounded bg-neutral-400" />
+							<span className="w-6 h-6 rounded bg-neutral-300" />
+						</div>
+					</div>
+					<div className="border border-border rounded-2xl p-6">
+						<h3 className="font-semibold text-lg mb-4">colorful</h3>
+						<p className="text-sm text-muted mb-6">Vibrant for high visibility.</p>
+						<div className="flex gap-2">
+							<span className="w-6 h-6 rounded bg-red-600" />
+							<span className="w-6 h-6 rounded bg-orange-500" />
+							<span className="w-6 h-6 rounded bg-yellow-400" />
+							<span className="w-6 h-6 rounded bg-green-500" />
+							<span className="w-6 h-6 rounded bg-blue-500" />
+						</div>
+					</div>
+					<div className="border border-border rounded-2xl p-6">
+						<h3 className="font-semibold text-lg mb-4">pastel</h3>
+						<p className="text-sm text-muted mb-6">Soft for a gentle aesthetic.</p>
+						<div className="flex gap-2">
+							<span className="w-6 h-6 rounded bg-red-200" />
+							<span className="w-6 h-6 rounded bg-orange-200" />
+							<span className="w-6 h-6 rounded bg-yellow-200" />
+							<span className="w-6 h-6 rounded bg-green-200" />
+							<span className="w-6 h-6 rounded bg-blue-200" />
+						</div>
+					</div>
+				</div>
+				<pre className="bg-fg text-white/90 p-6 rounded-2xl text-sm font-mono mt-8 inline-block">theme: mono</pre>
+			</section>
+
+			<section className="mb-16">
+				<h2 className="text-3xl font-semibold mb-6">Custom themes</h2>
+				<p className="text-muted mb-6 max-w-2xl">Define your own theme with hex colors:</p>
+				<pre className="bg-fg text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed max-w-lg">
+					{`theme: custom
+
+themes:
+  custom:
+    critical: ff0000
+    high: ff6600
+    medium: ffcc00
+    low: 00cc00
+    muted: 0066ff
+    light: cc00ff`}
+				</pre>
+			</section>
+
+			<div className="flex items-center justify-between pt-8 border-t border-border">
+				<a href="/docs/duplicates" className="text-sm text-muted hover:text-fg transition-colors">← Duplicates</a>
+				<a href="/docs/webhooks" className="text-sm text-muted hover:text-fg transition-colors">Webhooks →</a>
+			</div>
+		</article>
+	);
+}

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///Users/josh/Desktop/agent-triage/app/globals.css"],"sourcesContent":["* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:root {\n  --bg: #0a0a0a;\n  --fg: #fafafa;\n  --muted: #666;\n  --border: #222;\n  --accent: #fff;\n}\n\nbody {\n  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', monospace;\n  background: var(--bg);\n  color: var(--fg);\n  line-height: 1.6;\n  min-height: 100vh;\n  -webkit-font-smoothing: antialiased;\n}\n\na {\n  color: inherit;\n  text-decoration: none;\n}\n\ncode {\n  font-family: inherit;\n  background: var(--border);\n  padding: 0.2em 0.4em;\n  border-radius: 4px;\n  font-size: 0.9em;\n}\n\npre {\n  background: var(--border);\n  padding: 1rem;\n  border-radius: 8px;\n  overflow-x: auto;\n  font-size: 0.85rem;\n}\n\n::selection {\n  background: var(--fg);\n  color: var(--bg);\n}\n"],"names":[],"mappings":"AAAA;;;;;;AAMA;;;;;;;;AAQA;;;;;;;;;AASA;;;;;AAKA;;;;;;;;AAQA;;;;;;;;AAQA"}}]
+}

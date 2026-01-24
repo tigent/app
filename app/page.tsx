@@ -21,7 +21,7 @@ export default function Page() {
 				</p>
 				<div className="flex gap-3">
 					<a
-						href="#config"
+						href="/docs"
 						className="px-5 py-3 text-sm border border-border rounded-lg hover:bg-warm transition-colors"
 					>
 						View Config
@@ -157,7 +157,7 @@ duplicates:
 							Agent Triage
 						</a>
 						<div className="flex gap-6">
-							<a href="#config" className="text-sm text-bg/70 hover:text-bg transition-colors">
+							<a href="/docs" className="text-sm text-bg/70 hover:text-bg transition-colors">
 								Docs
 							</a>
 							<a href="https://github.com/agent-triage/app" className="text-sm text-bg/70 hover:text-bg transition-colors">
