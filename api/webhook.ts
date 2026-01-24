@@ -8,6 +8,8 @@ import { getWorld } from 'workflow/runtime'
 import { stalechecker } from '../workflows/stale'
 import { getstalerunid, setstalerunid, deletestalerunid } from '../lib/redis'
 
+type StaleCheckerArgs = [number, string, string, string, string]
+
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
 })
@@ -54,8 +56,8 @@ webhooks.on('installation.created', async ({ payload }) => {
     const [owner, repo] = repository.full_name.split('/')
     const repoid = repository.id
 
-    const run = await start(stalechecker, [repoid, owner, repo, appid, privatekey])
-    await setstalerunid(repoid, run.id)
+    const run = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
+    await setstalerunid(repoid, run.runId)
   }
 })
 
@@ -83,8 +85,8 @@ webhooks.on('installation_repositories.added', async ({ payload }) => {
     const [owner, repo] = repository.full_name.split('/')
     const repoid = repository.id
 
-    const run = await start(stalechecker, [repoid, owner, repo, appid, privatekey])
-    await setstalerunid(repoid, run.id)
+    const run = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
+    await setstalerunid(repoid, run.runId)
   }
 })
 
