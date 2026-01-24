@@ -165,7 +165,7 @@ async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
   if (Object.keys(config.labels).length === 0) return
 
   const existing = await fetchlabels(ghconfig)
-  const theme = config.themes[config.theme] || config.themes.mono
+  const theme = config.themes[config.theme] || config.themes.mono || {}
 
   for (const [name, colorkey] of Object.entries(config.labels)) {
     if (existing.includes(name)) continue
