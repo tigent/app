@@ -25,31 +25,49 @@ export default function Docs() {
 
 			<section className="mb-16">
 				<h2 id="features" className="text-3xl font-semibold mb-8 text-white">Features</h2>
-				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="auto-labeling" className="font-semibold mb-2 text-white">Auto-labeling</h3>
-						<p className="text-sm text-white/50">AI analyzes issue content and applies relevant labels.</p>
-					</div>
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="duplicate-detection" className="font-semibold mb-2 text-white">Duplicate detection</h3>
-						<p className="text-sm text-white/50">Identifies similar issues using semantic search.</p>
-					</div>
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="priority-assignment" className="font-semibold mb-2 text-white">Priority assignment</h3>
-						<p className="text-sm text-white/50">Set urgency levels based on keywords and AI analysis.</p>
-					</div>
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="custom-rules" className="font-semibold mb-2 text-white">Custom rules</h3>
-						<p className="text-sm text-white/50">Define regex patterns to trigger specific labels.</p>
-					</div>
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="webhooks" className="font-semibold mb-2 text-white">Webhooks</h3>
-						<p className="text-sm text-white/50">Send notifications to Slack, Discord, or any endpoint.</p>
-					</div>
-					<div className="border border-white/10 rounded-xl p-6">
-						<h3 id="themes" className="font-semibold mb-2 text-white">Themes</h3>
-						<p className="text-sm text-white/50">Choose from built-in color themes for labels.</p>
-					</div>
+
+				<div className="mb-8">
+					<h3 id="auto-labeling" className="text-xl font-semibold mb-3 text-white">Auto-labeling</h3>
+					<p className="text-white/60 max-w-2xl mb-4">
+						AI analyzes issue content and applies relevant labels based on your configuration.
+						No more manual triage.
+					</p>
+				</div>
+
+				<div className="mb-8">
+					<h3 id="duplicate-detection" className="text-xl font-semibold mb-3 text-white">Duplicate detection</h3>
+					<p className="text-white/60 max-w-2xl mb-4">
+						Identifies similar issues using semantic search and links them together.
+						Optionally auto-close duplicates.
+					</p>
+				</div>
+
+				<div className="mb-8">
+					<h3 id="priority-assignment" className="text-xl font-semibold mb-3 text-white">Priority assignment</h3>
+					<p className="text-white/60 max-w-2xl mb-4">
+						Set urgency levels based on keywords and AI analysis. Critical issues get flagged immediately.
+					</p>
+				</div>
+
+				<div className="mb-8">
+					<h3 id="custom-rules" className="text-xl font-semibold mb-3 text-white">Custom rules</h3>
+					<p className="text-white/60 max-w-2xl mb-4">
+						Define regex patterns to trigger specific labels. Full control over your labeling logic.
+					</p>
+				</div>
+
+				<div className="mb-8">
+					<h3 id="webhooks-feature" className="text-xl font-semibold mb-3 text-white">Webhooks</h3>
+					<p className="text-white/60 max-w-2xl mb-4">
+						Send notifications to Slack, Discord, or any HTTP endpoint when issues are triaged.
+					</p>
+				</div>
+
+				<div className="mb-8">
+					<h3 id="themes-feature" className="text-xl font-semibold mb-3 text-white">Themes</h3>
+					<p className="text-white/60 max-w-2xl">
+						Choose from built-in color themes for labels or create your own custom palette.
+					</p>
 				</div>
 			</section>
 
