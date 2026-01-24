@@ -15,5 +15,6 @@
 
 > docs?
 
-  contribute/setup.md   → setup guide
+  contribute/setup.md         → setup guide
+  contribute/contributing.md  → contribution guidelines
 ```

@@ -24,7 +24,7 @@ export default function Page() {
 						href="/docs"
 						className="px-5 py-3 text-sm border border-border rounded-lg hover:bg-warm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 					>
-						View Config
+						View Docs
 					</a>
 					<a
 						href="https://github.com/apps/tigent"
@@ -51,7 +51,7 @@ export default function Page() {
 							</code>
 						</p>
 						<a
-							href="https://github.com/tigent/app"
+							href="/docs/config"
 							className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
 						>
 							View full documentation →

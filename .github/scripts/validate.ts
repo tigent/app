@@ -25,6 +25,13 @@ const schema = z.object({
     label: z.string().optional(),
     comment: z.boolean().optional(),
     close: z.boolean().optional()
+  }).optional(),
+  autorespond: z.object({
+    enabled: z.boolean().optional(),
+    label: z.string().optional(),
+    context: z.string().optional(),
+    requirements: z.record(z.string(), z.array(z.string())).optional(),
+    message: z.string().optional()
   }).optional()
 })
 

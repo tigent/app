@@ -76,6 +76,13 @@ interface TriageConfig {
     comment: boolean
     close: boolean
   }
+  autorespond: {
+    enabled: boolean
+    label: string
+    context: string
+    requirements: Record<string, string[]>
+    message: string
+  }
 }
 
 const defaultconfig: TriageConfig = {
@@ -116,6 +123,15 @@ const defaultconfig: TriageConfig = {
     threshold: 0.8,
     comment: true,
     close: false
+  },
+  autorespond: {
+    enabled: false,
+    label: 'needs-info',
+    context: '',
+    requirements: {
+      default: ['clear description']
+    },
+    message: 'thanks for opening this issue! we need a bit more info to help you.'
   }
 }
 
@@ -154,6 +170,13 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
         label: parsed.duplicates?.label,
         comment: parsed.duplicates?.comment ?? true,
         close: parsed.duplicates?.close ?? false
+      },
+      autorespond: {
+        enabled: parsed.autorespond?.enabled ?? false,
+        label: parsed.autorespond?.label ?? 'needs-info',
+        context: parsed.autorespond?.context ?? '',
+        requirements: parsed.autorespond?.requirements ?? { default: ['clear description'] },
+        message: parsed.autorespond?.message ?? defaultconfig.autorespond.message
       }
     }
   } catch {
@@ -162,16 +185,17 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
 }
 
 async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
-  if (Object.keys(config.labels).length === 0) return
-
   const existing = await fetchlabels(ghconfig)
   const theme = config.themes[config.theme] || config.themes.mono || {}
 
   for (const [name, colorkey] of Object.entries(config.labels)) {
     if (existing.includes(name)) continue
-
     const color = theme[colorkey] || colorkey
     await createlabel(ghconfig, name, color)
+  }
+
+  if (config.autorespond.enabled && !existing.includes(config.autorespond.label)) {
+    await createlabel(ghconfig, config.autorespond.label, theme.muted || 'c0c0c0')
   }
 }
 
@@ -210,6 +234,14 @@ const duplicateschema = z.object({
   confidence: z.number().min(0).max(1),
   duplicateof: z.number().nullable(),
   reasoning: z.string()
+})
+
+const completenessschema = z.object({
+  complete: z.boolean(),
+  issuetype: z.enum(['bug', 'feature', 'question', 'other']),
+  missing: z.array(z.string()),
+  response: z.string(),
+  confidence: z.number().min(0).max(1)
 })
 
 async function gettoken(config: AppConfig): Promise<string> {
@@ -362,6 +394,11 @@ async function triageissue(ghconfig: GhConfig, config: TriageConfig, number: num
     if (duplicate) return
   }
 
+  if (config.autorespond.enabled) {
+    const incomplete = await checkcompleteness(ghconfig, config, issue, number)
+    if (incomplete) return
+  }
+
   const rulelabels = applyrules(config.rules, issue.title, issue.body || '')
 
   const { output } = await generateText({
@@ -442,6 +479,51 @@ ${issuelist}`
   }
 
   return false
+}
+
+async function checkcompleteness(
+  ghconfig: GhConfig,
+  config: TriageConfig,
+  issue: Issue,
+  number: number
+): Promise<boolean> {
+  const { output } = await generateText({
+    model: 'anthropic/claude-sonnet-4.5',
+    output: Output.object({ schema: completenessschema }),
+    system: buildcompletenessprompt(config),
+    prompt: buildcompletenessissue(issue)
+  })
+
+  if (!output.complete && output.confidence >= config.confidence) {
+    await comment(ghconfig, number, output.response || config.autorespond.message)
+    await label(ghconfig, number, [config.autorespond.label])
+    return true
+  }
+
+  return false
+}
+
+function buildcompletenessprompt(config: TriageConfig): string {
+  const reqs = Object.entries(config.autorespond.requirements)
+    .map(([type, items]) => `${type}: ${items.join(', ')}`)
+    .join('\n')
+
+  return `you analyze issues for completeness. determine if the issue has enough info.
+
+${config.autorespond.context ? `context: ${config.autorespond.context}\n` : ''}
+requirements by issue type:
+${reqs}
+
+if the issue is missing required info, set complete to false and list what's missing.
+write a helpful response asking for the missing info. be friendly and specific.
+use the message template as a starting point: ${config.autorespond.message}`
+}
+
+function buildcompletenessissue(issue: Issue): string {
+  return `title: ${issue.title}
+
+body:
+${issue.body || 'no description'}`
 }
 
 async function searchissues(config: GhConfig, excludenumber: number): Promise<{ number: number; title: string }[]> {

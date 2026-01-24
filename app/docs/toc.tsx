@@ -177,7 +177,7 @@ export function Toc() {
 	if (items.length === 0) return null;
 
 	return (
-		<aside className="hidden xl:block w-56 shrink-0 overflow-y-auto">
+		<aside className="hidden xl:block w-56 shrink-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 			<div className="py-6 pr-6">
 				<div className="flex items-center gap-3 mb-5">
 					{headerIcon}

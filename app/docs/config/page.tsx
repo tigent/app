@@ -38,6 +38,16 @@ duplicates:
   enabled: true
   threshold: 0.8
 
+autorespond:
+  enabled: true
+  label: needs-info
+  requirements:
+    bug:
+      - steps to reproduce
+      - expected behavior
+    default:
+      - clear description
+
 webhooks:
   - url: https://hooks.slack.com/...
     events: [labeled, duplicate]`}
@@ -87,6 +97,16 @@ webhooks:
 {`duplicates:
   enabled: true
   threshold: 0.8`}
+						</pre>
+					</div>
+
+					<div>
+						<h3 id="autorespond-config" className="text-xl font-semibold mb-3 text-white">autorespond</h3>
+						<p className="text-white/60 mb-4">Request missing info from incomplete issues.</p>
+						<pre className="bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono leading-relaxed">
+{`autorespond:
+  enabled: true
+  label: needs-info`}
 						</pre>
 					</div>
 

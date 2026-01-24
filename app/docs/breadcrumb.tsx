@@ -10,6 +10,7 @@ const pages: Record<string, { title: string; section: string }> = {
 	"/docs/labels": { title: "Labels", section: "config" },
 	"/docs/rules": { title: "Rules", section: "config" },
 	"/docs/duplicates": { title: "Duplicates", section: "config" },
+	"/docs/autorespond": { title: "Autorespond", section: "config" },
 	"/docs/themes": { title: "Themes", section: "config" },
 	"/docs/webhooks": { title: "Webhooks", section: "integrations" },
 	"/docs/slack": { title: "Slack", section: "integrations" },

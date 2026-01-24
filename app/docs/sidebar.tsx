@@ -18,6 +18,7 @@ const navigation = [
 			{ title: "Labels", href: "/docs/labels" },
 			{ title: "Rules", href: "/docs/rules" },
 			{ title: "Duplicates", href: "/docs/duplicates" },
+			{ title: "Autorespond", href: "/docs/autorespond" },
 			{ title: "Themes", href: "/docs/themes" },
 		],
 	},
