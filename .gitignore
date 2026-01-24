@@ -14,5 +14,6 @@ coverage
 *.tgz
 dist
 logs
+.swc
 .env
 out
