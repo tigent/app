@@ -22,6 +22,7 @@ export function Toc() {
 	const [svg, setSvg] = useState<{ path: string; width: number; height: number } | null>(null);
 	const [thumb, setThumb] = useState<{ top: number; height: number }>({ top: 0, height: 0 });
 	const containerRef = useRef<HTMLDivElement>(null);
+	const mainRef = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {
 		const headings = Array.from(
@@ -35,6 +36,7 @@ export function Toc() {
 		}));
 
 		setItems(tocItems);
+		mainRef.current = document.querySelector("main");
 
 		const first = tocItems[0];
 		if (first) {
@@ -45,7 +47,7 @@ export function Toc() {
 	useEffect(() => {
 		if (items.length === 0) return;
 
-		const mainEl = document.querySelector("main");
+		const mainEl = mainRef.current;
 		if (!mainEl) return;
 
 		const handleScroll = () => {
@@ -79,7 +81,8 @@ export function Toc() {
 						lastAbove = item.id;
 					}
 				}
-				setActiveIds(lastAbove ? [lastAbove] : [items[0].id]);
+				const firstItem = items[0];
+				setActiveIds(lastAbove ? [lastAbove] : firstItem ? [firstItem.id] : []);
 			} else {
 				setActiveIds(active);
 			}
@@ -104,11 +107,14 @@ export function Toc() {
 			const d: string[] = [];
 
 			for (let i = 0; i < items.length; i++) {
-				const element = container.querySelector(`a[href="#${items[i].id}"]`) as HTMLElement | null;
+				const item = items[i];
+				if (!item) continue;
+
+				const element = container.querySelector(`a[href="#${item.id}"]`) as HTMLElement | null;
 				if (!element) continue;
 
 				const styles = getComputedStyle(element);
-				const offset = getLineOffset(items[i].level) + 1;
+				const offset = getLineOffset(item.level) + 1;
 				const top = element.offsetTop + parseFloat(styles.paddingTop);
 				const bottom = element.offsetTop + element.clientHeight - parseFloat(styles.paddingBottom);
 
