@@ -7,7 +7,7 @@ export function Sidebar() {
 	const pathname = usePathname();
 
 	return (
-		<aside className="hidden md:block w-56 shrink-0 border-r border-white/10 overflow-y-auto">
+		<aside className="hidden md:block w-56 shrink-0 border-r border-white/10 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 			<nav className="p-6">
 				<div className="space-y-8">
 					{navigation.map((group) => (

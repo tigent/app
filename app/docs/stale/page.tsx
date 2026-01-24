@@ -77,7 +77,7 @@ export default function Stale() {
 
 			<Section id="how-it-works" title="How it works">
 				<p className="text-white/60 max-w-2xl">
-					Tigent checks your open issues daily. Issues with no activity for the
+					Tigent checks your open issues hourly. Issues with no activity for the
 					configured number of days are labeled as stale and receive a warning
 					comment. If there&apos;s still no activity after the close period, the
 					issue is automatically closed.
