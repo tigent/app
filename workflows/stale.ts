@@ -1,6 +1,7 @@
 import { sleep, fetch } from "workflow";
 import { SignJWT, importPKCS8 } from "jose";
 import { parse } from "yaml";
+import { WORKFLOW_INTERVAL } from "../lib/workflow";
 
 interface StaleConfig {
 	enabled: boolean;
@@ -39,7 +40,7 @@ export async function stalechecker(
 			await checkstale(token, owner, repo, config);
 		}
 
-		await sleep("24h");
+		await sleep(WORKFLOW_INTERVAL);
 	}
 }
 
