@@ -45,7 +45,7 @@ bun run dev
 ```
 
 ```bash
-npx smee -u https://smee.io/<your-channel-id> -t http://localhost:3000/api/webhook
+npx smee-client -u https://smee.io/<your-channel-id> -t http://localhost:3000/api/webhook
 ```
 
 use smee's "resend" feature to re-send webhooks when debugging instead of creating new issues/prs.
