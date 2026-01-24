@@ -1,3 +1,4 @@
+next-env.d.ts
 *.tsbuildinfo
 .eslintcache
 node_modules
@@ -5,13 +6,13 @@ node_modules
 .DS_Store
 coverage
 .vercel
+*.lcov
 .cache
 .next
 .idea
-*.lcov
 *.log
-dist
-.env
 *.tgz
+dist
 logs
+.env
 out
