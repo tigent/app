@@ -15,6 +15,6 @@
 
 ```
 
-[handbook/setup.md](handbook/setup.md) · setup guide
-[handbook/contribute.md](handbook/contribute.md) · contribution guidelines
-[handbook/version.md](handbook/version.md) · docs versioning
+> **handbook**
+>
+> [setup.md](handbook/setup.md) · [contribute.md](handbook/contribute.md) · [version.md](handbook/version.md)
