@@ -247,49 +247,46 @@ async function checknoreply(token: string, owner: string, repo: string, config: 
 	}
 }
 
-async function fetchissues(token: string, owner: string, repo: string): Promise<Issue[]> {
-	const response = await globalThis.fetch(
-		`https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=100`,
-		{
+async function fetchpaginated<T>(url: string, token: string, maxpages = 10): Promise<T[]> {
+	const results: T[] = [];
+	let nexturl: string | null = url;
+
+	for (let page = 0; page < maxpages && nexturl; page++) {
+		const response: Response = await globalThis.fetch(nexturl, {
 			headers: {
 				accept: "application/vnd.github+json",
 				authorization: `Bearer ${token}`,
 				"x-github-api-version": "2022-11-28",
 			},
-		}
-	);
+		});
 
-	const data = (await response.json()) as (Issue & { pull_request?: unknown })[];
+		if (!response.ok) break;
+
+		const data = (await response.json()) as T[];
+		results.push(...data);
+
+		const link = response.headers.get("link");
+		const match = link?.match(/<([^>]+)>;\s*rel="next"/);
+		nexturl = match?.[1] || null;
+	}
+
+	return results;
+}
+
+async function fetchissues(token: string, owner: string, repo: string): Promise<Issue[]> {
+	const url = `https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=100`;
+	const data = await fetchpaginated<Issue & { pull_request?: unknown }>(url, token);
 	return data.filter((i) => !i.pull_request);
 }
 
 async function getcomments(token: string, owner: string, repo: string, issue: number): Promise<Comment[]> {
-	const response = await globalThis.fetch(
-		`https://api.github.com/repos/${owner}/${repo}/issues/${issue}/comments?per_page=50`,
-		{
-			headers: {
-				accept: "application/vnd.github+json",
-				authorization: `Bearer ${token}`,
-				"x-github-api-version": "2022-11-28",
-			},
-		}
-	);
-
-	return response.json() as Promise<Comment[]>;
+	const url = `https://api.github.com/repos/${owner}/${repo}/issues/${issue}/comments?per_page=100`;
+	return fetchpaginated<Comment>(url, token);
 }
 
 async function getteammembers(token: string, owner: string, repo: string): Promise<string[]> {
-	const response = await globalThis.fetch(`https://api.github.com/repos/${owner}/${repo}/collaborators`, {
-		headers: {
-			accept: "application/vnd.github+json",
-			authorization: `Bearer ${token}`,
-			"x-github-api-version": "2022-11-28",
-		},
-	});
-
-	if (!response.ok) return [];
-
-	const collaborators = (await response.json()) as { login: string; role_name: string }[];
+	const url = `https://api.github.com/repos/${owner}/${repo}/collaborators?per_page=100`;
+	const collaborators = await fetchpaginated<{ login: string; role_name: string }>(url, token);
 	return collaborators.filter((c) => ["admin", "maintain", "push"].includes(c.role_name)).map((c) => c.login);
 }
 

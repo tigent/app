@@ -938,6 +938,32 @@ async function fetchlabels(config: GhConfig): Promise<string[]> {
   return data.map(l => l.name)
 }
 
+async function fetchpaginated<T>(url: string, token: string, maxpages = 10): Promise<T[]> {
+  const results: T[] = []
+  let nexturl: string | null = url
+
+  for (let page = 0; page < maxpages && nexturl; page++) {
+    const response: Response = await fetch(nexturl, {
+      headers: {
+        'accept': 'application/vnd.github+json',
+        'authorization': `Bearer ${token}`,
+        'x-github-api-version': '2022-11-28'
+      }
+    })
+
+    if (!response.ok) break
+
+    const data = await response.json() as T[]
+    results.push(...data)
+
+    const link = response.headers.get('link')
+    const match = link?.match(/<([^>]+)>;\s*rel="next"/)
+    nexturl = match?.[1] || null
+  }
+
+  return results
+}
+
 interface PullRequest {
   title: string
   body: string
@@ -1000,20 +1026,8 @@ async function getteammembers(config: GhConfig): Promise<string[]> {
   const cached = teammemberscache.get(key)
   if (cached && cached.expires > Date.now()) return cached.members
 
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/collaborators`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-
-  if (!response.ok) return []
-
-  const collaborators = await response.json() as { login: string; role_name: string }[]
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/collaborators?per_page=100`
+  const collaborators = await fetchpaginated<{ login: string; role_name: string }>(url, config.token)
   const members = collaborators
     .filter(c => ['admin', 'maintain', 'push'].includes(c.role_name))
     .map(c => c.login)
@@ -1029,17 +1043,8 @@ interface Comment {
 }
 
 async function getcomments(config: GhConfig, issue: number): Promise<Comment[]> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/comments?per_page=50`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  return response.json() as Promise<Comment[]>
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/comments?per_page=100`
+  return fetchpaginated<Comment>(url, config.token)
 }
 
 interface SentimentResult {
