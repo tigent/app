@@ -17,6 +17,7 @@ export const navigation = [
 			{ title: "Rules", href: "/docs/rules" },
 			{ title: "Duplicates", href: "/docs/duplicates" },
 			{ title: "Autorespond", href: "/docs/autorespond" },
+			{ title: "Stale", href: "/docs/stale" },
 			{ title: "Themes", href: "/docs/themes" },
 		],
 	},

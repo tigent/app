@@ -3,6 +3,12 @@ import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { SignJWT, importPKCS8 } from 'jose'
 import { parse } from 'yaml'
+import { start } from 'workflow/api'
+import { getWorld } from 'workflow/runtime'
+import { stalechecker } from '../workflows/stale'
+import { getstalerunid, setstalerunid, deletestalerunid } from '../lib/redis'
+
+type StaleCheckerArgs = [number, string, string, string, string]
 
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
@@ -40,6 +46,64 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
   const config = await getconfig(ghconfig)
   await synclabels(ghconfig, config)
   await triagepr(ghconfig, config, payload.pull_request.number)
+})
+
+webhooks.on('installation.created', async ({ payload }) => {
+  const appid = process.env.GITHUB_APP_ID!
+  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
+
+  for (const repository of payload.repositories || []) {
+    const [owner, repo] = repository.full_name.split('/')
+    const repoid = repository.id
+
+    const run = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
+    await setstalerunid(repoid, run.runId)
+  }
+})
+
+webhooks.on('installation.deleted', async ({ payload }) => {
+  const world = getWorld()
+
+  for (const repository of payload.repositories || []) {
+    const repoid = repository.id
+    const runid = await getstalerunid(repoid)
+
+    if (runid) {
+      try {
+        await world.runs.cancel(runid)
+      } catch {}
+      await deletestalerunid(repoid)
+    }
+  }
+})
+
+webhooks.on('installation_repositories.added', async ({ payload }) => {
+  const appid = process.env.GITHUB_APP_ID!
+  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
+
+  for (const repository of payload.repositories_added || []) {
+    const [owner, repo] = repository.full_name.split('/')
+    const repoid = repository.id
+
+    const run = await start(stalechecker as any, [repoid, owner, repo, appid, privatekey] as StaleCheckerArgs)
+    await setstalerunid(repoid, run.runId)
+  }
+})
+
+webhooks.on('installation_repositories.removed', async ({ payload }) => {
+  const world = getWorld()
+
+  for (const repository of payload.repositories_removed || []) {
+    const repoid = repository.id
+    const runid = await getstalerunid(repoid)
+
+    if (runid) {
+      try {
+        await world.runs.cancel(runid)
+      } catch {}
+      await deletestalerunid(repoid)
+    }
+  }
 })
 
 export async function POST(req: Request) {
@@ -82,6 +146,15 @@ interface TriageConfig {
     context: string
     requirements: Record<string, string[]>
     message: string
+  }
+  stale: {
+    enabled: boolean
+    days: number
+    close: number
+    exempt: { labels: string[]; assignees: boolean }
+    label: string
+    message: string
+    closemessage: string
   }
 }
 
@@ -132,6 +205,15 @@ const defaultconfig: TriageConfig = {
       default: ['clear description']
     },
     message: 'thanks for opening this issue! we need a bit more info to help you.'
+  },
+  stale: {
+    enabled: false,
+    days: 60,
+    close: 7,
+    exempt: { labels: [], assignees: false },
+    label: 'stale',
+    message: 'this issue has been inactive for {days} days and will be closed in {close} days if there is no further activity.',
+    closemessage: 'this issue has been closed due to inactivity.'
   }
 }
 
@@ -177,6 +259,18 @@ async function getconfig(config: GhConfig): Promise<TriageConfig> {
         context: parsed.autorespond?.context ?? '',
         requirements: parsed.autorespond?.requirements ?? { default: ['clear description'] },
         message: parsed.autorespond?.message ?? defaultconfig.autorespond.message
+      },
+      stale: {
+        enabled: parsed.stale?.enabled ?? false,
+        days: parsed.stale?.days ?? 60,
+        close: parsed.stale?.close ?? 7,
+        exempt: {
+          labels: parsed.stale?.exempt?.labels || [],
+          assignees: parsed.stale?.exempt?.assignees ?? false
+        },
+        label: parsed.stale?.label ?? 'stale',
+        message: parsed.stale?.message ?? defaultconfig.stale.message,
+        closemessage: parsed.stale?.closemessage ?? defaultconfig.stale.closemessage
       }
     }
   } catch {
@@ -196,6 +290,10 @@ async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
 
   if (config.autorespond.enabled && !existing.includes(config.autorespond.label)) {
     await createlabel(ghconfig, config.autorespond.label, theme.muted || 'c0c0c0')
+  }
+
+  if (config.stale.enabled && !existing.includes(config.stale.label)) {
+    await createlabel(ghconfig, config.stale.label, theme.muted || 'c0c0c0')
   }
 }
 
