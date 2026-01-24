@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/react";
@@ -47,10 +47,11 @@ export const metadata: Metadata = {
 			follow: true,
 		},
 	},
-	viewport: {
-		width: "device-width",
-		initialScale: 1,
-	},
+};
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
 	themeColor: "#0c0a09",
 };
 
