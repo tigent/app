@@ -3,6 +3,10 @@ import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { SignJWT, importPKCS8 } from 'jose'
 import { parse } from 'yaml'
+import { start } from 'workflow/api'
+import { getWorld } from 'workflow/runtime'
+import { stalechecker } from '../workflows/stale'
+import { getstalerunid, setstalerunid, deletestalerunid } from '../lib/redis'
 
 const webhooks = new Webhooks({
   secret: process.env.GITHUB_WEBHOOK_SECRET || ''
@@ -40,6 +44,64 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
   const config = await getconfig(ghconfig)
   await synclabels(ghconfig, config)
   await triagepr(ghconfig, config, payload.pull_request.number)
+})
+
+webhooks.on('installation.created', async ({ payload }) => {
+  const appid = process.env.GITHUB_APP_ID!
+  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
+
+  for (const repository of payload.repositories || []) {
+    const [owner, repo] = repository.full_name.split('/')
+    const repoid = repository.id
+
+    const run = await start(stalechecker, [repoid, owner, repo, appid, privatekey])
+    await setstalerunid(repoid, run.id)
+  }
+})
+
+webhooks.on('installation.deleted', async ({ payload }) => {
+  const world = getWorld()
+
+  for (const repository of payload.repositories || []) {
+    const repoid = repository.id
+    const runid = await getstalerunid(repoid)
+
+    if (runid) {
+      try {
+        await world.runs.cancel(runid)
+      } catch {}
+      await deletestalerunid(repoid)
+    }
+  }
+})
+
+webhooks.on('installation_repositories.added', async ({ payload }) => {
+  const appid = process.env.GITHUB_APP_ID!
+  const privatekey = process.env.GITHUB_APP_PRIVATE_KEY!
+
+  for (const repository of payload.repositories_added || []) {
+    const [owner, repo] = repository.full_name.split('/')
+    const repoid = repository.id
+
+    const run = await start(stalechecker, [repoid, owner, repo, appid, privatekey])
+    await setstalerunid(repoid, run.id)
+  }
+})
+
+webhooks.on('installation_repositories.removed', async ({ payload }) => {
+  const world = getWorld()
+
+  for (const repository of payload.repositories_removed || []) {
+    const repoid = repository.id
+    const runid = await getstalerunid(repoid)
+
+    if (runid) {
+      try {
+        await world.runs.cancel(runid)
+      } catch {}
+      await deletestalerunid(repoid)
+    }
+  }
 })
 
 export async function POST(req: Request) {
