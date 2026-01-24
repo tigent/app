@@ -1,4 +1,5 @@
 import { Sidebar } from "./sidebar";
+import { Toc } from "./toc";
 
 export default function DocsLayout({
 	children,
@@ -34,6 +35,7 @@ export default function DocsLayout({
 				<div className="flex">
 					<Sidebar />
 					<main className="flex-1 min-w-0 px-6 md:px-8 lg:px-12 pb-12">{children}</main>
+					<Toc />
 				</div>
 			</div>
 		</div>
