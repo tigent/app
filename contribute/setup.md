@@ -1,11 +1,14 @@
 # setup
 
+run your own tigent instance for development or self-hosting.
+
 ## github app
 
 1. go to github.com/settings/apps/new
 2. set permissions:
    - issues: read & write
    - pull requests: read & write
+   - contents: read
 3. subscribe to events:
    - issues
    - pull request
@@ -23,7 +26,7 @@ AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 
 ## local dev
 
-1. create your own github app, name it `agent-triage-local-<github username>`
+1. create your own github app, name it `tigent-local-<github username>`
 2. go to smee.io and create a new channel
 3. set your github app webhook url to your smee channel url
 4. configure credentials in `.env.local`:
@@ -46,15 +49,6 @@ npx smee -u https://smee.io/<your-channel-id> -t http://localhost:3000/api/webho
 ```
 
 use smee's "resend" feature to re-send webhooks when debugging instead of creating new issues/prs.
-
-## test commands
-
-```bash
-bun test.ts setup         # create labels on repo
-bun test.ts create        # create test issue and triage it
-bun test.ts issue 1       # triage existing issue
-bun test.ts pr 1          # triage existing pr
-```
 
 ## deploy to vercel
 
