@@ -64,3 +64,35 @@ autorespond:
 
   message: |
     thanks for opening this issue! we need a bit more info to help you.
+
+sentiment:
+  enabled: true
+  detect:
+    negative: true
+    frustrated: true
+    confused: true
+  triggers:
+    issues: true
+    comments: true
+  noreply:
+    enabled: true
+    hours: 48
+    mode: both
+  labels:
+    negative: needs-attention
+    frustrated: needs-support
+    confused: needs-help
+    noreply: awaiting-response
+  actions:
+    comment:
+      enabled: true
+      negative: |
+        we hear you and are looking into this.
+      frustrated: |
+        sorry for the frustration - we're on it!
+      noreply: |
+        apologies for the delay - the team has been notified.
+  threshold: 0.7
+  exempt:
+    labels: [wontfix, duplicate]
+    users: []
