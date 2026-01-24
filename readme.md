@@ -1,5 +1,5 @@
 ```bash
-/ agent-triage
+/ tigent
 
   github agent for automated pr and issue labeling
 

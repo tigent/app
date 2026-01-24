@@ -3,7 +3,7 @@ name: Agent
 on:
   pull_request:
     paths:
-      - '.github/agent-triage.yml'
+      - '.github/tigent.yml'
 
 jobs:
   Config:

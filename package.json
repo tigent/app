@@ -1,5 +1,5 @@
 {
-  "name": "agent-triage",
+  "name": "tigent",
   "module": "index.ts",
   "type": "module",
   "private": true,

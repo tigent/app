@@ -5,7 +5,7 @@ export default function Docs() {
 				<p className="text-sm text-white/40 mb-2">Get Started</p>
 				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Introduction</h1>
 				<p className="text-xl text-white/60 max-w-2xl">
-					Agent Triage is an AI-powered GitHub bot that automatically labels,
+					Tigent is an AI-powered GitHub bot that automatically labels,
 					prioritizes, and detects duplicate issues and pull requests.
 				</p>
 			</div>
@@ -13,7 +13,7 @@ export default function Docs() {
 			<section className="mb-16">
 				<h2 id="overview" className="text-3xl font-semibold mb-6 text-white">Overview</h2>
 				<p className="text-white/60 mb-4 max-w-2xl">
-					Managing GitHub issues at scale is tedious. Agent Triage uses AI to
+					Managing GitHub issues at scale is tedious. Tigent uses AI to
 					understand the content of issues and PRs, then automatically applies
 					the right labels, flags duplicates, and routes urgent issues to your team.
 				</p>

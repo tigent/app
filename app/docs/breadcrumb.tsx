@@ -44,7 +44,7 @@ export function Breadcrumb() {
 				<div className="w-6 h-6 rounded-md bg-accent/10 flex items-center justify-center">
 					{homeIcon}
 				</div>
-				<span className="font-medium text-sm text-white">Agent Triage</span>
+				<span className="font-medium text-sm text-white">Tigent</span>
 			</a>
 			{chevron}
 			<span className="px-2 py-1 text-sm text-white/40">{sectionNames[page.section]}</span>
