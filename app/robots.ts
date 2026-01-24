@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
 			userAgent: "*",
 			allow: "/",
 		},
-		sitemap: "https://tigent.dev/sitemap.xml",
+		sitemap: "https://tigent.xyz/sitemap.xml",
 	};
 }

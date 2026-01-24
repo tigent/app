@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 	keywords: ["github", "automation", "issue triage", "pr labeling", "ai", "bot", "github app"],
 	authors: [{ name: "Tigent" }],
 	creator: "Tigent",
-	metadataBase: new URL("https://tigent.dev"),
+	metadataBase: new URL("https://tigent.xyz"),
 	openGraph: {
 		type: "website",
 		locale: "en_US",
-		url: "https://tigent.dev",
+		url: "https://tigent.xyz",
 		siteName: "Tigent",
 		title: "Tigent",
 		description: "Automated PR and issue triage for GitHub powered by AI",

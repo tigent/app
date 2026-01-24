@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { pages } from "./docs/config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-	const base = "https://tigent.dev";
+	const base = "https://tigent.xyz";
 
 	const docpages = pages.map((page) => ({
 		url: `${base}${page.href}`,
