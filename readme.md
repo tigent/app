@@ -13,8 +13,9 @@
 
   ai sdk · ai gateway · github app · vercel · octokit
 
-```
+> handbook?
 
-> **handbook**
->
-> [setup.md](handbook/setup.md) · [contribute.md](handbook/contribute.md) · [version.md](handbook/version.md)
+  setup.md       → setup guide
+  contribute.md  → contribution guidelines
+  version.md     → docs versioning
+```
