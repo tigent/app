@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Agent Triage",
+	title: "Tigent",
 	description: "Automated PR and issue triage for GitHub",
 };
 

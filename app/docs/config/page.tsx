@@ -4,7 +4,7 @@ export default function Config() {
 			<div className="mb-12">
 				<p className="text-sm text-white/40 mb-2">Configuration</p>
 				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Config File</h1>
-				<p className="text-xl text-white/60 max-w-2xl">All configuration options for Agent Triage.</p>
+				<p className="text-xl text-white/60 max-w-2xl">All configuration options for Tigent.</p>
 			</div>
 
 			<section className="mb-16">
@@ -12,7 +12,7 @@ export default function Config() {
 				<p className="text-white/60 mb-6 max-w-2xl">
 					Create a YAML file in your repository at the following path:
 				</p>
-				<pre className="bg-white/5 border border-white/10 text-accent p-6 rounded-2xl text-sm font-mono inline-block">.github/agent-triage.yml</pre>
+				<pre className="bg-white/5 border border-white/10 text-accent p-6 rounded-2xl text-sm font-mono inline-block">.github/tigent.yml</pre>
 			</section>
 
 			<section className="mb-16">

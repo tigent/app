@@ -28,7 +28,7 @@ const schema = z.object({
   }).optional()
 })
 
-const configpath = '.github/agent-triage.yml'
+const configpath = '.github/tigent.yml'
 
 if (!existsSync(configpath)) {
   console.log('no config file found, skipping validation')

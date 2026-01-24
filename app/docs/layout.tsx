@@ -13,13 +13,13 @@ export default function DocsLayout({
 						<Breadcrumb />
 						<div className="flex items-center gap-4">
 							<a
-								href="https://github.com/agent-triage/app"
+								href="https://github.com/tigent/app"
 								className="text-sm text-white/50 hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 							>
 								GitHub
 							</a>
 							<a
-								href="https://github.com/apps/agent-triage"
+								href="https://github.com/apps/tigent"
 								className="px-4 py-2 text-sm bg-white text-fg rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 							>
 								Install

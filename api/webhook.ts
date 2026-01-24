@@ -122,7 +122,7 @@ const defaultconfig: TriageConfig = {
 async function getconfig(config: GhConfig): Promise<TriageConfig> {
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/.github/agent-triage.yml`,
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/.github/tigent.yml`,
       {
         headers: {
           'accept': 'application/vnd.github.raw+json',

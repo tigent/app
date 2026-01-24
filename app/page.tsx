@@ -27,7 +27,7 @@ export default function Page() {
 						View Config
 					</a>
 					<a
-						href="https://github.com/apps/agent-triage"
+						href="https://github.com/apps/tigent"
 						className="px-5 py-3 text-sm bg-fg text-bg rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 					>
 						Install Free →
@@ -47,11 +47,11 @@ export default function Page() {
 						<p className="text-muted mb-6">
 							Add to{" "}
 							<code className="bg-bg px-2 py-1 rounded text-sm">
-								.github/agent-triage.yml
+								.github/tigent.yml
 							</code>
 						</p>
 						<a
-							href="https://github.com/agent-triage/app"
+							href="https://github.com/tigent/app"
 							className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
 						>
 							View full documentation →
@@ -80,7 +80,7 @@ duplicates:
 			<section className="py-24 px-8">
 				<div className="max-w-5xl mx-auto">
 					<h2 className="text-2xl font-semibold mb-2">Features</h2>
-					<p className="text-muted mb-10">What Agent Triage can do for your team.</p>
+					<p className="text-muted mb-10">What Tigent can do for your team.</p>
 					<div className="grid md:grid-cols-3 gap-4">
 						<div className="bg-fg text-bg rounded-2xl p-6 flex flex-col min-h-[200px]">
 							<div className="flex gap-2 mb-4">
@@ -154,16 +154,16 @@ duplicates:
 				<div className="max-w-5xl mx-auto bg-fg text-bg rounded-t-3xl px-8 py-12">
 					<div className="flex justify-between items-start mb-8">
 						<a href="/" className="font-semibold text-lg tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
-							Agent Triage
+							Tigent
 						</a>
 						<div className="flex gap-6">
 							<a href="/docs" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								Docs
 							</a>
-							<a href="https://github.com/agent-triage/app" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
+							<a href="https://github.com/tigent/app" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								GitHub
 							</a>
-							<a href="https://github.com/apps/agent-triage" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
+							<a href="https://github.com/apps/tigent" className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded">
 								Install
 							</a>
 						</div>
@@ -173,7 +173,7 @@ duplicates:
 							Automated PR and issue triage for GitHub powered by AI
 						</p>
 						<a
-							href="https://github.com/apps/agent-triage"
+							href="https://github.com/apps/tigent"
 							className="px-5 py-2.5 bg-bg text-fg rounded-full text-sm font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
 						>
 							Get Started

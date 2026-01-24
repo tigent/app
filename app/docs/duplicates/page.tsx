@@ -44,7 +44,7 @@ export default function Duplicates() {
 			<section className="mb-16">
 				<h2 id="how-it-works" className="text-3xl font-semibold mb-6 text-white">How it works</h2>
 				<p className="text-white/60 max-w-2xl">
-					When a new issue is created, Agent Triage uses semantic similarity to compare it
+					When a new issue is created, Tigent uses semantic similarity to compare it
 					against existing open issues. If a match is found above the threshold, it adds
 					a comment linking to the potential duplicate.
 				</p>

@@ -4,7 +4,7 @@ export default function Labels() {
 			<div className="mb-12">
 				<p className="text-sm text-white/40 mb-2">Configuration</p>
 				<h1 className="text-5xl font-semibold tracking-tight mb-6 text-white">Labels</h1>
-				<p className="text-xl text-white/60 max-w-2xl">Configure which labels Agent Triage can apply.</p>
+				<p className="text-xl text-white/60 max-w-2xl">Configure which labels Tigent can apply.</p>
 			</div>
 
 			<section className="mb-16">
@@ -57,7 +57,7 @@ export default function Labels() {
 			<section className="mb-16">
 				<h2 id="auto-creation" className="text-3xl font-semibold mb-6 text-white">Auto creation</h2>
 				<p className="text-white/60 max-w-2xl">
-					Agent Triage will automatically create labels if they do not exist in your repository.
+					Tigent will automatically create labels if they do not exist in your repository.
 					Colors are assigned based on your theme configuration.
 				</p>
 			</section>
