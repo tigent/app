@@ -14,7 +14,6 @@ labels:
   webhook: medium
   github-api: medium
   maintenance: light
-  stale: light
   duplicate: muted
   good-first-issue: muted
   help-wanted: muted
@@ -46,11 +45,9 @@ ignore:
 autorespond:
   enabled: true
   label: needs-info
-
   context: |
     tigent is a github bot that auto-labels issues and prs.
     common issues involve webhook configuration and yaml syntax.
-
   requirements:
     bug:
       - steps to reproduce
@@ -61,9 +58,21 @@ autorespond:
       - proposed solution
     default:
       - clear description
-
   message: |
     thanks for opening this issue! we need a bit more info to help you.
+
+stale:
+  enabled: true
+  days: 30
+  close: 7
+  exempt:
+    labels: [security, p0, p1]
+    assignees: true
+  label: stale
+  message: |
+    this issue has been inactive for 30 days and will be closed in 7 days if there is no activity.
+  closemessage: |
+    closed due to inactivity. feel free to reopen if still relevant.
 
 sentiment:
   enabled: true
@@ -90,6 +99,8 @@ sentiment:
         we hear you and are looking into this.
       frustrated: |
         sorry for the frustration - we're on it!
+      confused: |
+        let us help clarify - we'll follow up shortly.
       noreply: |
         apologies for the delay - the team has been notified.
   threshold: 0.7
