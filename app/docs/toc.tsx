@@ -239,24 +239,28 @@ export function Toc() {
 		if (!article) return;
 
 		const title = article.querySelector("h1")?.textContent || "";
-		const sections: string[] = [`# ${title}`, ""];
+		const description = article.querySelector(".mb-12 > p.text-xl")?.textContent || "";
+		const sections: string[] = [`# ${title}`, "", description, ""];
 
-		const headings = article.querySelectorAll("h2[id], h3[id]");
-		headings.forEach((heading) => {
-			const level = heading.tagName === "H2" ? "##" : "###";
-			const text = heading.textContent || "";
-			sections.push(`${level} ${text}`);
-
-			let sibling = heading.nextElementSibling;
-			while (sibling && !sibling.matches("h2, h3")) {
-				if (sibling.matches("p")) {
-					sections.push(sibling.textContent || "");
-				} else if (sibling.matches("pre, code")) {
-					const code = sibling.textContent || "";
-					sections.push("```", code.trim(), "```");
-				}
-				sibling = sibling.nextElementSibling;
+		const allSections = article.querySelectorAll("section");
+		allSections.forEach((section) => {
+			const h2 = section.querySelector("h2[id]");
+			if (h2) {
+				sections.push(`## ${h2.textContent || ""}`);
+				sections.push("");
 			}
+
+			section.querySelectorAll("p, pre, h3[id]").forEach((el) => {
+				if (el.tagName === "H3") {
+					sections.push(`### ${el.textContent || ""}`);
+				} else if (el.tagName === "P") {
+					const text = el.textContent || "";
+					if (text.trim()) sections.push(text);
+				} else if (el.tagName === "PRE") {
+					const code = el.textContent || "";
+					sections.push("```yaml", code.trim(), "```");
+				}
+			});
 			sections.push("");
 		});
 
