@@ -70,11 +70,14 @@ export function Toc() {
 	const [linkCopied, setLinkCopied] = useState(false);
 	const [showTop, setShowTop] = useState(false);
 	const [showVersions, setShowVersions] = useState(false);
+	const [ready, setReady] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mainRef = useRef<HTMLElement | null>(null);
 	const pathname = usePathname();
 
 	useEffect(() => {
+		setReady(false);
+
 		const headings = Array.from(
 			document.querySelectorAll("article h2[id], article h3[id]")
 		) as HTMLElement[];
@@ -92,7 +95,11 @@ export function Toc() {
 		if (first) {
 			setActiveIds([first.id]);
 		}
-	}, []);
+		setShowVersions(false);
+		setShowTop(false);
+
+		requestAnimationFrame(() => setReady(true));
+	}, [pathname]);
 
 	useEffect(() => {
 		if (items.length === 0) return;
@@ -275,7 +282,7 @@ export function Toc() {
 					<span className="text-xs uppercase tracking-wider text-white/30 font-medium">On this page</span>
 				</div>
 
-				<nav className="relative">
+				<nav className={`relative transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}>
 					{svg && (
 						<div
 							className="absolute left-0 top-0"

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function Themes() {
 	return (
-		<article className="py-12">
+		<article className="py-12 overflow-hidden">
 			<Header
 				section="Configuration"
 				title="Themes"
@@ -16,8 +16,8 @@ export default function Themes() {
 			/>
 
 			<Section id="built-in" title="Built-in themes">
-				<div className="grid md:grid-cols-3 gap-6 mb-8">
-					<div className="border border-white/10 rounded-2xl p-6">
+				<div className="flex flex-wrap gap-6 mb-8">
+					<div className="border border-white/10 rounded-2xl p-6 w-48">
 						<h3 id="mono" className="font-semibold text-lg mb-4 text-white">mono</h3>
 						<p className="text-sm text-white/50 mb-6">Grayscale for a clean look.</p>
 						<div className="flex gap-2">
@@ -28,7 +28,7 @@ export default function Themes() {
 							<span className="w-6 h-6 rounded bg-neutral-300" />
 						</div>
 					</div>
-					<div className="border border-white/10 rounded-2xl p-6">
+					<div className="border border-white/10 rounded-2xl p-6 w-48">
 						<h3 id="colorful" className="font-semibold text-lg mb-4 text-white">colorful</h3>
 						<p className="text-sm text-white/50 mb-6">Vibrant for high visibility.</p>
 						<div className="flex gap-2">
@@ -39,7 +39,7 @@ export default function Themes() {
 							<span className="w-6 h-6 rounded bg-blue-500" />
 						</div>
 					</div>
-					<div className="border border-white/10 rounded-2xl p-6">
+					<div className="border border-white/10 rounded-2xl p-6 w-48">
 						<h3 id="pastel" className="font-semibold text-lg mb-4 text-white">pastel</h3>
 						<p className="text-sm text-white/50 mb-6">Soft for a gentle aesthetic.</p>
 						<div className="flex gap-2">
@@ -51,7 +51,7 @@ export default function Themes() {
 						</div>
 					</div>
 				</div>
-				<Codeinline>theme: mono</Codeinline>
+				<Codeinline className="max-w-fit">theme: mono</Codeinline>
 			</Section>
 
 			<Section id="custom" title="Custom themes">

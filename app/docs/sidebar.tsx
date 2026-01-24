@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigation } from "./config";
 
@@ -20,7 +21,7 @@ export function Sidebar() {
 									const isactive = pathname === item.href;
 									return (
 										<li key={item.href}>
-											<a
+											<Link
 												href={item.href}
 												className={`block px-3 py-2 text-sm rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
 													isactive
@@ -29,7 +30,7 @@ export function Sidebar() {
 												}`}
 											>
 												{item.title}
-											</a>
+											</Link>
 										</li>
 									);
 								})}

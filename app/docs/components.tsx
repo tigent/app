@@ -77,7 +77,7 @@ export function Code({ children, className = "" }: { children: string; className
 
 export function Codeinline({ children, className = "" }: { children: string; className?: string }) {
 	return (
-		<pre className={`bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono ${className}`}>
+		<pre className={`bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono w-fit ${className}`}>
 			{children}
 		</pre>
 	);
@@ -166,7 +166,7 @@ export function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="mb-16 group">
+		<section className="mb-16 group overflow-hidden">
 			<div className="flex items-center gap-2 mb-6">
 				<h2 id={id} className="text-3xl font-semibold text-white">
 					{title}
