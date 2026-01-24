@@ -39,19 +39,31 @@ rules:
   - match: "crash|broken|error"
     add: [bug, p1]
 
+reactions:
+  start: eyes
+
 duplicates:
   enabled: true
   threshold: 0.8
+  label: duplicate
+  comment: true
+
+ignore:
+  users: [dependabot, renovate]
 
 autorespond:
   enabled: true
   label: needs-info
+  context: |
+    project context to help ai understand requirements.
   requirements:
     bug:
       - steps to reproduce
       - expected behavior
     default:
       - clear description
+  message: |
+    thanks for opening this issue!
 
 webhooks:
   - url: https://hooks.slack.com/...
@@ -76,10 +88,18 @@ webhooks:
   - match: "crash|error"
     add: [bug]`}</Codeinline>
 					</Option>
+					<Option id="reactions" title="reactions" description="Emoji reactions to add during processing.">
+						<Codeinline>{`reactions:
+  start: eyes`}</Codeinline>
+					</Option>
 					<Option id="duplicates" title="duplicates" description="Configure duplicate issue detection.">
 						<Codeinline>{`duplicates:
   enabled: true
   threshold: 0.8`}</Codeinline>
+					</Option>
+					<Option id="ignore" title="ignore" description="Skip processing for specific users or labels.">
+						<Codeinline>{`ignore:
+  users: [dependabot, renovate]`}</Codeinline>
 					</Option>
 					<Option id="autorespond-config" title="autorespond" description="Request missing info from incomplete issues.">
 						<Codeinline>{`autorespond:
