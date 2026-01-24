@@ -18,6 +18,7 @@ export const navigation = [
 			{ title: "Duplicates", href: "/docs/duplicates" },
 			{ title: "Autorespond", href: "/docs/autorespond" },
 			{ title: "Stale", href: "/docs/stale" },
+			{ title: "Sentiment", href: "/docs/sentiment" },
 			{ title: "Themes", href: "/docs/themes" },
 		],
 	},

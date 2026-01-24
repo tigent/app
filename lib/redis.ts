@@ -16,3 +16,15 @@ export async function setstalerunid(repoid: number, runid: string): Promise<void
 export async function deletestalerunid(repoid: number): Promise<void> {
 	await redis.del(`stale:${repoid}`);
 }
+
+export async function getsentimentrunid(repoid: number): Promise<string | null> {
+	return redis.get(`sentiment:${repoid}`);
+}
+
+export async function setsentimentrunid(repoid: number, runid: string): Promise<void> {
+	await redis.set(`sentiment:${repoid}`, runid);
+}
+
+export async function deletesentimentrunid(repoid: number): Promise<void> {
+	await redis.del(`sentiment:${repoid}`);
+}
