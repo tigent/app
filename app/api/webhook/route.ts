@@ -1,62 +1,39 @@
-import { Webhooks } from '@octokit/webhooks'
+import { App } from 'octokit'
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
-import { SignJWT, importPKCS8 } from 'jose'
 import { parse } from 'yaml'
-import { fetchpaginated } from '@/lib/github'
+import type { Octokit } from 'octokit'
 
-const webhooks = new Webhooks({
-  secret: process.env.GITHUB_WEBHOOK_SECRET || ''
+const app = new App({
+  appId: process.env.GITHUB_APP_ID!,
+  privateKey: process.env.GITHUB_APP_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+  webhooks: { secret: process.env.GITHUB_WEBHOOK_SECRET! }
 })
 
-webhooks.on('issues.opened', async ({ payload }) => {
+app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
   const owner = payload.repository.owner.login
   const repo = payload.repository.name
-
-  const token = await gettoken({
-    appid: process.env.GITHUB_APP_ID!,
-    privatekey: process.env.GITHUB_APP_PRIVATE_KEY!,
-    owner,
-    repo
-  })
-
-  const ghconfig = { token, owner, repo }
+  const ghconfig = { octokit, owner, repo }
   const config = await getconfig(ghconfig)
   await synclabels(ghconfig, config)
   await triageissue(ghconfig, config, payload.issue.number)
 })
 
-webhooks.on('pull_request.opened', async ({ payload }) => {
+app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
   const owner = payload.repository.owner.login
   const repo = payload.repository.name
-
-  const token = await gettoken({
-    appid: process.env.GITHUB_APP_ID!,
-    privatekey: process.env.GITHUB_APP_PRIVATE_KEY!,
-    owner,
-    repo
-  })
-
-  const ghconfig = { token, owner, repo }
+  const ghconfig = { octokit, owner, repo }
   const config = await getconfig(ghconfig)
   await synclabels(ghconfig, config)
   await triagepr(ghconfig, config, payload.pull_request.number)
 })
 
-webhooks.on('issue_comment.created', async ({ payload }) => {
+app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
   if (payload.issue.pull_request) return
 
   const owner = payload.repository.owner.login
   const repo = payload.repository.name
-
-  const token = await gettoken({
-    appid: process.env.GITHUB_APP_ID!,
-    privatekey: process.env.GITHUB_APP_PRIVATE_KEY!,
-    owner,
-    repo
-  })
-
-  const ghconfig = { token, owner, repo }
+  const ghconfig = { octokit, owner, repo }
   const config = await getconfig(ghconfig)
 
   if (!config.sentiment.enabled) return
@@ -83,7 +60,7 @@ webhooks.on('issue_comment.created', async ({ payload }) => {
 export async function POST(req: Request) {
   const body = await req.text()
 
-  await webhooks.verifyAndReceive({
+  await app.webhooks.verifyAndReceive({
     id: req.headers.get('x-github-delivery') || '',
     name: req.headers.get('x-github-event') as any,
     payload: body,
@@ -94,7 +71,7 @@ export async function POST(req: Request) {
 }
 
 interface GhConfig {
-  token: string
+  octokit: Octokit
   owner: string
   repo: string
 }
@@ -219,22 +196,14 @@ const defaultconfig: TriageConfig = {
 
 async function getconfig(config: GhConfig): Promise<TriageConfig> {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/.github/tigent.yml`,
-      {
-        headers: {
-          'accept': 'application/vnd.github.raw+json',
-          'authorization': `Bearer ${config.token}`,
-          'x-github-api-version': '2022-11-28'
-        }
-      }
-    )
+    const { data } = await config.octokit.rest.repos.getContent({
+      owner: config.owner,
+      repo: config.repo,
+      path: '.github/tigent.yml',
+      mediaType: { format: 'raw' }
+    })
 
-    if (!response.ok) {
-      return defaultconfig
-    }
-
-    const yaml = await response.text()
+    const yaml = data as unknown as string
     const parsed = parse(yaml) as Partial<TriageConfig>
 
     return {
@@ -340,27 +309,14 @@ async function synclabels(ghconfig: GhConfig, config: TriageConfig) {
 }
 
 async function createlabel(config: GhConfig, name: string, color: string) {
-  await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/labels`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ name, color })
-    }
-  )
-}
-
-interface AppConfig {
-  appid: string
-  privatekey: string
-  installationid?: string
-  owner?: string
-  repo?: string
+  try {
+    await config.octokit.rest.issues.createLabel({
+      owner: config.owner,
+      repo: config.repo,
+      name,
+      color
+    })
+  } catch {}
 }
 
 const classifyschema = z.object({
@@ -390,109 +346,6 @@ const sentimentschema = z.object({
   indicators: z.array(z.string()),
   reasoning: z.string()
 })
-
-async function gettoken(config: AppConfig): Promise<string> {
-  const jwt = await createjwt(config.appid, config.privatekey)
-
-  let installationid = config.installationid
-  if (!installationid && config.owner && config.repo) {
-    installationid = await getinstallationid(jwt, config.owner, config.repo)
-  }
-
-  if (!installationid) {
-    throw new Error('need installationid or owner/repo')
-  }
-
-  const response = await fetch(
-    `https://api.github.com/app/installations/${installationid}/access_tokens`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${jwt}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error(`failed to get token: ${response.status}`)
-  }
-
-  const data = await response.json() as { token: string }
-  return data.token
-}
-
-async function getinstallationid(jwt: string, owner: string, repo: string): Promise<string> {
-  const response = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/installation`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${jwt}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error(`failed to get installation: ${response.status}`)
-  }
-
-  const data = await response.json() as { id: number }
-  return String(data.id)
-}
-
-async function createjwt(appid: string, privatekey: string): Promise<string> {
-  const normalized = privatekey.replace(/\\n/g, '\n')
-  const pkcs8 = convertpkcs1topkcs8(normalized)
-  const key = await importPKCS8(pkcs8, 'RS256')
-
-  const now = Math.floor(Date.now() / 1000)
-
-  return await new SignJWT({})
-    .setProtectedHeader({ alg: 'RS256' })
-    .setIssuedAt(now - 60)
-    .setExpirationTime(now + 600)
-    .setIssuer(appid)
-    .sign(key)
-}
-
-function convertpkcs1topkcs8(pem: string): string {
-  if (pem.includes('BEGIN PRIVATE KEY')) {
-    return pem
-  }
-
-  const lines = pem.split('\n')
-  const b64 = lines.filter(l => !l.includes('-----')).join('')
-  const der = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
-
-  const pkcs8header = new Uint8Array([
-    0x30, 0x82, 0x00, 0x00,
-    0x02, 0x01, 0x00,
-    0x30, 0x0d,
-    0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01,
-    0x05, 0x00,
-    0x04, 0x82, 0x00, 0x00
-  ])
-
-  const keylen = der.length
-  const totallen = pkcs8header.length + keylen
-
-  pkcs8header[2] = ((totallen - 4) >> 8) & 0xff
-  pkcs8header[3] = (totallen - 4) & 0xff
-  pkcs8header[pkcs8header.length - 2] = (keylen >> 8) & 0xff
-  pkcs8header[pkcs8header.length - 1] = keylen & 0xff
-
-  const pkcs8 = new Uint8Array(totallen)
-  pkcs8.set(pkcs8header)
-  pkcs8.set(der, pkcs8header.length)
-
-  const b64out = btoa(String.fromCharCode(...pkcs8))
-  const formatted = b64out.match(/.{1,64}/g)?.join('\n') || b64out
-
-  return `-----BEGIN PRIVATE KEY-----\n${formatted}\n-----END PRIVATE KEY-----`
-}
 
 async function triagepr(ghconfig: GhConfig, config: TriageConfig, number: number) {
   if (config.reactions.start) {
@@ -678,52 +531,35 @@ ${issue.body || 'no description'}`
 }
 
 async function searchissues(config: GhConfig, excludenumber: number): Promise<{ number: number; title: string }[]> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues?state=open&per_page=50`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  const data = await response.json() as { number: number; title: string; pull_request?: unknown }[]
+  const { data } = await config.octokit.rest.issues.listForRepo({
+    owner: config.owner,
+    repo: config.repo,
+    state: 'open',
+    per_page: 50
+  })
   return data
     .filter(i => i.number !== excludenumber && !i.pull_request)
     .slice(0, 20)
+    .map(i => ({ number: i.number, title: i.title }))
 }
 
 async function comment(config: GhConfig, issue: number, body: string) {
-  await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/comments`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ body })
-    }
-  )
+  await config.octokit.rest.issues.createComment({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: issue,
+    body
+  })
 }
 
 async function closeissue(config: GhConfig, issue: number) {
-  await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ state: 'closed', state_reason: 'not_planned' })
-    }
-  )
+  await config.octokit.rest.issues.update({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: issue,
+    state: 'closed',
+    state_reason: 'not_planned'
+  })
 }
 
 function buildprsystem(labels: string[], rules: { match: string; add: string[] }[]): string {
@@ -757,7 +593,7 @@ rules:
   return system
 }
 
-function buildprprompt(title: string, body: string, files: string[]): string {
+function buildprprompt(title: string, body: string | null, files: string[]): string {
   return `title: ${title}
 
 body:
@@ -798,7 +634,7 @@ rules:
   return system
 }
 
-function buildissueprompt(title: string, body: string, labels: { name: string }[]): string {
+function buildissueprompt(title: string, body: string | null, labels: { name: string }[]): string {
   return `title: ${title}
 
 body:
@@ -810,104 +646,74 @@ existing labels: ${labels.map(l => l.name).join(', ') || 'none'}`
 type Reaction = '+1' | '-1' | 'laugh' | 'confused' | 'heart' | 'hooray' | 'rocket' | 'eyes'
 
 async function react(config: GhConfig, issue: number, content: Reaction) {
-  await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/reactions`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ content })
-    }
-  )
+  await config.octokit.rest.reactions.createForIssue({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: issue,
+    content
+  })
 }
 
 async function label(config: GhConfig, issue: number, labels: string[]) {
-  await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/labels`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ labels })
-    }
-  )
+  await config.octokit.rest.issues.addLabels({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: issue,
+    labels
+  })
 }
 
 async function fetchlabels(config: GhConfig): Promise<string[]> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/labels`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  const data = await response.json() as { name: string }[]
+  const { data } = await config.octokit.rest.issues.listLabelsForRepo({
+    owner: config.owner,
+    repo: config.repo,
+    per_page: 100
+  })
   return data.map(l => l.name)
 }
 
 interface PullRequest {
   title: string
-  body: string
+  body: string | null
 }
 
 async function getpr(config: GhConfig, number: number): Promise<PullRequest> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/pulls/${number}`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  return response.json() as Promise<PullRequest>
+  const { data } = await config.octokit.rest.pulls.get({
+    owner: config.owner,
+    repo: config.repo,
+    pull_number: number
+  })
+  return { title: data.title, body: data.body }
 }
 
 interface Issue {
   title: string
-  body: string
+  body: string | null
   labels: { name: string }[]
   user?: { login: string }
 }
 
 async function getissue(config: GhConfig, number: number): Promise<Issue> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${number}`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  return response.json() as Promise<Issue>
+  const { data } = await config.octokit.rest.issues.get({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: number
+  })
+  return {
+    title: data.title,
+    body: data.body ?? null,
+    labels: data.labels.map(l => typeof l === 'string' ? { name: l } : { name: l.name || '' }),
+    user: data.user ? { login: data.user.login } : undefined
+  }
 }
 
 async function getfiles(config: GhConfig, number: number): Promise<string[]> {
-  const response = await fetch(
-    `https://api.github.com/repos/${config.owner}/${config.repo}/pulls/${number}/files`,
-    {
-      headers: {
-        'accept': 'application/vnd.github+json',
-        'authorization': `Bearer ${config.token}`,
-        'x-github-api-version': '2022-11-28'
-      }
-    }
-  )
-  const data = await response.json() as { filename: string }[]
+  const { data } = await config.octokit.rest.pulls.listFiles({
+    owner: config.owner,
+    repo: config.repo,
+    pull_number: number,
+    per_page: 100
+  })
   return data.map(f => f.filename)
 }
 
@@ -918,10 +724,13 @@ async function getteammembers(config: GhConfig): Promise<string[]> {
   const cached = teammemberscache.get(key)
   if (cached && cached.expires > Date.now()) return cached.members
 
-  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/collaborators?per_page=100`
-  const collaborators = await fetchpaginated<{ login: string; role_name: string }>(url, config.token)
-  const members = collaborators
-    .filter(c => ['admin', 'maintain', 'push'].includes(c.role_name))
+  const { data } = await config.octokit.rest.repos.listCollaborators({
+    owner: config.owner,
+    repo: config.repo,
+    per_page: 100
+  })
+  const members = data
+    .filter(c => ['admin', 'maintain', 'push'].includes(c.role_name || ''))
     .map(c => c.login)
   teammemberscache.set(key, { members, expires: Date.now() + 60 * 60 * 1000 })
   return members
@@ -935,8 +744,18 @@ interface Comment {
 }
 
 async function getcomments(config: GhConfig, issue: number): Promise<Comment[]> {
-  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/issues/${issue}/comments?per_page=100`
-  return fetchpaginated<Comment>(url, config.token)
+  const { data } = await config.octokit.rest.issues.listComments({
+    owner: config.owner,
+    repo: config.repo,
+    issue_number: issue,
+    per_page: 100
+  })
+  return data.map(c => ({
+    id: c.id,
+    body: c.body || '',
+    created_at: c.created_at,
+    user: { login: c.user?.login || '' }
+  }))
 }
 
 interface SentimentResult {
