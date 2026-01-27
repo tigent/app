@@ -33,6 +33,7 @@ same format as commits.
 
 ```md
 ## summary
+
 - bullet points
 - lowercase
 - simple
@@ -58,27 +59,27 @@ pnpm build
 3. use shared components from `app/docs/components.tsx`:
 
 ```tsx
-import type { Metadata } from "next";
-import { Header, Section, Code, Prevnext } from "../components";
+import type { Metadata } from 'next';
+import { Header, Section, Code, Prevnext } from '../components';
 
 export const metadata: Metadata = {
-	title: "Page Title",
-	description: "page description for seo",
+  title: 'Page Title',
+  description: 'page description for seo',
 };
 
 export default function PageName() {
-	return (
-		<article className="py-12">
-			<Header section="Section" title="Title" description="Description." />
+  return (
+    <article className="py-12">
+      <Header section="Section" title="Title" description="Description." />
 
-			<Section id="section-id" title="Section Title">
-				<p className="text-white/60 mb-6 max-w-2xl">content here.</p>
-				<Code>{`code example`}</Code>
-			</Section>
+      <Section id="section-id" title="Section Title">
+        <p className="text-white/60 mb-6 max-w-2xl">content here.</p>
+        <Code>{`code example`}</Code>
+      </Section>
 
-			<Prevnext />
-		</article>
-	);
+      <Prevnext />
+    </article>
+  );
 }
 ```
 
