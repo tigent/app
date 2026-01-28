@@ -72,13 +72,29 @@ async function fetchNpmVersion(
 }
 
 export async function checkOutdatedVersion(
-  _gh: Gh,
+  gh: Gh,
   issue: Issue,
   config: CloseConfig,
   model: string,
 ): Promise<ConditionResult<'outdatedVersion'> | null> {
   if (!config.outdatedVersion?.enabled) return null;
-  if (!issue.body) return null;
+
+  const { data: comments } = await gh.octokit.rest.issues.listComments({
+    owner: gh.owner,
+    repo: gh.repo,
+    issue_number: issue.number,
+    per_page: 50,
+  });
+
+  const commentText = comments
+    .map(c => c.body)
+    .filter(Boolean)
+    .join('\n\n');
+  const fullText = [issue.body, commentText]
+    .filter(Boolean)
+    .join('\n\n--- Comments ---\n\n');
+
+  if (!fullText) return null;
 
   const { object } = await generateObject({
     model,
@@ -105,7 +121,7 @@ export async function checkOutdatedVersion(
               - major: the major version number (e.g., 1)
 
               If no packages are mentioned, return an empty array.`,
-    prompt: `title: ${issue.title}\n\nbody:\n${issue.body}`,
+    prompt: `title: ${issue.title}\n\nbody:\n${fullText}`,
   });
 
   if (object.packages.length === 0) return null;
