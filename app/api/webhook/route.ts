@@ -1,57 +1,141 @@
-import { App } from 'octokit'
-import { generateObject } from 'ai'
-import { z } from 'zod'
-import { parse } from 'yaml'
-import type { Octokit } from 'octokit'
+import { App } from 'octokit';
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { parse } from 'yaml';
+import type { Octokit } from 'octokit';
+import { conditions, checkOutdatedVersion } from '@/lib/utils/conditions.ts';
+import { closeWithComment } from '@/lib/utils/actions.ts';
 
 const app = new App({
   appId: process.env.GITHUB_APP_ID!,
   privateKey: process.env.GITHUB_APP_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-  webhooks: { secret: process.env.GITHUB_WEBHOOK_SECRET! }
-})
+  webhooks: { secret: process.env.GITHUB_WEBHOOK_SECRET! },
+});
 
 app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
-  const owner = payload.repository.owner.login
-  const repo = payload.repository.name
-  const gh = { octokit, owner, repo }
-  const config = await getconfig(gh)
-  await triageissue(gh, config, payload.issue.number)
-})
+  const owner = payload.repository.owner.login;
+  const repo = payload.repository.name;
+  const gh = { octokit, owner, repo };
+  const config = await getconfig(gh);
+  await triageissue(gh, config, payload.issue.number);
+});
 
 app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
-  const owner = payload.repository.owner.login
-  const repo = payload.repository.name
-  const gh = { octokit, owner, repo }
-  const config = await getconfig(gh)
-  await triagepr(gh, config, payload.pull_request.number)
-})
+  const owner = payload.repository.owner.login;
+  const repo = payload.repository.name;
+  const gh = { octokit, owner, repo };
+  const config = await getconfig(gh);
+  await triagepr(gh, config, payload.pull_request.number);
+});
+
+app.webhooks.on('issues.labeled', async ({ octokit, payload }) => {
+  if (payload.label?.name !== 'check-stale') return;
+
+  const owner = payload.repository.owner.login;
+  const repo = payload.repository.name;
+  const gh = { octokit, owner, repo };
+  const config = await getconfig(gh);
+
+  const issueData = {
+    number: payload.issue.number,
+    title: payload.issue.title,
+    body: payload.issue.body ?? null,
+    updated_at: payload.issue.updated_at,
+  };
+
+  for (const check of conditions) {
+    const result = await check(gh, issueData, config.close, config.model);
+    if (result) {
+      await closeWithComment(
+        gh,
+        payload.issue.number,
+        result.reason,
+        result.context as any,
+      );
+      await removelabel(gh, payload.issue.number, 'check-stale');
+      return;
+    }
+  }
+
+  await removelabel(gh, payload.issue.number, 'check-stale');
+});
+
+app.webhooks.on('issues.edited', async ({ octokit, payload }) => {
+  if (!payload.changes.body) return;
+
+  const owner = payload.repository.owner.login;
+  const repo = payload.repository.name;
+  const gh = { octokit, owner, repo };
+  const config = await getconfig(gh);
+
+  const issueData = {
+    number: payload.issue.number,
+    title: payload.issue.title,
+    body: payload.issue.body ?? null,
+    updated_at: payload.issue.updated_at,
+  };
+
+  const result = await checkOutdatedVersion(
+    gh,
+    issueData,
+    config.close,
+    config.model,
+  );
+  if (result) {
+    await closeWithComment(
+      gh,
+      payload.issue.number,
+      result.reason,
+      result.context,
+    );
+  }
+});
 
 export async function POST(req: Request) {
-  const body = await req.text()
-  await app.webhooks.verifyAndReceive({
-    id: req.headers.get('x-github-delivery') || '',
-    name: req.headers.get('x-github-event') as any,
-    payload: body,
-    signature: req.headers.get('x-hub-signature-256') || ''
-  })
-  return new Response('ok')
+  const body = await req.text();
+  const event = req.headers.get('x-github-event');
+
+  try {
+    await app.webhooks.verifyAndReceive({
+      id: req.headers.get('x-github-delivery') || '',
+      name: event as any,
+      payload: body,
+      signature: req.headers.get('x-hub-signature-256') || '',
+    });
+  } catch {
+    // Webhook verification or handling failed
+  }
+  return new Response('ok');
 }
 
 interface Gh {
-  octokit: Octokit
-  owner: string
-  repo: string
+  octokit: Octokit;
+  owner: string;
+  repo: string;
+}
+
+interface CloseConfig {
+  stale?: {
+    enabled: boolean;
+    days: number;
+  };
+  outdatedVersion?: {
+    enabled: boolean;
+    threshold: number;
+  };
 }
 
 interface Config {
-  confidence: number
-  model: string
+  confidence: number;
+  model: string;
+  close: CloseConfig;
 }
 
 const defaultconfig: Config = {
   confidence: 0.6,
-  model: 'anthropic/claude-sonnet-4'
-}
+  model: 'anthropic/claude-sonnet-4',
+  close: {},
+};
 
 async function getconfig(gh: Gh): Promise<Config> {
   try {
@@ -59,38 +143,47 @@ async function getconfig(gh: Gh): Promise<Config> {
       owner: gh.owner,
       repo: gh.repo,
       path: '.github/tigent.yml',
-      mediaType: { format: 'raw' }
-    })
-    const yaml = data as unknown as string
-    const parsed = parse(yaml) as Partial<Config>
-    return { ...defaultconfig, ...parsed }
+      mediaType: { format: 'raw' },
+    });
+    const yaml = data as unknown as string;
+    const parsed = parse(yaml) as Partial<Config>;
+    return { ...defaultconfig, ...parsed };
   } catch {
-    return defaultconfig
+    return defaultconfig;
   }
 }
 
 interface Label {
-  name: string
-  description: string
+  name: string;
+  description: string;
 }
 
 async function fetchlabels(gh: Gh): Promise<Label[]> {
   const { data } = await gh.octokit.rest.issues.listLabelsForRepo({
     owner: gh.owner,
     repo: gh.repo,
-    per_page: 100
-  })
-  return data.map(l => ({ name: l.name, description: l.description || '' }))
+    per_page: 100,
+  });
+  return data.map(l => ({ name: l.name, description: l.description || '' }));
 }
 
 async function addlabels(gh: Gh, issue: number, labels: string[]) {
-  if (labels.length === 0) return
+  if (labels.length === 0) return;
   await gh.octokit.rest.issues.addLabels({
     owner: gh.owner,
     repo: gh.repo,
     issue_number: issue,
-    labels
-  })
+    labels,
+  });
+}
+
+async function removelabel(gh: Gh, issue: number, label: string) {
+  await gh.octokit.rest.issues.removeLabel({
+    owner: gh.owner,
+    repo: gh.repo,
+    issue_number: issue,
+    name: label,
+  });
 }
 
 async function react(gh: Gh, issue: number) {
@@ -98,27 +191,31 @@ async function react(gh: Gh, issue: number) {
     owner: gh.owner,
     repo: gh.repo,
     issue_number: issue,
-    content: 'eyes'
-  })
+    content: 'eyes',
+  });
 }
 
 const schema = z.object({
   labels: z.array(z.string()),
   confidence: z.number().min(0).max(1),
-  reasoning: z.string()
-})
+  reasoning: z.string(),
+});
 
 async function triageissue(gh: Gh, config: Config, number: number) {
-  await react(gh, number)
+  await react(gh, number);
 
   const [issue, labels] = await Promise.all([
-    gh.octokit.rest.issues.get({ owner: gh.owner, repo: gh.repo, issue_number: number }),
-    fetchlabels(gh)
-  ])
+    gh.octokit.rest.issues.get({
+      owner: gh.owner,
+      repo: gh.repo,
+      issue_number: number,
+    }),
+    fetchlabels(gh),
+  ]);
 
   const labellist = labels
-    .map(l => l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`)
-    .join('\n')
+    .map(l => (l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`))
+    .join('\n');
 
   const { object } = await generateObject({
     model: config.model,
@@ -136,29 +233,38 @@ rules:
     prompt: `title: ${issue.data.title}
 
 body:
-${issue.data.body || 'no description'}`
-  })
+${issue.data.body || 'no description'}`,
+  });
 
-  const valid = object.labels.filter(l => labels.some(x => x.name === l))
+  const valid = object.labels.filter(l => labels.some(x => x.name === l));
   if (object.confidence >= config.confidence && valid.length > 0) {
-    await addlabels(gh, number, valid)
+    await addlabels(gh, number, valid);
   }
 }
 
 async function triagepr(gh: Gh, config: Config, number: number) {
-  await react(gh, number)
+  await react(gh, number);
 
   const [pr, files, labels] = await Promise.all([
-    gh.octokit.rest.pulls.get({ owner: gh.owner, repo: gh.repo, pull_number: number }),
-    gh.octokit.rest.pulls.listFiles({ owner: gh.owner, repo: gh.repo, pull_number: number, per_page: 100 }),
-    fetchlabels(gh)
-  ])
+    gh.octokit.rest.pulls.get({
+      owner: gh.owner,
+      repo: gh.repo,
+      pull_number: number,
+    }),
+    gh.octokit.rest.pulls.listFiles({
+      owner: gh.owner,
+      repo: gh.repo,
+      pull_number: number,
+      per_page: 100,
+    }),
+    fetchlabels(gh),
+  ]);
 
   const labellist = labels
-    .map(l => l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`)
-    .join('\n')
+    .map(l => (l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`))
+    .join('\n');
 
-  const filelist = files.data.map(f => f.filename).join('\n')
+  const filelist = files.data.map(f => f.filename).join('\n');
 
   const { object } = await generateObject({
     model: config.model,
@@ -179,11 +285,11 @@ body:
 ${pr.data.body || 'no description'}
 
 changed files:
-${filelist}`
-  })
+${filelist}`,
+  });
 
-  const valid = object.labels.filter(l => labels.some(x => x.name === l))
+  const valid = object.labels.filter(l => labels.some(x => x.name === l));
   if (object.confidence >= config.confidence && valid.length > 0) {
-    await addlabels(gh, number, valid)
+    await addlabels(gh, number, valid);
   }
 }
