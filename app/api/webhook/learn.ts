@@ -88,7 +88,9 @@ export async function createpr(
     .split('\n')
     .map(l => (l ? `  ${l}` : ''))
     .join('\n');
-  const yaml = `${rest}\nprompt: |\n${promptlines}\n`;
+  const yaml = rest
+    ? `${rest}\nprompt: |\n${promptlines}\n`
+    : `prompt: |\n${promptlines}\n`;
 
   await dancer.rest.repos.createOrUpdateFileContents({
     owner: gh.owner,
