@@ -48,17 +48,43 @@ export default function Config() {
               model
             </h3>
             <p className="text-white/60 mb-4">
-              AI model to use for classification. Default:
-              openai/gpt-5-nano
+              AI model to use for classification. Default: openai/gpt-5-nano
             </p>
             <Codeinline>model: openai/gpt-5-nano</Codeinline>
           </div>
         </div>
       </Section>
 
-      <Section id="example" title="Example">
-        <p className="text-white/60 mb-6 max-w-2xl">A minimal config file:</p>
-        <Code className="max-w-md">{`confidence: 0.7`}</Code>
+      <Section id="examples" title="Examples">
+        <div className="space-y-8 max-w-2xl">
+          <div>
+            <h3
+              id="examples-option"
+              className="text-lg font-semibold mb-2 text-white"
+            >
+              examples
+            </h3>
+            <p className="text-white/60 mb-4">
+              Few-shot examples from past corrections. These are injected into
+              the AI prompt to improve future classifications. Managed
+              automatically by the feedback loop.
+            </p>
+            <Code className="max-w-md">{`examples:
+  - title: "app crashes on startup"
+    labels: [bug, p1]
+  - title: "add dark mode support"
+    labels: [feature]`}</Code>
+          </div>
+        </div>
+      </Section>
+
+      <Section id="example" title="Full example">
+        <p className="text-white/60 mb-6 max-w-2xl">A complete config file:</p>
+        <Code className="max-w-md">{`confidence: 0.7
+
+examples:
+  - title: "app crashes on startup"
+    labels: [bug, p1]`}</Code>
       </Section>
 
       <Prevnext />

@@ -4,46 +4,14 @@ import { readFileSync, existsSync } from 'fs';
 
 const schema = z.object({
   confidence: z.number().min(0).max(1).optional(),
-  theme: z.string().optional(),
-  themes: z.record(z.string(), z.record(z.string(), z.string())).optional(),
-  labels: z.record(z.string(), z.string()).optional(),
-  rules: z
+  model: z.string().optional(),
+  examples: z
     .array(
       z.object({
-        match: z.string(),
-        add: z.array(z.string()),
+        title: z.string(),
+        labels: z.array(z.string()),
       }),
     )
-    .optional(),
-  reactions: z
-    .object({
-      start: z.string().optional(),
-      complete: z.string().optional(),
-    })
-    .optional(),
-  ignore: z
-    .object({
-      users: z.array(z.string()).optional(),
-      labels: z.array(z.string()).optional(),
-    })
-    .optional(),
-  duplicates: z
-    .object({
-      enabled: z.boolean().optional(),
-      threshold: z.number().min(0).max(1).optional(),
-      label: z.string().optional(),
-      comment: z.boolean().optional(),
-      close: z.boolean().optional(),
-    })
-    .optional(),
-  autorespond: z
-    .object({
-      enabled: z.boolean().optional(),
-      label: z.string().optional(),
-      context: z.string().optional(),
-      requirements: z.record(z.string(), z.array(z.string())).optional(),
-      message: z.string().optional(),
-    })
     .optional(),
 });
 

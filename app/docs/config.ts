@@ -14,6 +14,7 @@ export const navigation = [
     items: [
       { title: 'Configuration', href: '/docs/config' },
       { title: 'Labels', href: '/docs/labels' },
+      { title: 'Feedback', href: '/docs/feedback' },
     ],
   },
 ];
