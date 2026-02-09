@@ -19,15 +19,15 @@ labels:
   help-wanted: muted
 
 rules:
-  - match: "crash|broken|not working"
+  - match: 'crash|broken|not working'
     add: [bug, p1]
-  - match: "security|vulnerability|cve"
+  - match: 'security|vulnerability|cve'
     add: [security, p0]
-  - match: "docs|readme|typo"
+  - match: 'docs|readme|typo'
     add: [documentation]
-  - match: "config|yaml|yml"
+  - match: 'config|yaml|yml'
     add: [config]
-  - match: "webhook|payload"
+  - match: 'webhook|payload'
     add: [webhook]
 
 reactions:
