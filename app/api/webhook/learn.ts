@@ -7,11 +7,24 @@ const dancer = process.env.DANCER_PAT
   ? new Octokit({ auth: process.env.DANCER_PAT })
   : null;
 
-async function lesson(context: string, model: string): Promise<string> {
+async function updatedprompt(
+  current: string,
+  context: string,
+  model: string,
+): Promise<string> {
   const { text } = await generateText({
     model,
-    system: `you extract a general labeling rule from a correction. do not reference the specific issue, title, or provider name. focus on the pattern: what kind of issue was it and why were the original labels wrong. output one line only, no bullets or prefixes. example: "when a user is confused about how something works, use support instead of bug."`,
-    prompt: context,
+    system: `you maintain a ruleset for a github issue labeling bot. given the current rules and a correction, output the updated rules.
+
+instructions:
+- if an existing rule contradicts the correction, update that rule in place
+- if no existing rule covers this case, append a new line at the end
+- do not reference specific issue titles or numbers
+- focus on general patterns, not one-off cases
+- keep every existing rule that is not contradicted
+- preserve the exact formatting, line breaks, and structure
+- output only the full updated rules, nothing else`,
+    prompt: `current rules:\n${current || '(none)'}\n\ncorrection:\n${context}`,
   });
   return text.trim();
 }
@@ -27,10 +40,7 @@ export async function createpr(
   if (!dancer) return;
 
   const context = `issue: "${title}"\nai assigned: ${ailabels.join(', ') || '(none)'}\ncorrect labels: ${correctlabels.join(', ')}`;
-  const rule = await lesson(context, config.model);
-  const newprompt = config.prompt
-    ? `${config.prompt.trimEnd()}\n${rule}`
-    : rule;
+  const newprompt = await updatedprompt(config.prompt, context, config.model);
 
   const { data: repo } = await dancer.rest.repos.get({
     owner: gh.owner,
@@ -94,7 +104,7 @@ export async function createpr(
     owner: gh.owner,
     repo: gh.repo,
     title: `fix: learn from #${issue} correction`,
-    body: `adds rule to prompt in \`.github/tigent.yml\` from issue #${issue} correction.\n\n**new rule:**\n> ${rule}`,
+    body: `updates prompt in \`.github/tigent.yml\` from issue #${issue} correction.\n\n**correction:** ai assigned ${ailabels.join(', ') || '(none)'}, correct labels are ${correctlabels.join(', ')}.`,
     head: branch,
     base: defaultbranch,
   });
