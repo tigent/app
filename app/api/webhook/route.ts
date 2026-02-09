@@ -52,7 +52,7 @@ interface Config {
 
 const defaultconfig: Config = {
 	confidence: 0.6,
-	model: "openai/gpt-5-nano",
+	model: "google/gemini-2.5-flash",
 }
 
 async function getconfig(gh: Gh): Promise<Config> {
