@@ -1,1 +1,9 @@
 confidence: 0.6
+
+prompt: |
+  crashes and errors are always bug.
+  security issues and vulnerabilities get security and p0.
+  if the issue describes data loss or a crash, assign p0.
+  minor bugs get p1.
+  feature requests get feature, not enhancement.
+  docs changes and typos get documentation.
