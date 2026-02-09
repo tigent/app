@@ -66,11 +66,10 @@ export default function Feedback() {
           rules. Over time, the prompt becomes a detailed guide tailored to your
           project.
         </p>
-        <Code className="max-w-2xl">{`confidence: 0.7
-
-prompt: |
+        <Code className="max-w-2xl">{`prompt: |
   crashes and errors are always bug.
-  feature requests get feature, not enhancement.`}</Code>
+  feature requests get feature, not enhancement.
+  when in doubt, add support.`}</Code>
       </Section>
 
       <Section id="permissions" title="Permissions">

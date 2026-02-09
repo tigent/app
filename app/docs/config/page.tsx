@@ -36,36 +36,15 @@ export default function Config() {
       <Section id="options" title="Options">
         <div className="space-y-8 max-w-2xl">
           <div>
-            <h3
-              id="confidence"
-              className="text-lg font-semibold mb-2 text-white"
-            >
-              confidence
-            </h3>
-            <p className="text-white/60 mb-4">
-              When Tigent classifies an issue or PR, the AI returns a confidence
-              score between 0.0 and 1.0. Labels are only applied if the score
-              meets or exceeds this threshold. If the AI is unsure, the issue is
-              left unlabeled rather than mislabeled.
-            </p>
-            <p className="text-white/60 mb-4">
-              Lower values (0.3 - 0.5) label more issues but with less accuracy.
-              Higher values (0.7 - 0.9) are more conservative and only label
-              when the AI is highly confident. Default: 0.6
-            </p>
-            <Codeinline>confidence: 0.7</Codeinline>
-          </div>
-
-          <div>
             <h3 id="model" className="text-lg font-semibold mb-2 text-white">
               model
             </h3>
             <p className="text-white/60 mb-4">
               AI model to use for classification. Tigent uses the AI SDK gateway
               format, so you can use any supported provider and model. Default:
-              openai/gpt-5-nano
+              google/gemini-2.5-flash
             </p>
-            <Codeinline>model: openai/gpt-5-nano</Codeinline>
+            <Codeinline>model: google/gemini-2.5-flash</Codeinline>
           </div>
         </div>
       </Section>
@@ -102,11 +81,11 @@ export default function Config() {
 
       <Section id="example" title="Full example">
         <p className="text-white/60 mb-6 max-w-2xl">A complete config file:</p>
-        <Code className="max-w-2xl">{`confidence: 0.7
-
-prompt: |
+        <Code className="max-w-2xl">{`prompt: |
+  you are the labeling agent for my project.
   crashes and errors are always bug.
-  feature requests get feature, not enhancement.`}</Code>
+  feature requests get feature, not enhancement.
+  when in doubt, add support.`}</Code>
       </Section>
 
       <Prevnext />
