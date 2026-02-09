@@ -10,7 +10,7 @@ const dancer = process.env.DANCER_PAT
 async function lesson(context: string, model: string): Promise<string> {
   const { text } = await generateText({
     model,
-    system: `you write a single short rule for a github issue labeling bot based on a correction. output one line only, no bullets or prefixes. example: "issues about improving existing structured output support are enhancement, not feature."`,
+    system: `you extract a general labeling rule from a correction. do not reference the specific issue, title, or provider name. focus on the pattern: what kind of issue was it and why were the original labels wrong. output one line only, no bullets or prefixes. example: "when a user is confused about how something works, use support instead of bug."`,
     prompt: context,
   });
   return text.trim();
