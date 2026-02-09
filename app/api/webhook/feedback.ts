@@ -1,4 +1,4 @@
-import { generateObject } from 'ai';
+import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import type { Gh, Config } from './triage';
 import { classify, fetchlabels, addlabels } from './triage';
@@ -15,9 +15,9 @@ async function parseintent(
   comment: string,
   available: string[],
 ) {
-  const { object } = await generateObject({
+  const { output } = await generateText({
     model: config.model,
-    schema: intentschema,
+    output: Output.object({ schema: intentschema }),
     system: `you parse commands directed at a github issue labeling bot called tigent.
 
 classify the intent:
@@ -34,7 +34,7 @@ rules:
 - only include labels that exist in the available labels list.`,
     prompt: comment,
   });
-  return object;
+  return output!;
 }
 
 export async function handlecomment(gh: Gh, config: Config, payload: any) {

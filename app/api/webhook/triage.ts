@@ -1,4 +1,4 @@
-import { generateObject } from 'ai';
+import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import { parse } from 'yaml';
 import type { Octokit } from 'octokit';
@@ -109,17 +109,17 @@ rules:
 body:
 ${body || 'no description'}${extra ? `\n\n${extra}` : ''}`;
 
-  const { object } = await generateObject({
+  const { output } = await generateText({
     model: config.model,
-    schema,
+    output: Output.object({ schema }),
     system,
     prompt,
   });
-  const valid = object.labels.filter(l => labels.some(x => x.name === l));
+  const valid = output!.labels.filter(l => labels.some(x => x.name === l));
   return {
     labels: valid,
-    confidence: object.confidence,
-    reasoning: object.reasoning,
+    confidence: output!.confidence,
+    reasoning: output!.reasoning,
   };
 }
 
