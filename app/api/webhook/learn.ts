@@ -71,8 +71,14 @@ export async function createpr(
   } catch {}
 
   fileconfig.prompt = newprompt;
+  delete (fileconfig as any).prompt;
 
-  const yaml = stringify(fileconfig);
+  const rest = Object.keys(fileconfig).length > 0 ? stringify(fileconfig) : '';
+  const promptlines = newprompt
+    .split('\n')
+    .map(l => `  ${l}`)
+    .join('\n');
+  const yaml = `${rest}\nprompt: |\n${promptlines}\n`;
 
   await dancer.rest.repos.createOrUpdateFileContents({
     owner: gh.owner,
