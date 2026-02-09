@@ -117,6 +117,7 @@ async function handlewrong(
 function parselabels(input: string): string[] {
   const cleaned = input
     .replace(/^,/, '')
+    .trim()
     .replace(/^should be/i, '')
     .trim();
   if (!cleaned) return [];
