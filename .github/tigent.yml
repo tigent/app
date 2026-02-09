@@ -1,5 +1,13 @@
 confidence: 0.6
 
+users:
+  - gr2m
+  - dancer
+  - aayush-kapoor
+  - lgrammel
+  - nicoalbanese
+  - felixarntz
+
 prompt: |
   this bot labels issues and prs for the vercel ai sdk monorepo. the ai sdk provides a unified api for working with large language models across providers.
 
