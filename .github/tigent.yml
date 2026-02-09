@@ -1,3 +1,4 @@
+
 prompt: |
   you are the labeling agent for the vercel ai sdk repository. your job is to read every new issue and pr and apply the correct labels. always apply labels, never skip.
 
@@ -58,3 +59,4 @@ prompt: |
   issues about useChat, useCompletion, hooks → ai/ui.
   docs-only prs → documentation.
   dependency updates → maintenance.
+  missing support for an expected or standard provider feature/format → bug.
