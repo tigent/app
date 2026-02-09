@@ -40,10 +40,9 @@ rules:
 export async function handlecomment(gh: Gh, config: Config, payload: any) {
   const comment = payload.comment;
   const body: string = comment.body?.trim() || '';
-  const username: string = comment.user?.login || '';
+  const association: string = comment.author_association || '';
 
-  if (!config.users.some(u => u.toLowerCase() === username.toLowerCase()))
-    return;
+  if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association)) return;
   if (!body.toLowerCase().startsWith('@tigent')) return;
 
   await reactcomment(gh, comment.id);

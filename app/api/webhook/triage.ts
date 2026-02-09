@@ -13,7 +13,6 @@ export interface Config {
   confidence: number;
   model: string;
   prompt: string;
-  users: string[];
 }
 
 export interface Label {
@@ -25,7 +24,6 @@ export const defaultconfig: Config = {
   confidence: 0.6,
   model: 'openai/gpt-5-nano',
   prompt: '',
-  users: [],
 };
 
 export async function getconfig(gh: Gh): Promise<Config> {
