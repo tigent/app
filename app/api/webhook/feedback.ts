@@ -105,7 +105,14 @@ async function handlewrong(
     await addlabels(gh, issue.number, matchedlabels);
   }
 
-  await createpr(gh, issue.number, issue.title, matchedlabels);
+  await createpr(
+    gh,
+    issue.number,
+    issue.title,
+    matchedlabels,
+    ailabels,
+    config,
+  );
 }
 
 function parselabels(input: string): string[] {

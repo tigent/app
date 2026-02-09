@@ -1,3 +1,4 @@
+import { generateText } from 'ai';
 import { Octokit } from 'octokit';
 import { parse, stringify } from 'yaml';
 import type { Gh, Config } from './triage';
@@ -6,13 +7,31 @@ const dancer = process.env.DANCER_PAT
   ? new Octokit({ auth: process.env.DANCER_PAT })
   : null;
 
+async function rewrite(
+  current: string,
+  context: string,
+  model: string,
+): Promise<string> {
+  const { text } = await generateText({
+    model,
+    system: `you maintain a concise ruleset for a github issue labeling bot. given the current rules and a correction, output an updated ruleset that incorporates the lesson. keep it short and direct. output only the rules, nothing else. if the current rules are empty, start fresh.`,
+    prompt: `current rules:\n${current || '(none)'}\n\ncorrection:\n${context}`,
+  });
+  return text.trim();
+}
+
 export async function createpr(
   gh: Gh,
   issue: number,
   title: string,
-  labels: string[],
+  correctlabels: string[],
+  ailabels: string[],
+  config: Config,
 ) {
   if (!dancer) return;
+
+  const context = `issue: "${title}"\nai assigned: ${ailabels.join(', ') || '(none)'}\ncorrect labels: ${correctlabels.join(', ')}`;
+  const newprompt = await rewrite(config.prompt, context, config.model);
 
   const { data: repo } = await dancer.rest.repos.get({
     owner: gh.owner,
@@ -35,7 +54,7 @@ export async function createpr(
     sha,
   });
 
-  let config: Partial<Config> = {};
+  let fileconfig: Partial<Config> = {};
   let filesha: string | undefined;
 
   try {
@@ -47,21 +66,20 @@ export async function createpr(
     });
     if ('content' in data) {
       const content = Buffer.from(data.content, 'base64').toString();
-      config = (parse(content) as Partial<Config>) || {};
+      fileconfig = (parse(content) as Partial<Config>) || {};
       filesha = data.sha;
     }
   } catch {}
 
-  if (!config.examples) config.examples = [];
-  config.examples.push({ title, labels });
+  fileconfig.prompt = newprompt;
 
-  const yaml = stringify(config);
+  const yaml = stringify(fileconfig);
 
   await dancer.rest.repos.createOrUpdateFileContents({
     owner: gh.owner,
     repo: gh.repo,
     path: '.github/tigent.yml',
-    message: `fix: add learning example from #${issue}`,
+    message: `fix: update prompt from #${issue}`,
     content: Buffer.from(yaml).toString('base64'),
     branch,
     ...(filesha ? { sha: filesha } : {}),
@@ -71,7 +89,7 @@ export async function createpr(
     owner: gh.owner,
     repo: gh.repo,
     title: `fix: learn from #${issue} correction`,
-    body: `adds example to \`.github/tigent.yml\` from issue #${issue} correction.\n\n\`\`\`yaml\n- title: "${title}"\n  labels: [${labels.join(', ')}]\n\`\`\``,
+    body: `updates prompt in \`.github/tigent.yml\` from issue #${issue} correction.\n\n\`\`\`yaml\nprompt: |\n  ${newprompt.split('\n').join('\n  ')}\n\`\`\``,
     head: branch,
     base: defaultbranch,
   });

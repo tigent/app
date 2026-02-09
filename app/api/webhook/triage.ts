@@ -9,15 +9,10 @@ export interface Gh {
   repo: string;
 }
 
-export interface Example {
-  title: string;
-  labels: string[];
-}
-
 export interface Config {
   confidence: number;
   model: string;
-  examples: Example[];
+  prompt: string;
 }
 
 export interface Label {
@@ -28,7 +23,7 @@ export interface Label {
 export const defaultconfig: Config = {
   confidence: 0.6,
   model: 'openai/gpt-5-nano',
-  examples: [],
+  prompt: '',
 };
 
 export async function getconfig(gh: Gh): Promise<Config> {
@@ -81,12 +76,6 @@ export const schema = z.object({
   reasoning: z.string(),
 });
 
-function examplesblock(examples: Example[]): string {
-  if (examples.length === 0) return '';
-  const lines = examples.map(e => `- "${e.title}" → ${e.labels.join(', ')}`);
-  return `\nexamples from past corrections:\n${lines.join('\n')}\n`;
-}
-
 export async function classify(
   config: Config,
   labels: Label[],
@@ -98,13 +87,15 @@ export async function classify(
     .map(l => (l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`))
     .join('\n');
 
-  const examples = examplesblock(config.examples);
+  const promptblock = config.prompt
+    ? `\nadditional context:\n${config.prompt}\n`
+    : '';
 
   const system = `you are a github issue classifier. assign labels based on the content.
 
 available labels:
 ${labellist}
-${examples}
+${promptblock}
 rules:
 - only use labels from the list above
 - pick labels that match the content

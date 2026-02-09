@@ -55,25 +55,24 @@ export default function Config() {
         </div>
       </Section>
 
-      <Section id="examples" title="Examples">
+      <Section id="prompt" title="Prompt">
         <div className="space-y-8 max-w-2xl">
           <div>
             <h3
-              id="examples-option"
+              id="prompt-option"
               className="text-lg font-semibold mb-2 text-white"
             >
-              examples
+              prompt
             </h3>
             <p className="text-white/60 mb-4">
-              Few-shot examples from past corrections. These are injected into
-              the AI prompt to improve future classifications. Managed
-              automatically by the feedback loop.
+              Freeform rules injected into the AI classification prompt. Updated
+              automatically when you correct labeling mistakes with the feedback
+              loop.
             </p>
-            <Code className="max-w-md">{`examples:
-  - title: "app crashes on startup"
-    labels: [bug, p1]
-  - title: "add dark mode support"
-    labels: [feature]`}</Code>
+            <Code className="max-w-md">{`prompt: |
+  crashes and errors are always bug.
+  feature requests get feature, not enhancement.
+  minor bugs get p1.`}</Code>
           </div>
         </div>
       </Section>
@@ -82,9 +81,11 @@ export default function Config() {
         <p className="text-white/60 mb-6 max-w-2xl">A complete config file:</p>
         <Code className="max-w-md">{`confidence: 0.7
 
-examples:
-  - title: "app crashes on startup"
-    labels: [bug, p1]`}</Code>
+prompt: |
+  crashes and errors are always bug.
+  if the issue describes data loss or a crash, assign p0.
+  minor bugs get p1.
+  feature requests get feature, not enhancement.`}</Code>
       </Section>
 
       <Prevnext />
