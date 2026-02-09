@@ -49,9 +49,7 @@ export default function Docs() {
           </div>
           <div className="flex gap-4">
             <span className="text-white/40 font-mono">4</span>
-            <p className="text-white/60">
-              Labels are applied if confidence is above threshold
-            </p>
+            <p className="text-white/60">Labels are applied automatically</p>
           </div>
         </div>
       </Section>

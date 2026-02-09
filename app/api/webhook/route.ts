@@ -33,6 +33,8 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
   await handlecomment(gh, config, payload);
 });
 
+export const maxDuration = 300;
+
 export async function POST(req: Request) {
   const body = await req.text();
   try {

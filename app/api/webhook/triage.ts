@@ -10,7 +10,6 @@ export interface Gh {
 }
 
 export interface Config {
-  confidence: number;
   model: string;
   prompt: string;
 }
@@ -21,8 +20,7 @@ export interface Label {
 }
 
 export const defaultconfig: Config = {
-  confidence: 0.6,
-  model: 'openai/gpt-5-nano',
+  model: 'google/gemini-2.5-flash',
   prompt: '',
 };
 
@@ -72,7 +70,6 @@ export async function react(gh: Gh, issue: number) {
 
 export const schema = z.object({
   labels: z.array(z.string()),
-  confidence: z.number().min(0).max(1),
   reasoning: z.string(),
 });
 
@@ -112,7 +109,6 @@ ${body || 'no description'}${extra ? `\n\n${extra}` : ''}`;
   const valid = output!.labels.filter(l => labels.some(x => x.name === l));
   return {
     labels: valid,
-    confidence: output!.confidence,
     reasoning: output!.reasoning,
   };
 }
@@ -136,9 +132,7 @@ export async function triageissue(gh: Gh, config: Config, number: number) {
     issue.data.body || '',
   );
 
-  if (result.confidence >= config.confidence && result.labels.length > 0) {
-    await addlabels(gh, number, result.labels);
-  }
+  await addlabels(gh, number, result.labels);
 }
 
 export async function triagepr(gh: Gh, config: Config, number: number) {
@@ -170,7 +164,5 @@ export async function triagepr(gh: Gh, config: Config, number: number) {
     extra,
   );
 
-  if (result.confidence >= config.confidence && result.labels.length > 0) {
-    await addlabels(gh, number, result.labels);
-  }
+  await addlabels(gh, number, result.labels);
 }

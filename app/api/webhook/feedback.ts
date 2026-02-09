@@ -71,7 +71,7 @@ export async function handlecomment(gh: Gh, config: Config, payload: any) {
 async function handlewhy(gh: Gh, config: Config, issue: any, labels: any[]) {
   const result = await classify(config, labels, issue.title, issue.body || '');
   const labelstr = result.labels.join(', ');
-  const body = `**labels:** ${labelstr}\n**confidence:** ${result.confidence}\n\n${result.reasoning}`;
+  const body = `**labels:** ${labelstr}\n\n${result.reasoning}`;
 
   await gh.octokit.rest.issues.createComment({
     owner: gh.owner,
