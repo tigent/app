@@ -52,7 +52,7 @@ interface Config {
 
 const defaultconfig: Config = {
 	confidence: 0.6,
-	model: "anthropic/claude-sonnet-4",
+	model: "openai/gpt-5-nano",
 }
 
 async function getconfig(gh: Gh): Promise<Config> {
