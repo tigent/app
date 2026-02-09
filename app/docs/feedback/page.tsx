@@ -70,8 +70,9 @@ prompt: |
 
       <Section id="permissions" title="Permissions">
         <p className="text-white/60 max-w-2xl">
-          Only users with OWNER, MEMBER, or COLLABORATOR association can use
-          feedback commands. Comments from other users are ignored.
+          Only users listed in the users config can use feedback commands.
+          Comments from other users are ignored. If no users are configured,
+          feedback commands are disabled.
         </p>
       </Section>
 

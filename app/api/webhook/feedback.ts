@@ -2,14 +2,13 @@ import type { Gh, Config } from './triage';
 import { classify, fetchlabels, addlabels } from './triage';
 import { createpr } from './learn';
 
-const allowed = ['OWNER', 'MEMBER', 'COLLABORATOR'];
-
 export async function handlecomment(gh: Gh, config: Config, payload: any) {
   const comment = payload.comment;
   const body: string = comment.body?.trim() || '';
-  const association: string = comment.author_association || '';
+  const username: string = comment.user?.login || '';
 
-  if (!allowed.includes(association)) return;
+  if (!config.users.some(u => u.toLowerCase() === username.toLowerCase()))
+    return;
   if (!body.toLowerCase().startsWith('@tigent')) return;
 
   const command = body.slice(7).trim().toLowerCase();

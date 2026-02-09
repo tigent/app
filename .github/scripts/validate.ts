@@ -6,6 +6,7 @@ const schema = z.object({
   confidence: z.number().min(0).max(1).optional(),
   model: z.string().optional(),
   prompt: z.string().optional(),
+  users: z.array(z.string()).optional(),
 });
 
 const configpath = '.github/tigent.yml';
