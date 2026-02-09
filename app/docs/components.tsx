@@ -63,6 +63,7 @@ function Anchor({ id }: { id?: string }) {
 
   return (
     <button
+      type="button"
       onClick={copy}
       className={`opacity-0 group-hover/heading:opacity-100 p-1 rounded transition-all ${
         copied ? 'text-accent opacity-100' : 'text-white/30 hover:text-white/60'
