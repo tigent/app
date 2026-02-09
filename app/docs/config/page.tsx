@@ -48,8 +48,7 @@ export default function Config() {
               model
             </h3>
             <p className="text-white/60 mb-4">
-              AI model to use for classification. Default:
-              openai/gpt-5-nano
+              AI model to use for classification. Default: openai/gpt-5-nano
             </p>
             <Codeinline>model: openai/gpt-5-nano</Codeinline>
           </div>
