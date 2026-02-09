@@ -87,15 +87,11 @@ export async function classify(
     .map(l => (l.description ? `- ${l.name}: ${l.description}` : `- ${l.name}`))
     .join('\n');
 
-  const promptblock = config.prompt
-    ? `\nadditional context:\n${config.prompt}\n`
-    : '';
-
-  const system = `you are a github issue classifier. assign labels based on the content.
+  const system = `${config.prompt || 'you are a github issue classifier. assign labels based on the content.'}
 
 available labels:
 ${labellist}
-${promptblock}
+
 rules:
 - only use labels from the list above
 - pick labels that match the content
