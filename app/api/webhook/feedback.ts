@@ -76,8 +76,12 @@ async function handlewrong(
   const ailabels = result.labels;
   const existing = current.data.map(l => l.name);
 
+  const lowercorrect = correctlabels.map(l => l.toLowerCase());
   for (const label of ailabels) {
-    if (existing.includes(label)) {
+    if (
+      existing.includes(label) &&
+      !lowercorrect.includes(label.toLowerCase())
+    ) {
       await gh.octokit.rest.issues.removeLabel({
         owner: gh.owner,
         repo: gh.repo,
