@@ -37,8 +37,15 @@ export default function Config() {
               confidence
             </h3>
             <p className="text-white/60 mb-4">
-              Minimum confidence threshold for applying labels. Range: 0.0 to
-              1.0. Default: 0.6
+              When Tigent classifies an issue or PR, the AI returns a confidence
+              score between 0.0 and 1.0. Labels are only applied if the score
+              meets or exceeds this threshold. If the AI is unsure, the issue is
+              left unlabeled rather than mislabeled.
+            </p>
+            <p className="text-white/60 mb-4">
+              Lower values (0.3 - 0.5) label more issues but with less accuracy.
+              Higher values (0.7 - 0.9) are more conservative and only label
+              when the AI is highly confident. Default: 0.6
             </p>
             <Codeinline>confidence: 0.7</Codeinline>
           </div>
@@ -48,7 +55,9 @@ export default function Config() {
               model
             </h3>
             <p className="text-white/60 mb-4">
-              AI model to use for classification. Default: openai/gpt-5-nano
+              AI model to use for classification. Tigent uses the AI SDK gateway
+              format, so you can use any supported provider and model. Default:
+              openai/gpt-5-nano
             </p>
             <Codeinline>model: openai/gpt-5-nano</Codeinline>
           </div>
@@ -65,11 +74,19 @@ export default function Config() {
               prompt
             </h3>
             <p className="text-white/60 mb-4">
-              Freeform rules injected into the AI classification prompt. Updated
-              automatically when you correct labeling mistakes with the feedback
-              loop.
+              Freeform rules that get injected into the AI system prompt during
+              classification. This is where Tigent learns your preferences for
+              how labels should be applied. You can define rules for priority
+              assignment, label disambiguation, edge cases, and anything else
+              specific to your project.
             </p>
-            <Code className="max-w-md">{`prompt: |
+            <p className="text-white/60 mb-4">
+              The prompt is automatically rewritten by AI when you correct a
+              mistake using the feedback loop. Each correction updates the rules
+              to prevent the same mistake in the future, so the prompt improves
+              over time without manual editing.
+            </p>
+            <Code className="max-w-2xl">{`prompt: |
   crashes and errors are always bug.
   feature requests get feature, not enhancement.
   minor bugs get p1.`}</Code>
@@ -79,7 +96,7 @@ export default function Config() {
 
       <Section id="example" title="Full example">
         <p className="text-white/60 mb-6 max-w-2xl">A complete config file:</p>
-        <Code className="max-w-md">{`confidence: 0.7
+        <Code className="max-w-2xl">{`confidence: 0.7
 
 prompt: |
   crashes and errors are always bug.

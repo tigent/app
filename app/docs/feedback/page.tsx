@@ -37,8 +37,10 @@ export default function Feedback() {
               @tigent wrong
             </h3>
             <p className="text-white/60 mb-4">
-              Removes the AI-assigned labels and applies the correct ones.
-              Creates a PR to save the correction as a learning example.
+              Removes the AI-assigned labels and applies the correct ones you
+              specify. Then Tigent uses AI to rewrite the prompt in your config,
+              incorporating the correction as a new rule, and opens a PR with
+              the updated prompt for you to review and merge.
             </p>
             <Codeinline>@tigent wrong, should be bug, p1</Codeinline>
           </div>
@@ -47,11 +49,19 @@ export default function Feedback() {
 
       <Section id="learning" title="Learning">
         <p className="text-white/60 mb-4 max-w-2xl">
-          When you use the wrong command, Tigent uses AI to rewrite the prompt
-          in your config file, incorporating the correction as a new rule. A PR
-          is created with the updated prompt.
+          Tigent stores its knowledge as a freeform prompt in your config file.
+          When you correct a mistake, Tigent sends the current prompt along with
+          the correction context (issue title, wrong labels, correct labels) to
+          an AI that rewrites the rules to prevent the same mistake in the
+          future.
         </p>
-        <Code className="max-w-md">{`confidence: 0.7
+        <p className="text-white/60 mb-4 max-w-2xl">
+          The updated prompt is committed to a new branch and a PR is opened for
+          review. Once merged, all future classifications use the improved
+          rules. Over time, the prompt becomes a detailed guide tailored to your
+          project.
+        </p>
+        <Code className="max-w-2xl">{`confidence: 0.7
 
 prompt: |
   crashes and errors are always bug.
