@@ -5,14 +5,7 @@ import { readFileSync, existsSync } from 'fs';
 const schema = z.object({
   confidence: z.number().min(0).max(1).optional(),
   model: z.string().optional(),
-  examples: z
-    .array(
-      z.object({
-        title: z.string(),
-        labels: z.array(z.string()),
-      }),
-    )
-    .optional(),
+  prompt: z.string().optional(),
 });
 
 const configpath = '.github/tigent.yml';

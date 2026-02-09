@@ -47,14 +47,15 @@ export default function Feedback() {
 
       <Section id="learning" title="Learning">
         <p className="text-white/60 mb-4 max-w-2xl">
-          When you use the wrong command, Tigent creates a PR that adds the
-          correction to your config file as an example. Future classifications
-          use these examples to make better decisions.
+          When you use the wrong command, Tigent uses AI to rewrite the prompt
+          in your config file, incorporating the correction as a new rule. A PR
+          is created with the updated prompt.
         </p>
         <Code className="max-w-md">{`confidence: 0.7
-examples:
-  - title: "app crashes on startup"
-    labels: [bug, p1]`}</Code>
+
+prompt: |
+  crashes and errors are always bug.
+  feature requests get feature, not enhancement.`}</Code>
       </Section>
 
       <Section id="permissions" title="Permissions">
