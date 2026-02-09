@@ -111,7 +111,7 @@ export default function Config() {
             </p>
             <Code className="max-w-2xl">{`users:
   - gr2m
-  - aayuush-kapoor
+  - aayush-kapoor
   - dancer`}</Code>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function Config() {
 
 users:
   - gr2m
-  - aayuush-kapoor
+  - aayush-kapoor
 
 prompt: |
   crashes and errors are always bug.
