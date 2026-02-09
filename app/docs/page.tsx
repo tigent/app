@@ -20,11 +20,12 @@ export default function Docs() {
         <p className="text-white/60 mb-4 max-w-2xl">
           Tigent reads your existing GitHub labels and their descriptions, then
           uses AI to automatically apply the right labels when issues or PRs are
-          opened.
+          opened. Currently deployed on the Vercel AI SDK repository.
         </p>
         <p className="text-white/60 max-w-2xl">
-          No complex configuration needed. Just install the app and add
-          descriptions to your labels in GitHub settings.
+          Works on any repo. Install the app, add a prompt to customize labeling
+          for your project, and correct mistakes with natural language comments
+          to teach it over time.
         </p>
       </Section>
 
