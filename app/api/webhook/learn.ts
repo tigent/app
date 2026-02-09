@@ -7,15 +7,11 @@ const dancer = process.env.DANCER_PAT
   ? new Octokit({ auth: process.env.DANCER_PAT })
   : null;
 
-async function rewrite(
-  current: string,
-  context: string,
-  model: string,
-): Promise<string> {
+async function lesson(context: string, model: string): Promise<string> {
   const { text } = await generateText({
     model,
-    system: `you maintain a concise ruleset for a github issue labeling bot. given the current rules and a correction, output an updated ruleset that incorporates the lesson. keep it short and direct. output only the rules, nothing else. if the current rules are empty, start fresh.`,
-    prompt: `current rules:\n${current || '(none)'}\n\ncorrection:\n${context}`,
+    system: `you write a single short rule for a github issue labeling bot based on a correction. output one line only, no bullets or prefixes. example: "issues about improving existing structured output support are enhancement, not feature."`,
+    prompt: context,
   });
   return text.trim();
 }
@@ -31,7 +27,10 @@ export async function createpr(
   if (!dancer) return;
 
   const context = `issue: "${title}"\nai assigned: ${ailabels.join(', ') || '(none)'}\ncorrect labels: ${correctlabels.join(', ')}`;
-  const newprompt = await rewrite(config.prompt, context, config.model);
+  const rule = await lesson(context, config.model);
+  const newprompt = config.prompt
+    ? `${config.prompt.trimEnd()}\n${rule}`
+    : rule;
 
   const { data: repo } = await dancer.rest.repos.get({
     owner: gh.owner,
@@ -89,7 +88,7 @@ export async function createpr(
     owner: gh.owner,
     repo: gh.repo,
     title: `fix: learn from #${issue} correction`,
-    body: `updates prompt in \`.github/tigent.yml\` from issue #${issue} correction.\n\n\`\`\`yaml\nprompt: |\n  ${newprompt.split('\n').join('\n  ')}\n\`\`\``,
+    body: `adds rule to prompt in \`.github/tigent.yml\` from issue #${issue} correction.\n\n**new rule:**\n> ${rule}`,
     head: branch,
     base: defaultbranch,
   });
