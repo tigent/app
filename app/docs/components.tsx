@@ -130,7 +130,7 @@ export function Code({
       >
         {copied ? checkIcon : copyIcon}
       </button>
-      <pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed">
+      <pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {children}
       </pre>
     </div>
