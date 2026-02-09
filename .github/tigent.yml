@@ -1,5 +1,4 @@
 confidence: 0.6
-
 users:
   - gr2m
   - dancer
@@ -70,3 +69,4 @@ prompt: |
   if an issue mentions both a bug and a provider, assign bug + ai/provider + the provider label.
   if someone asks "how do i" or "is it possible to", that's support plus the relevant area.
   do not assign labels you are not confident about. under-labeling is better than mislabeling.
+  Issues describing provider-specific bugs or provider-switching problems should be labeled ai/provider and provider/<provider-name>.
