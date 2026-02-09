@@ -94,36 +94,9 @@ export default function Config() {
         </div>
       </Section>
 
-      <Section id="users" title="Users">
-        <div className="space-y-8 max-w-2xl">
-          <div>
-            <h3
-              id="users-option"
-              className="text-lg font-semibold mb-2 text-white"
-            >
-              users
-            </h3>
-            <p className="text-white/60 mb-4">
-              List of GitHub usernames allowed to use feedback commands (@tigent
-              why, @tigent wrong). Only users in this list can interact with
-              Tigent. If no users are configured, feedback commands are
-              disabled.
-            </p>
-            <Code className="max-w-2xl">{`users:
-  - gr2m
-  - aayush-kapoor
-  - dancer`}</Code>
-          </div>
-        </div>
-      </Section>
-
       <Section id="example" title="Full example">
         <p className="text-white/60 mb-6 max-w-2xl">A complete config file:</p>
         <Code className="max-w-2xl">{`confidence: 0.7
-
-users:
-  - gr2m
-  - aayush-kapoor
 
 prompt: |
   crashes and errors are always bug.
