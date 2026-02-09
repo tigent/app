@@ -1,109 +1,41 @@
 confidence: 0.6
-theme: mono
 
-labels:
-  bug: critical
-  security: critical
-  p0: critical
-  p1: high
-  p2: medium
-  feature: medium
-  enhancement: medium
-  documentation: muted
-  config: medium
-  webhook: medium
-  github-api: medium
-  maintenance: light
-  duplicate: muted
-  good-first-issue: muted
-  help-wanted: muted
+prompt: |
+  tigent is an ai-powered github issue and pr labeling bot. this prompt guides classification decisions.
 
-rules:
-  - match: 'crash|broken|not working'
-    add: [bug, p1]
-  - match: 'security|vulnerability|cve'
-    add: [security, p0]
-  - match: 'docs|readme|typo'
-    add: [documentation]
-  - match: 'config|yaml|yml'
-    add: [config]
-  - match: 'webhook|payload'
-    add: [webhook]
+  priority labels:
+  p0 is reserved for critical issues: crashes, data loss, security vulnerabilities, complete feature breakage affecting all users.
+  p1 is for high severity: bugs that affect many users, regressions, significant performance degradation.
+  p2 is for moderate issues: bugs with workarounds, minor regressions, non-critical performance issues.
+  if no priority is clearly warranted, do not assign one. avoid over-prioritizing.
 
-reactions:
-  start: eyes
+  type labels:
+  bug is for confirmed or strongly suspected defects: something that used to work and no longer does, unexpected errors, incorrect behavior.
+  feature is for entirely new functionality that does not exist yet. use feature, never enhancement, for new capabilities.
+  enhancement is for improvements to existing functionality: better performance, ui polish, workflow improvements.
+  security is for vulnerabilities, exploits, cves, auth bypasses, data exposure. always pair with p0.
+  documentation is for docs, readme, typos, broken links, missing guides, api reference issues.
+  maintenance is for chores: dependency updates, refactoring, ci/cd changes, tooling, code cleanup.
+  config is for issues related to configuration files, yaml syntax, environment variables, setup.
+  webhook is for webhook delivery, payload parsing, event handling, smee, tunneling issues.
+  github-api is for problems with github api calls, rate limits, permissions, octokit errors, auth tokens.
 
-duplicates:
-  enabled: true
-  threshold: 0.8
-  label: duplicate
-  comment: true
+  triage labels:
+  duplicate is for issues that clearly describe the same problem as an existing open issue.
+  needs-info is when the issue lacks enough detail to act on: no repro steps, vague description, missing environment info.
+  needs-attention is for issues that seem urgent or important but need a maintainer to review and decide.
+  needs-support is for users who are frustrated or having a bad experience and need a human response.
+  needs-help is for users who are confused about how to use something and need guidance.
+  awaiting-response is when a maintainer has asked a question and is waiting for the reporter to reply.
+  good-first-issue is for small, well-scoped tasks suitable for new contributors: clear requirements, limited scope, low risk.
+  help-wanted is for tasks where the team would welcome outside contributions.
+  stale should never be assigned by the bot.
 
-ignore:
-  users: [dependabot, renovate]
-
-autorespond:
-  enabled: true
-  label: needs-info
-  context: |
-    tigent is a github bot that auto-labels issues and prs.
-    common issues involve webhook configuration and yaml syntax.
-  requirements:
-    bug:
-      - steps to reproduce
-      - expected vs actual behavior
-      - environment info
-    feature:
-      - use case description
-      - proposed solution
-    default:
-      - clear description
-  message: |
-    thanks for opening this issue! we need a bit more info to help you.
-
-stale:
-  enabled: true
-  days: 30
-  close: 7
-  exempt:
-    labels: [security, p0, p1]
-    assignees: true
-  label: stale
-  message: |
-    this issue has been inactive for 30 days and will be closed in 7 days if there is no activity.
-  closemessage: |
-    closed due to inactivity. feel free to reopen if still relevant.
-
-sentiment:
-  enabled: true
-  detect:
-    negative: true
-    frustrated: true
-    confused: true
-  triggers:
-    issues: true
-    comments: true
-  noreply:
-    enabled: true
-    hours: 48
-    mode: both
-  labels:
-    negative: needs-attention
-    frustrated: needs-support
-    confused: needs-help
-    noreply: awaiting-response
-  actions:
-    comment:
-      enabled: true
-      negative: |
-        we hear you and are looking into this.
-      frustrated: |
-        sorry for the frustration - we're on it!
-      confused: |
-        let us help clarify - we'll follow up shortly.
-      noreply: |
-        apologies for the delay - the team has been notified.
-  threshold: 0.7
-  exempt:
-    labels: [wontfix, duplicate]
-    users: []
+  general rules:
+  an issue can have multiple labels but keep it focused. typically one type label and optionally one priority label.
+  if an issue mentions both a bug and a feature request, prioritize the bug aspect.
+  pull requests should be labeled based on what they change, not what they fix.
+  if a pr touches docs files only, label it documentation.
+  if a pr updates dependencies or ci, label it maintenance.
+  when in doubt between two labels, pick the more specific one.
+  do not assign labels you are not confident about. it is better to under-label than over-label.

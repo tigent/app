@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: '%s | Tigent',
   },
   description:
-    'Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.',
+    'AI-powered issue and PR labeling for GitHub. Works with your existing labels out of the box.',
   keywords: [
     'github',
     'automation',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'Tigent',
     title: 'Tigent - AI-powered GitHub Issue Triage',
     description:
-      'Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.',
+      'AI-powered issue and PR labeling for GitHub. Works with your existing labels out of the box.',
     images: [
       {
         url: 'https://tigent.xyz/og.png',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Tigent - AI-powered GitHub Issue Triage',
     description:
-      'Automated PR and issue triage for GitHub powered by AI. Auto-label issues, detect duplicates, and streamline your workflow.',
+      'AI-powered issue and PR labeling for GitHub. Works with your existing labels out of the box.',
     images: ['https://tigent.xyz/og.png'],
   },
   robots: {
@@ -73,7 +73,7 @@ const jsonLd = {
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Web',
   description:
-    'AI-powered GitHub issue triage bot that auto-labels issues, detects duplicates, and streamlines your workflow.',
+    'AI-powered issue and PR labeling for GitHub. Works with your existing labels out of the box.',
   url: 'https://tigent.xyz',
   offers: {
     '@type': 'Offer',
