@@ -1,5 +1,4 @@
-import { generateObject, generateText } from 'ai';
-import { z } from 'zod';
+import { generateText } from 'ai';
 import { Octokit } from 'octokit';
 import { parse, stringify } from 'yaml';
 import type { Gh, Config } from './triage';
@@ -15,28 +14,6 @@ async function lesson(context: string, model: string): Promise<string> {
     prompt: context,
   });
   return text.trim();
-}
-
-const reviewschema = z.object({
-  approved: z.boolean(),
-  reason: z.string(),
-});
-
-async function review(diff: string, model: string) {
-  const { object } = await generateObject({
-    model,
-    schema: reviewschema,
-    system: `you review pull requests that update a labeling bot's prompt config. approve if the change is safe:
-- only .github/tigent.yml was modified
-- the existing prompt is preserved (not rewritten or truncated)
-- only one short rule was appended at the end
-- the rule is relevant to issue labeling
-- no other config values (confidence, users, model) were changed
-
-reject if anything looks off: prompt was rewritten, content was removed, unrelated changes, or the rule doesn't make sense. be brief in your reason.`,
-    prompt: diff,
-  });
-  return object;
 }
 
 export async function createpr(
@@ -113,7 +90,7 @@ export async function createpr(
     ...(filesha ? { sha: filesha } : {}),
   });
 
-  const { data: pr } = await dancer.rest.pulls.create({
+  await dancer.rest.pulls.create({
     owner: gh.owner,
     repo: gh.repo,
     title: `fix: learn from #${issue} correction`,
@@ -121,22 +98,4 @@ export async function createpr(
     head: branch,
     base: defaultbranch,
   });
-
-  const { data: diff } = await dancer.rest.pulls.get({
-    owner: gh.owner,
-    repo: gh.repo,
-    pull_number: pr.number,
-    mediaType: { format: 'diff' },
-  });
-
-  const result = await review(diff as unknown as string, config.model);
-
-  if (result.approved) {
-    await dancer.rest.pulls.merge({
-      owner: gh.owner,
-      repo: gh.repo,
-      pull_number: pr.number,
-      merge_method: 'squash',
-    });
-  }
 }
