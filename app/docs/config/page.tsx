@@ -49,9 +49,9 @@ export default function Config() {
             </h3>
             <p className="text-white/60 mb-4">
               AI model to use for classification. Default:
-              openai/gpt-5-nano
+              google/gemini-2.5-flash
             </p>
-            <Codeinline>model: openai/gpt-5-nano</Codeinline>
+            <Codeinline>model: google/gemini-2.5-flash</Codeinline>
           </div>
         </div>
       </Section>
