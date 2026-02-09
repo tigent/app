@@ -120,6 +120,7 @@ export function Code({
   return (
     <div className={`relative group/code ${className}`}>
       <button
+        type="button"
         onClick={copy}
         className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
           copied
