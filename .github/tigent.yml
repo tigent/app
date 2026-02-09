@@ -1,5 +1,4 @@
 confidence: 0.6
-
 users:
   - gr2m
   - dancer
@@ -10,7 +9,7 @@ users:
 
 prompt: |
   this bot labels issues and prs for the vercel ai sdk monorepo. the ai sdk provides a unified api for working with large language models across providers.
-
+  
   area labels (assign one or more based on which package is affected):
   ai/core is for the core generateText, generateObject, streamText, streamObject apis, tool calling, structured output, steps, middleware, telemetry hooks, and anything in the ai package that isn't ui-related.
   ai/ui is for useChat, useCompletion, useAssistant, UIMessage, ui message streaming, react hooks, and frontend integration. also covers angular and svelte ui bindings.
@@ -24,13 +23,13 @@ prompt: |
   expo is for react native and expo-specific issues, metro bundler compatibility, and mobile platform concerns.
   tools-registry is for the tools registry, tool packages, and shared tool definitions.
   codex is for codex-related functionality.
-
+  
   provider labels (assign when the issue is specific to a provider):
   provider/openai for openai and gpt models. provider/anthropic for anthropic and claude models. provider/google for google ai and gemini models. provider/google-vertex for google vertex ai. provider/azure for azure openai. provider/amazon-bedrock for aws bedrock. provider/xai for xai/grok. provider/mistral for mistral. provider/cohere for cohere. provider/groq for groq. provider/deepseek for deepseek. provider/fireworks for fireworks. provider/togetherai for together ai. provider/perplexity for perplexity. provider/replicate for replicate. provider/huggingface for hugging face. provider/cerebras for cerebras. provider/deepinfra for deepinfra. provider/baseten for baseten. provider/fal for fal. provider/luma for luma. provider/black-forest-labs for bfl/flux image models. provider/gateway for the gateway provider specifically. provider/vercel for the vercel provider.
   provider/openai-compatible is for issues with providers using the openai-compatible base layer.
   provider/community is for community-maintained providers not officially supported.
   provider labels for audio/speech: provider/elevenlabs, provider/lmnt, provider/hume, provider/deepgram, provider/assemblyai, provider/gladia, provider/revai.
-
+  
   type labels:
   bug is for defects, regressions, unexpected errors, incorrect behavior. look for phrases like "doesn't work", "error", "crash", "regression", "broke", "unexpected".
   feature is for new capabilities that don't exist yet. look for "feature request", "would be nice", "support for", "add ability to".
@@ -39,7 +38,7 @@ prompt: |
   support is for general questions, help requests, usage guidance, and "how do i" questions. most user-filed issues that aren't clear bugs get support.
   wontfix should never be assigned by the bot.
   deprecation is for marking apis, features, or patterns as deprecated in favor of newer alternatives.
-
+  
   triage labels:
   reproduction needed means the bug report lacks a minimal reproduction. assign this when someone reports a bug but doesn't include steps to reproduce, a code snippet, or a repo link.
   reproduction provided means a reproduction has been supplied (code, repo link, or clear steps).
@@ -47,16 +46,16 @@ prompt: |
   good first issue is for small, well-scoped tasks suitable for new contributors.
   external means the issue is caused by something outside the ai sdk (a provider api change, a framework bug, a user's environment).
   resumability is for issues related to resumable streams and recovery.
-
+  
   version labels:
   major marks prs that include breaking changes requiring a major version bump.
   minor marks prs that add new features requiring a minor version bump.
   backport marks prs that should be backported to older release branches.
-
+  
   workflow labels:
   type:batch is for coordinated changes across multiple packages.
   type:epic is for large tracked initiatives spanning multiple prs.
-
+  
   labeling patterns observed in this repo:
   most issues get an area label (ai/core, ai/ui, ai/provider) plus support. bugs also get bug. provider-specific issues get both ai/provider and the specific provider label (e.g., provider/anthropic).
   prs typically get area labels matching what they change, plus bug or feature or documentation as the type.
@@ -70,3 +69,4 @@ prompt: |
   if an issue mentions both a bug and a provider, assign bug + ai/provider + the provider label.
   if someone asks "how do i" or "is it possible to", that's support plus the relevant area.
   do not assign labels you are not confident about. under-labeling is better than mislabeling.
+  issues about bugs when switching providers (OpenAI to Google) that break streamText should be labeled ai/provider, provider/google.
