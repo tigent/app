@@ -17,32 +17,37 @@ export default function Feedback() {
 
       <Section id="commands" title="Commands">
         <p className="text-white/60 mb-6 max-w-2xl">
-          Comment on any issue or PR to interact with Tigent. Only repository
-          owners, members, and collaborators can use these commands.
+          Mention @tigent in any comment to interact with it. Tigent uses AI to
+          understand your intent, so you can write naturally. Only users listed
+          in your config can use these commands.
         </p>
 
         <div className="space-y-8 max-w-2xl">
           <div>
             <h3 id="why" className="text-lg font-semibold mb-2 text-white">
-              @tigent why
+              explain
             </h3>
             <p className="text-white/60 mb-4">
-              Re-classifies the issue and posts the reasoning as a comment.
+              Ask Tigent to explain why it assigned certain labels. It
+              re-classifies the issue and posts its reasoning.
             </p>
-            <Codeinline>@tigent why</Codeinline>
+            <Code className="max-w-2xl">{`@tigent why did you label this as a bug?
+@tigent explain your reasoning
+@tigent why`}</Code>
           </div>
 
           <div>
             <h3 id="wrong" className="text-lg font-semibold mb-2 text-white">
-              @tigent wrong
+              correct
             </h3>
             <p className="text-white/60 mb-4">
-              Removes the AI-assigned labels and applies the correct ones you
-              specify. Then Tigent uses AI to rewrite the prompt in your config,
-              incorporating the correction as a new rule, and opens a PR with
-              the updated prompt for you to review and merge.
+              Tell Tigent the labels are wrong and what they should be. It
+              removes incorrect labels, applies the right ones, and opens a PR
+              to update the prompt so it learns from the correction.
             </p>
-            <Codeinline>@tigent wrong, should be bug, p1</Codeinline>
+            <Code className="max-w-2xl">{`@tigent this is wrong, should be support and ai/provider
+@tigent these labels are incorrect, it's a bug not a feature
+@tigent wrong, should be bug, p1`}</Code>
           </div>
         </div>
       </Section>

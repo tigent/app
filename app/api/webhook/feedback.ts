@@ -1,6 +1,41 @@
+import { generateObject } from 'ai';
+import { z } from 'zod';
 import type { Gh, Config } from './triage';
 import { classify, fetchlabels, addlabels } from './triage';
 import { createpr } from './learn';
+
+const intentschema = z.object({
+  intent: z.enum(['why', 'wrong', 'unsupported']),
+  labels: z.array(z.string()),
+  reply: z.string(),
+});
+
+async function parseintent(
+  config: Config,
+  comment: string,
+  available: string[],
+) {
+  const { object } = await generateObject({
+    model: config.model,
+    schema: intentschema,
+    system: `you parse commands directed at a github issue labeling bot called tigent.
+
+classify the intent:
+- "why": user wants to know why labels were assigned or wants the bot to explain its reasoning.
+- "wrong": user is correcting the labels. extract the correct label names into the labels array. match against available labels (case-insensitive).
+- "unsupported": user is asking the bot to do something it cannot do (close, delete, assign, merge, etc). write a short one-sentence reply explaining what tigent can do instead.
+
+available labels: ${available.join(', ')}
+
+rules:
+- for "why" intent, labels array should be empty, reply should be empty.
+- for "wrong" intent, extract every label the user mentions. reply should be empty.
+- for "unsupported" intent, labels array should be empty. reply should be brief and lowercase.
+- only include labels that exist in the available labels list.`,
+    prompt: comment,
+  });
+  return object;
+}
 
 export async function handlecomment(gh: Gh, config: Config, payload: any) {
   const comment = payload.comment;
@@ -11,31 +46,31 @@ export async function handlecomment(gh: Gh, config: Config, payload: any) {
     return;
   if (!body.toLowerCase().startsWith('@tigent')) return;
 
-  const command = body.slice(7).trim().toLowerCase();
+  await reactcomment(gh, comment.id);
+
+  const repolabels = await fetchlabels(gh);
+  const available = repolabels.map(l => l.name);
+  const message = body.slice(7).trim();
   const issue = payload.issue;
 
-  if (command === 'why') {
-    await handlewhy(gh, config, issue, comment.id);
-  } else if (command.startsWith('wrong')) {
-    const rest = body.slice(7).trim().slice(5).trim();
-    const labels = parselabels(rest);
-    if (labels.length > 0) {
-      await handlewrong(gh, config, issue, comment.id, labels);
-    }
+  const intent = await parseintent(config, message, available);
+
+  if (intent.intent === 'why') {
+    await handlewhy(gh, config, issue, repolabels);
+  } else if (intent.intent === 'wrong' && intent.labels.length > 0) {
+    await handlewrong(gh, config, issue, intent.labels, repolabels);
+  } else if (intent.intent === 'unsupported' && intent.reply) {
+    await gh.octokit.rest.issues.createComment({
+      owner: gh.owner,
+      repo: gh.repo,
+      issue_number: issue.number,
+      body: intent.reply,
+    });
   }
 }
 
-async function handlewhy(
-  gh: Gh,
-  config: Config,
-  issue: any,
-  commentid: number,
-) {
-  await reactcomment(gh, commentid);
-
-  const labels = await fetchlabels(gh);
+async function handlewhy(gh: Gh, config: Config, issue: any, labels: any[]) {
   const result = await classify(config, labels, issue.title, issue.body || '');
-
   const labelstr = result.labels.join(', ');
   const body = `**labels:** ${labelstr}\n**confidence:** ${result.confidence}\n\n${result.reasoning}`;
 
@@ -51,26 +86,17 @@ async function handlewrong(
   gh: Gh,
   config: Config,
   issue: any,
-  commentid: number,
   correctlabels: string[],
+  repolabels: any[],
 ) {
-  await reactcomment(gh, commentid);
-
-  const [repolabels, current] = await Promise.all([
-    fetchlabels(gh),
+  const [result, current] = await Promise.all([
+    classify(config, repolabels, issue.title, issue.body || ''),
     gh.octokit.rest.issues.listLabelsOnIssue({
       owner: gh.owner,
       repo: gh.repo,
       issue_number: issue.number,
     }),
   ]);
-
-  const result = await classify(
-    config,
-    repolabels,
-    issue.title,
-    issue.body || '',
-  );
 
   const ailabels = result.labels;
   const existing = current.data.map(l => l.name);
@@ -112,19 +138,6 @@ async function handlewrong(
     ailabels,
     config,
   );
-}
-
-function parselabels(input: string): string[] {
-  const cleaned = input
-    .replace(/^,/, '')
-    .trim()
-    .replace(/^should be/i, '')
-    .trim();
-  if (!cleaned) return [];
-  return cleaned
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
 }
 
 async function reactcomment(gh: Gh, commentid: number) {
