@@ -76,7 +76,7 @@ export async function createpr(
   const rest = Object.keys(fileconfig).length > 0 ? stringify(fileconfig) : '';
   const promptlines = newprompt
     .split('\n')
-    .map(l => `  ${l}`)
+    .map(l => (l ? `  ${l}` : ''))
     .join('\n');
   const yaml = `${rest}\nprompt: |\n${promptlines}\n`;
 
