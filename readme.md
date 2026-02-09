@@ -10,6 +10,15 @@
   3. ai picks matching labels
   4. applies labels if confidence > 0.6
 
+> currently deployed on?
+
+  vercel/ai (ai sdk)
+
+> works on other repos?
+
+  yes. install the app and add a .github/tigent.yml
+  with a prompt tailored to your labels and workflow.
+
 > stack?
 
   ai sdk · ai gateway · github app · vercel · octokit

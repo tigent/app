@@ -19,12 +19,18 @@ export default function Config() {
         <p className="text-white/60 mb-4 max-w-2xl">
           Tigent works out of the box with no configuration. It reads your
           existing labels and their descriptions to determine how to classify
-          issues and PRs.
+          issues and PRs. The default setup is configured for the Vercel AI SDK
+          repository.
         </p>
-        <p className="text-white/60 max-w-2xl">
-          If you want to customize the behavior, create a config file at:
+        <p className="text-white/60 mb-4 max-w-2xl">
+          To customize for your own repo, create a config file at:
         </p>
         <Codeinline className="mt-4">.github/tigent.yml</Codeinline>
+        <p className="text-white/60 mt-4 max-w-2xl">
+          The most important field is the prompt. Write rules that describe how
+          your labels should be applied. Tigent reads your labels from GitHub at
+          runtime, so the prompt just needs to explain when to use each one.
+        </p>
       </Section>
 
       <Section id="options" title="Options">
