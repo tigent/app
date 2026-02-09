@@ -49,9 +49,9 @@ export default function Config() {
             </h3>
             <p className="text-white/60 mb-4">
               AI model to use for classification. Default:
-              anthropic/claude-sonnet-4
+              openai/gpt-5-nano
             </p>
-            <Codeinline>model: anthropic/claude-sonnet-4</Codeinline>
+            <Codeinline>model: openai/gpt-5-nano</Codeinline>
           </div>
         </div>
       </Section>
