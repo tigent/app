@@ -56,6 +56,14 @@ export async function createpr(
   });
   const sha = ref.object.sha;
 
+  try {
+    await dancer.rest.git.deleteRef({
+      owner: gh.owner,
+      repo: gh.repo,
+      ref: `heads/${branch}`,
+    });
+  } catch {}
+
   await dancer.rest.git.createRef({
     owner: gh.owner,
     repo: gh.repo,

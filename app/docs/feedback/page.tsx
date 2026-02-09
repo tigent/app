@@ -18,8 +18,8 @@ export default function Feedback() {
       <Section id="commands" title="Commands">
         <p className="text-white/60 mb-6 max-w-2xl">
           Mention @tigent in any comment to interact with it. Tigent uses AI to
-          understand your intent, so you can write naturally. Only users listed
-          in your config can use these commands.
+          understand your intent, so you can write naturally. Only repository
+          owners, members, and collaborators can use these commands.
         </p>
 
         <div className="space-y-8 max-w-2xl">
