@@ -421,6 +421,7 @@ export function Toc() {
 
         <div className="flex items-center gap-1 mt-6 pt-6 border-t border-white/10">
           <button
+            type="button"
             onClick={copyAsMarkdown}
             className={`p-2 rounded-md transition-all ${
               copied
@@ -432,6 +433,7 @@ export function Toc() {
             {copied ? checkIcon : copyIcon}
           </button>
           <button
+            type="button"
             onClick={copyLink}
             className={`p-2 rounded-md transition-all ${
               linkCopied
@@ -453,6 +455,7 @@ export function Toc() {
           </a>
           {showTop && (
             <button
+              type="button"
               onClick={scrollToTop}
               className="p-2 rounded-md transition-all text-white/40 hover:text-white/70 hover:bg-white/5 animate-in fade-in duration-200"
               title="Scroll to top"

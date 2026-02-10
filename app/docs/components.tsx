@@ -207,31 +207,6 @@ export function Card({
   );
 }
 
-export function Option({
-  id,
-  title,
-  description,
-  children,
-}: {
-  id: string;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3 group/heading">
-        <h3 id={id} className="text-xl font-semibold text-white">
-          {title}
-        </h3>
-        <Anchor id={id} />
-      </div>
-      <p className="text-white/60 mb-4">{description}</p>
-      {children}
-    </div>
-  );
-}
-
 export function Section({
   id,
   title,
