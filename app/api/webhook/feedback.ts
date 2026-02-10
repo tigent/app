@@ -61,13 +61,15 @@ export async function handlecomment(gh: Gh, config: Config, payload: Payload) {
   const association: string = comment.author_association || '';
 
   if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association)) return;
-  if (!body.toLowerCase().startsWith('@tigent')) return;
+
+  const match = body.match(/^@tigent\s+(.+)/is);
+  if (!match) return;
 
   await reactcomment(gh, comment.id);
 
   const repolabels = await fetchlabels(gh);
   const available = repolabels.map(l => l.name);
-  const message = body.slice(7).trim();
+  const message = match[1]!.trim();
   const issue = payload.issue;
 
   const intent = await parseintent(config, message, available);
