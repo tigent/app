@@ -153,8 +153,11 @@ export async function triagepr(gh: Gh, config: Config, number: number) {
     fetchlabels(gh),
   ]);
 
-  const filelist = files.data.map(f => f.filename).join('\n');
-  const extra = `changed files:\n${filelist}`;
+  const parts = files.data.map(f => {
+    const patch = f.patch ? `\n${f.patch}` : '';
+    return `${f.filename} (+${f.additions} -${f.deletions})${patch}`;
+  });
+  const extra = `changed files:\n${parts.join('\n\n')}`;
 
   const result = await classify(
     config,
