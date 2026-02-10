@@ -1,11 +1,6 @@
 import { generateText } from 'ai';
-import { Octokit } from 'octokit';
 import { parse, stringify } from 'yaml';
 import type { Gh, Config } from './triage';
-
-const dancer = process.env.DANCER_PAT
-  ? new Octokit({ auth: process.env.DANCER_PAT })
-  : null;
 
 async function updatedprompt(
   current: string,
@@ -37,19 +32,17 @@ export async function createpr(
   ailabels: string[],
   config: Config,
 ) {
-  if (!dancer) return;
-
   const context = `issue: "${title}"\nai assigned: ${ailabels.join(', ') || '(none)'}\ncorrect labels: ${correctlabels.join(', ')}`;
   const newprompt = await updatedprompt(config.prompt, context, config.model);
 
-  const { data: repo } = await dancer.rest.repos.get({
+  const { data: repo } = await gh.octokit.rest.repos.get({
     owner: gh.owner,
     repo: gh.repo,
   });
   const branch = `tigent/learn-${issue}`;
   const defaultbranch = repo.default_branch;
 
-  const { data: ref } = await dancer.rest.git.getRef({
+  const { data: ref } = await gh.octokit.rest.git.getRef({
     owner: gh.owner,
     repo: gh.repo,
     ref: `heads/${defaultbranch}`,
@@ -57,14 +50,14 @@ export async function createpr(
   const sha = ref.object.sha;
 
   try {
-    await dancer.rest.git.deleteRef({
+    await gh.octokit.rest.git.deleteRef({
       owner: gh.owner,
       repo: gh.repo,
       ref: `heads/${branch}`,
     });
   } catch {}
 
-  await dancer.rest.git.createRef({
+  await gh.octokit.rest.git.createRef({
     owner: gh.owner,
     repo: gh.repo,
     ref: `refs/heads/${branch}`,
@@ -75,7 +68,7 @@ export async function createpr(
   let filesha: string | undefined;
 
   try {
-    const { data } = await dancer.rest.repos.getContent({
+    const { data } = await gh.octokit.rest.repos.getContent({
       owner: gh.owner,
       repo: gh.repo,
       path: '.github/tigent.yml',
@@ -100,7 +93,7 @@ export async function createpr(
     ? `${rest}\nprompt: |\n${promptlines}\n`
     : `prompt: |\n${promptlines}\n`;
 
-  await dancer.rest.repos.createOrUpdateFileContents({
+  await gh.octokit.rest.repos.createOrUpdateFileContents({
     owner: gh.owner,
     repo: gh.repo,
     path: '.github/tigent.yml',
@@ -110,7 +103,7 @@ export async function createpr(
     ...(filesha ? { sha: filesha } : {}),
   });
 
-  await dancer.rest.pulls.create({
+  await gh.octokit.rest.pulls.create({
     owner: gh.owner,
     repo: gh.repo,
     title: `fix: learn from #${issue} correction`,
