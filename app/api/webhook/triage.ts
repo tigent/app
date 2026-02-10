@@ -59,12 +59,20 @@ export async function addlabels(gh: Gh, issue: number, labels: string[]) {
   });
 }
 
-export async function react(gh: Gh, issue: number) {
+export async function react(gh: Gh, issue: number, content: string = 'eyes') {
   await gh.octokit.rest.reactions.createForIssue({
     owner: gh.owner,
     repo: gh.repo,
     issue_number: issue,
-    content: 'eyes',
+    content: content as
+      | '+1'
+      | '-1'
+      | 'laugh'
+      | 'confused'
+      | 'heart'
+      | 'hooray'
+      | 'rocket'
+      | 'eyes',
   });
 }
 
