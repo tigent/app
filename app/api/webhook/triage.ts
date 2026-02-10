@@ -153,11 +153,20 @@ export async function triagepr(gh: Gh, config: Config, number: number) {
     fetchlabels(gh),
   ]);
 
-  const parts = files.data.map(f => {
-    const patch = f.patch ? `\n${f.patch}` : '';
-    return `${f.filename} (+${f.additions} -${f.deletions})${patch}`;
+  const diff = files.data
+    .map(f => {
+      const patch = f.patch ? `\n${f.patch}` : '';
+      return `${f.filename} (+${f.additions} -${f.deletions})${patch}`;
+    })
+    .join('\n\n');
+
+  const { text: summary } = await generateText({
+    model: config.model,
+    system: `summarize a pull request diff into 3-8 bullet points. focus on what changed and why, not line-by-line details. mention which packages or areas were modified. be concise.`,
+    prompt: `title: ${pr.data.title}\n\nbody:\n${pr.data.body || 'no description'}\n\ndiff:\n${diff}`,
   });
-  const extra = `changed files:\n${parts.join('\n\n')}`;
+
+  const extra = `pr summary:\n${summary}`;
 
   const result = await classify(
     config,
