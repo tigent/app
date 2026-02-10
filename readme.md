@@ -8,7 +8,7 @@
   1. github webhook triggers on new issue/pr
   2. fetches your labels with descriptions
   3. ai picks matching labels
-  4. applies labels if confidence > 0.6
+  4. applies labels automatically
 
 > currently deployed on?
 
