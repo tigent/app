@@ -1,6 +1,6 @@
 export function Empty({ hasrepos }: { hasrepos: boolean }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full">
+    <div className="flex flex-col items-center justify-center h-full w-full">
       <svg
         className="w-10 h-10 text-border mb-4"
         viewBox="0 0 238.758 238.758"
