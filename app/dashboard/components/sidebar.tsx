@@ -54,7 +54,7 @@ export function Sidebar({
                               : 'text-fg/70 hover:bg-warm/50'
                           }`}
                         >
-                          {r.name}
+                          <span className="capitalize">{r.name}</span>
                         </Link>
                       </li>
                     );
