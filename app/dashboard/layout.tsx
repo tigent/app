@@ -11,7 +11,7 @@ export default async function Layout({
   if (!session.token) redirect('/login');
 
   return (
-    <div className="h-screen bg-warm flex overflow-hidden p-3 gap-3">
+    <div className="h-screen bg-warm flex overflow-hidden p-0 md:p-3 gap-0 md:gap-3">
       <Shell>{children}</Shell>
     </div>
   );
