@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import type { Repo } from '@/app/api/dashboard/installations/route';
 import { Iconbar } from './header';
 import { Sidebar } from './sidebar';
+import { Mobilenav } from './mobilenav';
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const [repos, setRepos] = useState<Repo[]>([]);
@@ -23,16 +24,23 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   const parts = pathname.split('/').filter(Boolean);
   const selected = parts.length >= 3 ? `${parts[1]}/${parts[2]}` : null;
-
   const hidebar = pathname.endsWith('/config');
 
   return (
     <>
-      <Iconbar />
-      {!hidebar && (
-        <Sidebar repos={repos} selected={selected} loading={loading} />
-      )}
-      <main className="flex-1 min-w-0 bg-bg rounded-2xl overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="hidden md:contents">
+        <Iconbar />
+        {!hidebar && (
+          <Sidebar repos={repos} selected={selected} loading={loading} />
+        )}
+      </div>
+      <div className="md:hidden flex flex-col flex-1 min-w-0">
+        <main className="flex-1 min-w-0 bg-bg rounded-2xl overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-16">
+          {children}
+        </main>
+        <Mobilenav repos={repos} selected={selected} />
+      </div>
+      <main className="hidden md:flex flex-1 min-w-0 bg-bg rounded-2xl overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {children}
       </main>
     </>

@@ -25,7 +25,7 @@ export function Stats({ logs }: { logs: LogEntry[] }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden">
       {items.map(item => (
-        <div key={item.label} className="bg-bg p-6">
+        <div key={item.label} className="bg-bg p-4 md:p-6">
           <p className="text-3xl font-semibold tracking-tight">
             {item.value || '\u2013'}
           </p>

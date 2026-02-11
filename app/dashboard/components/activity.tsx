@@ -97,21 +97,21 @@ export function Activity({ repo }: { repo: string }) {
                   key={key}
                   type="button"
                   onClick={() => setExpanded(open ? null : key)}
-                  className="w-full text-left px-5 py-4 hover:bg-warm/50 transition-colors"
+                  className="w-full text-left px-4 md:px-5 py-3 md:py-4 hover:bg-warm/50 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <span
-                      className={`w-14 text-xs font-mono font-medium uppercase ${log.skipped ? 'text-muted' : 'text-fg/50'}`}
+                      className={`hidden md:inline w-14 text-xs font-mono font-medium uppercase ${log.skipped ? 'text-muted' : 'text-fg/50'}`}
                     >
                       {log.skipped ? 'skip' : log.type}
                     </span>
-                    <span className="text-sm font-medium w-12 tabular-nums">
+                    <span className="text-xs md:text-sm font-medium tabular-nums shrink-0">
                       #{log.number}
                     </span>
-                    <span className="text-sm text-fg truncate flex-1">
+                    <span className="text-xs md:text-sm text-fg truncate flex-1">
                       {log.title}
                     </span>
-                    <div className="flex gap-1.5 shrink-0">
+                    <div className="hidden md:flex gap-1.5 shrink-0">
                       {ld.map(l =>
                         l.color ? (
                           <span
@@ -139,8 +139,34 @@ export function Activity({ repo }: { repo: string }) {
                     </span>
                   </div>
 
+                  {ld.length > 0 && (
+                    <div className="flex md:hidden gap-1.5 flex-wrap mt-2 ml-0">
+                      {ld.map(l =>
+                        l.color ? (
+                          <span
+                            key={l.name}
+                            className="text-[10px] px-1.5 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: `#${l.color}`,
+                              color: islight(l.color) ? '#000' : '#fff',
+                            }}
+                          >
+                            {l.name}
+                          </span>
+                        ) : (
+                          <span
+                            key={l.name}
+                            className="text-[10px] bg-warm text-muted px-1.5 py-0.5 rounded-full"
+                          >
+                            {l.name}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                  )}
+
                   {open && (
-                    <div className="mt-4 ml-[6.5rem] space-y-4">
+                    <div className="mt-4 md:ml-[6.5rem] space-y-4">
                       {log.summary && (
                         <p className="text-sm text-fg/80">{log.summary}</p>
                       )}
