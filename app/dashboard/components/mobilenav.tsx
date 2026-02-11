@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import type { Repo } from '@/app/api/dashboard/installations/route';
+import type { Repo } from '@/app/lib/github';
 
 export function Mobilenav({
   repos,

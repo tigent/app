@@ -2,9 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
-export function Iconbar() {
-  const [user, setUser] = useState({ username: '', avatar: '' });
+interface User {
+  username: string;
+  avatar: string;
+}
+
+export function Iconbar({ user }: { user: User }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -12,13 +17,6 @@ export function Iconbar() {
   const parts = pathname.split('/').filter(Boolean);
   const repo = parts.length >= 3 ? `${parts[1]}/${parts[2]}` : null;
   const onconfig = pathname.endsWith('/config');
-
-  useEffect(() => {
-    fetch('/api/auth/session')
-      .then(r => r.json())
-      .then(data => setUser(data))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -44,7 +42,7 @@ export function Iconbar() {
 
       <div className="w-8 h-px bg-white/10 mb-2" />
 
-      <a
+      <Link
         href={repo ? `/dashboard/${repo}` : '/dashboard'}
         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
           repo && !onconfig
@@ -67,8 +65,8 @@ export function Iconbar() {
             strokeLinejoin="round"
           />
         </svg>
-      </a>
-      <a
+      </Link>
+      <Link
         href={repo ? `/dashboard/${repo}/config` : '/dashboard'}
         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
           onconfig
@@ -96,7 +94,7 @@ export function Iconbar() {
             strokeLinejoin="round"
           />
         </svg>
-      </a>
+      </Link>
 
       <div className="mt-auto flex flex-col items-center gap-1">
         <a
@@ -137,56 +135,50 @@ export function Iconbar() {
         <div className="w-8 h-px bg-white/10 my-2" />
 
         <div className="relative" ref={ref}>
-          {user.avatar ? (
-            <>
-              <button
-                type="button"
-                onClick={() => setOpen(!open)}
-                className="rounded-full transition-opacity hover:opacity-80"
-              >
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="rounded-full transition-opacity hover:opacity-80"
+          >
+            <img
+              src={user.avatar}
+              alt=""
+              className="w-8 h-8 rounded-full ring-2 ring-white/10"
+            />
+          </button>
+          {open && (
+            <div className="absolute -bottom-5 left-12 bg-fg text-bg rounded-2xl shadow-2xl py-3 px-1 min-w-[180px] z-50">
+              <div className="flex items-center gap-3 px-3 pb-3 border-b border-white/10">
                 <img
                   src={user.avatar}
                   alt=""
-                  className="w-8 h-8 rounded-full ring-2 ring-white/10"
+                  className="w-8 h-8 rounded-full"
                 />
-              </button>
-              {open && (
-                <div className="absolute -bottom-5 left-12 bg-fg text-bg rounded-2xl shadow-2xl py-3 px-1 min-w-[180px] z-50">
-                  <div className="flex items-center gap-3 px-3 pb-3 border-b border-white/10">
-                    <img
-                      src={user.avatar}
-                      alt=""
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span className="text-sm font-medium text-white">
-                      {user.username}
-                    </span>
-                  </div>
-                  <a
-                    href="/api/auth/logout"
-                    className="flex items-center gap-2 mt-1 px-3 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors rounded-xl"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Logout
-                  </a>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+                <span className="text-sm font-medium text-white">
+                  {user.username}
+                </span>
+              </div>
+              <a
+                href="/api/auth/logout"
+                className="flex items-center gap-2 mt-1 px-3 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors rounded-xl"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Logout
+              </a>
+            </div>
           )}
         </div>
       </div>
