@@ -4,9 +4,11 @@ import type { Repo } from '@/app/lib/github';
 export function Sidebar({
   repos,
   selected,
+  navigate,
 }: {
   repos: Repo[];
   selected: string | null;
+  navigate: () => void;
 }) {
   const grouped: Record<string, Repo[]> = {};
   for (const r of repos) {
@@ -40,6 +42,7 @@ export function Sidebar({
                       <li key={r.id}>
                         <Link
                           href={`/dashboard/${r.owner}/${r.name}`}
+                          onClick={active ? undefined : navigate}
                           className={`block px-3 py-2.5 text-sm rounded-xl transition-colors ${
                             active
                               ? 'bg-warm font-medium text-fg'

@@ -9,7 +9,13 @@ interface User {
   avatar: string;
 }
 
-export function Iconbar({ user }: { user: User }) {
+export function Iconbar({
+  user,
+  navigate,
+}: {
+  user: User;
+  navigate: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -44,6 +50,7 @@ export function Iconbar({ user }: { user: User }) {
 
       <Link
         href={repo ? `/dashboard/${repo}` : '/dashboard'}
+        onClick={onconfig ? navigate : undefined}
         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
           repo && !onconfig
             ? 'bg-white/10 text-white'
@@ -68,6 +75,7 @@ export function Iconbar({ user }: { user: User }) {
       </Link>
       <Link
         href={repo ? `/dashboard/${repo}/config` : '/dashboard'}
+        onClick={!onconfig ? navigate : undefined}
         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
           onconfig
             ? 'bg-white/10 text-white'
