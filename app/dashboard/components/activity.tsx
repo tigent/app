@@ -15,6 +15,35 @@ function timeago(ts: number) {
   return `${days}d`;
 }
 
+function ms(val: number) {
+  if (!val) return '';
+  if (val < 1000) return `${val}ms`;
+  return `${(val / 1000).toFixed(1)}s`;
+}
+
+function modelname(model: string) {
+  if (!model) return '';
+  const parts = model.split('/');
+  return parts[parts.length - 1] || model;
+}
+
+function islight(hex: string) {
+  const r = Number.parseInt(hex.slice(0, 2), 16);
+  const g = Number.parseInt(hex.slice(2, 4), 16);
+  const b = Number.parseInt(hex.slice(4, 6), 16);
+  return r * 0.299 + g * 0.587 + b * 0.114 > 150;
+}
+
+function labeldata(log: LogEntry): { name: string; color: string }[] {
+  if (!log.labels) return [];
+  if (typeof log.labels[0] === 'string')
+    return (log.labels as unknown as string[]).map(n => ({
+      name: n,
+      color: '',
+    }));
+  return log.labels.map(l => ({ name: l.name, color: l.color || '' }));
+}
+
 export function Activity({ repo }: { repo: string }) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +91,7 @@ export function Activity({ repo }: { repo: string }) {
             {logs.map(log => {
               const key = `${log.number}-${log.timestamp}`;
               const open = expanded === key;
+              const ld = labeldata(log);
               return (
                 <button
                   key={key}
@@ -70,33 +100,133 @@ export function Activity({ repo }: { repo: string }) {
                   className="w-full text-left px-5 py-4 hover:bg-warm/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-12 text-xs font-medium uppercase text-accent">
-                      {log.type}
+                    <span
+                      className={`w-14 text-xs font-mono font-medium uppercase ${log.skipped ? 'text-muted' : 'text-fg/50'}`}
+                    >
+                      {log.skipped ? 'skip' : log.type}
                     </span>
-                    <span className="text-sm font-medium w-12">
+                    <span className="text-sm font-medium w-12 tabular-nums">
                       #{log.number}
                     </span>
                     <span className="text-sm text-fg truncate flex-1">
                       {log.title}
                     </span>
                     <div className="flex gap-1.5 shrink-0">
-                      {log.labels.map(label => (
-                        <span
-                          key={label}
-                          className="text-xs bg-warm text-muted px-2 py-0.5 rounded-full"
-                        >
-                          {label}
-                        </span>
-                      ))}
+                      {ld.map(l =>
+                        l.color ? (
+                          <span
+                            key={l.name}
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: `#${l.color}`,
+                              color: islight(l.color) ? '#000' : '#fff',
+                            }}
+                          >
+                            {l.name}
+                          </span>
+                        ) : (
+                          <span
+                            key={l.name}
+                            className="text-xs bg-warm text-muted px-2 py-0.5 rounded-full"
+                          >
+                            {l.name}
+                          </span>
+                        ),
+                      )}
                     </div>
                     <span className="text-xs text-muted shrink-0 w-8 text-right tabular-nums">
                       {timeago(log.timestamp)}
                     </span>
                   </div>
-                  {open && log.reasoning && (
-                    <p className="text-xs text-muted leading-relaxed mt-3 ml-24">
-                      {log.reasoning}
-                    </p>
+
+                  {open && (
+                    <div className="mt-4 ml-[6.5rem] space-y-4">
+                      {log.summary && (
+                        <p className="text-sm text-fg/80">{log.summary}</p>
+                      )}
+
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">
+                        {log.author && (
+                          <span>
+                            by{' '}
+                            <span className="text-fg font-medium">
+                              {log.author}
+                            </span>
+                          </span>
+                        )}
+                        {log.confidence && (
+                          <span
+                            className={
+                              log.confidence === 'high'
+                                ? 'text-fg/60'
+                                : log.confidence === 'medium'
+                                  ? 'text-muted'
+                                  : 'text-muted/60'
+                            }
+                          >
+                            {log.confidence} confidence
+                          </span>
+                        )}
+                        {log.model && <span>{modelname(log.model)}</span>}
+                        {log.duration > 0 && <span>{ms(log.duration)}</span>}
+                        {log.available > 0 && (
+                          <span>
+                            {ld.length} of {log.available} labels
+                          </span>
+                        )}
+                        {log.url && (
+                          <a
+                            href={log.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="text-fg/60 hover:text-fg transition-colors underline underline-offset-2"
+                          >
+                            view on github
+                          </a>
+                        )}
+                      </div>
+
+                      {log.labels?.length > 0 &&
+                        typeof log.labels[0] !== 'string' && (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                              Applied
+                            </p>
+                            {log.labels.map(l => (
+                              <div key={l.name} className="flex gap-2 text-xs">
+                                <span className="text-fg font-medium shrink-0">
+                                  {l.name}
+                                </span>
+                                <span className="text-muted">{l.reason}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                      {log.rejected?.length > 0 && (
+                        <div className="space-y-1.5">
+                          <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                            Considered
+                          </p>
+                          {log.rejected.map(l => (
+                            <div key={l.name} className="flex gap-2 text-xs">
+                              <span className="text-muted/80 shrink-0">
+                                {l.name}
+                              </span>
+                              <span className="text-muted/60">{l.reason}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {'reasoning' in log &&
+                        typeof log.reasoning === 'string' && (
+                          <p className="text-xs text-muted leading-relaxed">
+                            {log.reasoning}
+                          </p>
+                        )}
+                    </div>
                   )}
                 </button>
               );

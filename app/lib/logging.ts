@@ -2,14 +2,28 @@ import { redis } from './redis';
 
 const TTL = 60 * 60 * 24 * 30;
 
+export interface LabelDetail {
+  name: string;
+  reason: string;
+  color: string;
+}
+
 export interface LogEntry {
   type: 'issue' | 'pr';
   number: number;
   title: string;
-  labels: string[];
-  reasoning: string;
+  labels: LabelDetail[];
+  rejected: LabelDetail[];
+  confidence: 'high' | 'medium' | 'low';
+  summary: string;
   timestamp: number;
   repo: string;
+  model: string;
+  duration: number;
+  author: string;
+  url: string;
+  skipped: boolean;
+  available: number;
 }
 
 export async function writelog(

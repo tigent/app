@@ -21,7 +21,15 @@ app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
       number: payload.issue.number,
       title: result.title,
       labels: result.labels,
-      reasoning: result.reasoning,
+      rejected: result.rejected,
+      confidence: result.confidence,
+      summary: result.summary,
+      model: config.model,
+      duration: result.duration,
+      author: result.author,
+      url: result.url,
+      skipped: result.skipped,
+      available: result.available,
     });
   } catch {
     await react(gh, payload.issue.number, 'confused');
@@ -40,7 +48,15 @@ app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
       number: payload.pull_request.number,
       title: result.title,
       labels: result.labels,
-      reasoning: result.reasoning,
+      rejected: result.rejected,
+      confidence: result.confidence,
+      summary: result.summary,
+      model: config.model,
+      duration: result.duration,
+      author: result.author,
+      url: result.url,
+      skipped: result.skipped,
+      available: result.available,
     });
   } catch {
     await react(gh, payload.pull_request.number, 'confused');

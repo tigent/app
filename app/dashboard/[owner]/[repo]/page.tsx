@@ -12,7 +12,7 @@ export default function Page() {
     <div className="p-10 space-y-8 min-w-0">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted mt-1">{full}</p>
+        <p className="text-muted mt-1 capitalize">{full}</p>
       </div>
       <Activity repo={full} />
       <Config repo={params.repo} owner={params.owner} />
