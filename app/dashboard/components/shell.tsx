@@ -24,15 +24,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   const parts = pathname.split('/').filter(Boolean);
   const selected = parts.length >= 3 ? `${parts[1]}/${parts[2]}` : null;
-  const hidebar = pathname.endsWith('/config');
-
   return (
     <>
       <div className="hidden md:contents">
         <Iconbar />
-        {!hidebar && (
-          <Sidebar repos={repos} selected={selected} loading={loading} />
-        )}
+        <Sidebar repos={repos} selected={selected} loading={loading} />
       </div>
       <div className="md:hidden flex flex-col flex-1 min-w-0">
         <main className="flex-1 min-w-0 bg-bg rounded-2xl overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-16">
