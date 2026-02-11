@@ -38,7 +38,7 @@ export function Sidebar({
         ) : (
           Object.entries(grouped).map(([owner, ownerrepos]) => (
             <div key={owner}>
-              <p className="text-xs text-muted mb-2 px-1">{owner}</p>
+              <p className="text-xs text-muted mb-2 px-1 capitalize">{owner}</p>
               <div className="border-t border-border pt-2">
                 <ul className="space-y-0.5">
                   {ownerrepos.map(r => {
