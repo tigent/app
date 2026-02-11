@@ -45,7 +45,7 @@ export function Iconbar() {
       <div className="w-8 h-px bg-white/10 mb-2" />
 
       <a
-        href="/dashboard"
+        href={repo ? `/dashboard/${repo}` : '/dashboard'}
         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
           repo && !onconfig
             ? 'bg-white/10 text-white'
