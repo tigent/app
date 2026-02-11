@@ -1,8 +1,8 @@
 {
-  "framework": "nextjs",
-  "functions": {
-    "app/api/webhook/route.ts": {
-      "maxDuration": 60
-    }
-  }
+	"framework": "nextjs",
+	"functions": {
+		"app/api/webhook/route.ts": {
+			"maxDuration": 60
+		}
+	}
 }

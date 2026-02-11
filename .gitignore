@@ -16,7 +16,7 @@ coverage
 *.log
 *.tgz
 dist
-logs
+/logs
 .swc
 .env
 out
