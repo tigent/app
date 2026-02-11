@@ -17,6 +17,7 @@ export interface Config {
 export interface Label {
   name: string;
   description: string;
+  color: string;
 }
 
 export const defaultconfig: Config = {
@@ -46,7 +47,11 @@ export async function fetchlabels(gh: Gh): Promise<Label[]> {
     repo: gh.repo,
     per_page: 100,
   });
-  return data.map(l => ({ name: l.name, description: l.description || '' }));
+  return data.map(l => ({
+    name: l.name,
+    description: l.description || '',
+    color: l.color,
+  }));
 }
 
 export async function addlabels(gh: Gh, issue: number, labels: string[]) {
@@ -77,9 +82,23 @@ export async function react(gh: Gh, issue: number, content: string = 'eyes') {
 }
 
 export const schema = z.object({
-  labels: z.array(z.string()),
-  reasoning: z.string(),
+  labels: z.array(
+    z.object({
+      name: z.string(),
+      reason: z.string(),
+    }),
+  ),
+  rejected: z.array(
+    z.object({
+      name: z.string(),
+      reason: z.string(),
+    }),
+  ),
+  confidence: z.enum(['high', 'medium', 'low']),
+  summary: z.string(),
 });
+
+export type ClassifyResult = z.infer<typeof schema>;
 
 export async function classify(
   config: Config,
@@ -101,7 +120,13 @@ rules:
 - only use labels from the list above
 - pick labels that match the content
 - use label descriptions to understand what each label means
-- be conservative, only add labels you are confident about`;
+- be conservative, only add labels you are confident about
+
+respond with:
+- labels: array of { name, reason } for each label you apply. reason should be one sentence explaining why.
+- rejected: array of { name, reason } for 2-4 labels you considered but rejected. reason should explain why it was close but not right.
+- confidence: "high", "medium", or "low" based on how sure you are about the labels.
+- summary: one sentence summarizing what this issue/pr is about.`;
 
   const prompt = `title: ${title}
 
@@ -114,14 +139,24 @@ ${body || 'no description'}${extra ? `\n\n${extra}` : ''}`;
     system,
     prompt,
   });
-  const valid = output!.labels.filter(l => labels.some(x => x.name === l));
+  const colormap = new Map(labels.map(l => [l.name, l.color]));
+  const valid = output!.labels
+    .filter(l => labels.some(x => x.name === l.name))
+    .map(l => ({ ...l, color: colormap.get(l.name) || '' }));
+  const rejected = output!.rejected.map(l => ({
+    ...l,
+    color: colormap.get(l.name) || '',
+  }));
   return {
     labels: valid,
-    reasoning: output!.reasoning,
+    rejected,
+    confidence: output!.confidence,
+    summary: output!.summary,
   };
 }
 
 export async function triageissue(gh: Gh, config: Config, number: number) {
+  const start = Date.now();
   await react(gh, number);
 
   const [issue, labels] = await Promise.all([
@@ -140,15 +175,26 @@ export async function triageissue(gh: Gh, config: Config, number: number) {
     issue.data.body || '',
   );
 
-  await addlabels(gh, number, result.labels);
+  const labelnames = result.labels.map(l => l.name);
+  const skipped = labelnames.length === 0;
+  if (!skipped) await addlabels(gh, number, labelnames);
+
   return {
     labels: result.labels,
-    reasoning: result.reasoning,
+    rejected: result.rejected,
+    confidence: result.confidence,
+    summary: result.summary,
     title: issue.data.title,
+    author: issue.data.user?.login || '',
+    url: issue.data.html_url,
+    duration: Date.now() - start,
+    skipped,
+    available: labels.length,
   };
 }
 
 export async function triagepr(gh: Gh, config: Config, number: number) {
+  const start = Date.now();
   await react(gh, number);
 
   const [pr, files, labels] = await Promise.all([
@@ -189,10 +235,20 @@ export async function triagepr(gh: Gh, config: Config, number: number) {
     extra,
   );
 
-  await addlabels(gh, number, result.labels);
+  const labelnames = result.labels.map(l => l.name);
+  const skipped = labelnames.length === 0;
+  if (!skipped) await addlabels(gh, number, labelnames);
+
   return {
     labels: result.labels,
-    reasoning: result.reasoning,
+    rejected: result.rejected,
+    confidence: result.confidence,
+    summary: result.summary,
     title: pr.data.title,
+    author: pr.data.user?.login || '',
+    url: pr.data.html_url,
+    duration: Date.now() - start,
+    skipped,
+    available: labels.length,
   };
 }

@@ -97,8 +97,11 @@ async function handlewhy(
   labels: Label[],
 ) {
   const result = await classify(config, labels, issue.title, issue.body || '');
-  const labelstr = result.labels.join(', ');
-  const body = `**labels:** ${labelstr}\n\n${result.reasoning}`;
+  const labelstr = result.labels.map(l => l.name).join(', ');
+  const reasons = result.labels
+    .map(l => `- **${l.name}**: ${l.reason}`)
+    .join('\n');
+  const body = `**labels:** ${labelstr}\n\n${reasons}`;
 
   await gh.octokit.rest.issues.createComment({
     owner: gh.owner,
@@ -125,7 +128,7 @@ async function handlewrong(
     }),
   ]);
 
-  const ailabels = result.labels;
+  const ailabels = result.labels.map(l => l.name);
   const existing = current.data.map(l => l.name);
 
   const lowercorrect = correctlabels.map(l => l.toLowerCase());
