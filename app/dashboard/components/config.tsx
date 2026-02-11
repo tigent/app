@@ -33,7 +33,6 @@ export function Config({ repo, owner }: { repo: string; owner: string }) {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Configuration</h3>
       {lines.length > 0 ? (
         <div className="bg-warm rounded-2xl p-6 space-y-0">
           {lines.map((line, i) => {
