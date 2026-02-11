@@ -8,9 +8,11 @@ import type { Repo } from '@/app/lib/github';
 export function Mobilenav({
   repos,
   selected,
+  navigate,
 }: {
   repos: Repo[];
   selected: string | null;
+  navigate: () => void;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -46,7 +48,10 @@ export function Mobilenav({
                     <li key={r.id}>
                       <Link
                         href={`/dashboard/${r.owner}/${r.name}`}
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                          setOpen(false);
+                          if (!active) navigate();
+                        }}
                         className={`block px-3 py-2.5 text-sm rounded-xl transition-colors capitalize ${
                           active ? 'bg-warm font-medium text-fg' : 'text-fg/70'
                         }`}
