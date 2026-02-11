@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { LogEntry } from '@/app/lib/logging';
 import { Stats } from './stats';
 
@@ -44,37 +44,8 @@ function labeldata(log: LogEntry): { name: string; color: string }[] {
   return log.labels.map(l => ({ name: l.name, color: l.color || '' }));
 }
 
-export function Activity({ repo }: { repo: string }) {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+export function Activity({ logs }: { logs: LogEntry[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setExpanded(null);
-    fetch(`/api/dashboard/logs?repo=${encodeURIComponent(repo)}`)
-      .then(r => r.json())
-      .then(data => {
-        setLogs(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [repo]);
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-warm rounded-2xl h-24 animate-pulse" />
-          ))}
-        </div>
-        {[1, 2, 3].map(i => (
-          <div key={i} className="bg-warm rounded-2xl h-20 animate-pulse" />
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
@@ -166,7 +137,7 @@ export function Activity({ repo }: { repo: string }) {
                   )}
 
                   {open && (
-                    <div className="mt-4 md:ml-[6.5rem] space-y-4">
+                    <div className="mt-4 md:ml-[4.25rem] space-y-4">
                       {log.summary && (
                         <p className="text-sm text-fg/80">{log.summary}</p>
                       )}

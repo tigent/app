@@ -1,14 +1,12 @@
 import Link from 'next/link';
-import type { Repo } from '@/app/api/dashboard/installations/route';
+import type { Repo } from '@/app/lib/github';
 
 export function Sidebar({
   repos,
   selected,
-  loading,
 }: {
   repos: Repo[];
   selected: string | null;
-  loading: boolean;
 }) {
   const grouped: Record<string, Repo[]> = {};
   for (const r of repos) {
@@ -19,13 +17,7 @@ export function Sidebar({
   return (
     <div className="w-56 shrink-0 bg-bg rounded-2xl overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="p-5 space-y-6">
-        {loading ? (
-          <div className="space-y-2 pt-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-warm rounded-lg h-10 animate-pulse" />
-            ))}
-          </div>
-        ) : repos.length === 0 ? (
+        {repos.length === 0 ? (
           <div className="space-y-3 pt-2">
             <p className="text-sm text-muted">No repos</p>
             <a

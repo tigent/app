@@ -1,34 +1,10 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-
 function indent(line: string) {
   const trimmed = line.replace(/^ +/, '');
   const spaces = line.length - trimmed.length;
   return { text: trimmed, pad: spaces * 0.6 };
 }
 
-export function Config({ repo, owner }: { repo: string; owner: string }) {
-  const [content, setContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(
-      `/api/dashboard/config?repo=${encodeURIComponent(repo)}&owner=${encodeURIComponent(owner)}`,
-    )
-      .then(r => r.json())
-      .then(data => {
-        setContent(data.content);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [repo, owner]);
-
-  if (loading) {
-    return <div className="bg-warm rounded-2xl h-24 animate-pulse" />;
-  }
-
+export function Config({ content }: { content: string | null }) {
   const lines = content ? content.split('\n') : [];
 
   return (
