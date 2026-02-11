@@ -108,14 +108,35 @@ export function Iconbar() {
               />
             </button>
             {open && (
-              <div className="absolute bottom-0 left-16 bg-bg border border-border rounded-xl shadow-xl py-2 min-w-[140px] z-50">
-                <span className="block px-4 py-1 text-xs text-muted">
-                  {user.username}
-                </span>
+              <div className="absolute -bottom-5 left-12 bg-fg text-bg rounded-2xl shadow-2xl py-3 px-1 min-w-[180px] z-50">
+                <div className="flex items-center gap-3 px-3 pb-3 border-b border-white/10">
+                  <img
+                    src={user.avatar}
+                    alt=""
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="text-sm font-medium text-white">
+                    {user.username}
+                  </span>
+                </div>
                 <a
                   href="/api/auth/logout"
-                  className="block px-4 py-2 text-sm text-fg hover:bg-warm transition-colors rounded-lg mx-1"
+                  className="flex items-center gap-2 mt-1 px-3 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors rounded-xl"
                 >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                   Logout
                 </a>
               </div>
