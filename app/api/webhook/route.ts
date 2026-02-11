@@ -1,7 +1,7 @@
 import { App } from 'octokit';
-import { getconfig } from './triage';
-import { triageissue, triagepr, react } from './triage';
+import { getconfig, triageissue, triagepr, react } from './triage';
 import { handlecomment } from './feedback';
+import { writelog } from '@/app/lib/logging';
 
 const app = new App({
   appId: process.env.GITHUB_APP_ID!,
@@ -15,7 +15,14 @@ app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
   const gh = { octokit, owner, repo };
   try {
     const config = await getconfig(gh);
-    await triageissue(gh, config, payload.issue.number);
+    const result = await triageissue(gh, config, payload.issue.number);
+    await writelog(`${owner}/${repo}`, {
+      type: 'issue',
+      number: payload.issue.number,
+      title: result.title,
+      labels: result.labels,
+      reasoning: result.reasoning,
+    });
   } catch {
     await react(gh, payload.issue.number, 'confused');
   }
@@ -27,7 +34,14 @@ app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
   const gh = { octokit, owner, repo };
   try {
     const config = await getconfig(gh);
-    await triagepr(gh, config, payload.pull_request.number);
+    const result = await triagepr(gh, config, payload.pull_request.number);
+    await writelog(`${owner}/${repo}`, {
+      type: 'pr',
+      number: payload.pull_request.number,
+      title: result.title,
+      labels: result.labels,
+      reasoning: result.reasoning,
+    });
   } catch {
     await react(gh, payload.pull_request.number, 'confused');
   }
@@ -57,7 +71,7 @@ export async function POST(req: Request) {
   try {
     await app.webhooks.verifyAndReceive({
       id: req.headers.get('x-github-delivery') || '',
-      name: req.headers.get('x-github-event') as any,
+      name: req.headers.get('x-github-event') as never,
       payload: body,
       signature: req.headers.get('x-hub-signature-256') || '',
     });

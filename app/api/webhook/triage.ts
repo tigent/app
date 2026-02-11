@@ -141,6 +141,11 @@ export async function triageissue(gh: Gh, config: Config, number: number) {
   );
 
   await addlabels(gh, number, result.labels);
+  return {
+    labels: result.labels,
+    reasoning: result.reasoning,
+    title: issue.data.title,
+  };
 }
 
 export async function triagepr(gh: Gh, config: Config, number: number) {
@@ -185,4 +190,9 @@ export async function triagepr(gh: Gh, config: Config, number: number) {
   );
 
   await addlabels(gh, number, result.labels);
+  return {
+    labels: result.labels,
+    reasoning: result.reasoning,
+    title: pr.data.title,
+  };
 }
