@@ -13,6 +13,7 @@
 > currently deployed on?
 
   vercel/ai (ai sdk)
+  tigent/app
 
 > works on other repos?
 
