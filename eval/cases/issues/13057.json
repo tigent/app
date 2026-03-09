@@ -1,0 +1,34 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13057,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13057"
+	},
+	"subject": {
+		"title": "UI API: tool-approval-response not handled by Anthropic provider in createAgentUIStream / ToolLoopAgent",
+		"body": "## Summary\n\nTool execution approval (`needsApproval: true`) works correctly in the Core API (`generateText`/`streamText`) but is broken in the UI API (`ToolLoopAgent` + `createAgentUIStream`) when using the Anthropic provider.\n\n## SDK version\n\n- `ai`: `6.0.69`\n- `@ai-sdk/anthropic`: `3.0.36`\n\n## Expected behaviour\n\nWhen a user approves a tool via `addToolApprovalResponse()` and the client sends a new request with `approval-responded` UIMessage state, the SDK should intercept the approval, execute the tool, and send Anthropic a valid `tool_result` block — identical to how the Core API handles it.\n\n## Actual behaviour\n\nThe Anthropic provider explicitly skips `tool-approval-response` content types:\n\n```typescript\n// @ai-sdk/anthropic provider, content conversion loop\nif (content.type === \"tool-approval-response\") {\n  continue; // skipped — no tool execution, no tool_result produced\n}\n```\n\nAnthropic receives a `tool_use` block with no corresponding `tool_result` and throws:\n\n```\n\"tool_use ids were found without tool_result blocks immediately after: toolu_xxx\"\n```\n\n## Why Core API works but UI API doesn't\n\nIn the **Core API**, when `generateText` receives a `tool-approval-response` message, it intercepts it before reaching the provider, executes the tool, and replaces it with a `tool_result`. Anthropic only ever sees completed tool calls.\n\nIn the **UI API**, `createAgentUIStream` calls `convertToModelMessages` which produces a `tool-approval-response` message and passes it directly to the Anthropic provider — which drops it. The interception step that exists in the Core API path is missing in the UI API + Anthropic provider path.\n\n## Repro\n\n```typescript\nconst tool = tool({\n  description: 'Create an issue',\n  inputSchema: z.object({ title: z.string() }),\n  needsApproval: true,\n  execute: async ({ title }) => ({ id: '123', title }),\n});\n\nconst agent = new ToolLoopAgent({ model: anthropic('claude-sonnet-4-5'), tools: { createIssue: tool } });\n\n// Stream 1: agent pauses with approval-requested\nconst stream1 = await createAgentUIStream({ agent, uiMessages });\n\n// User approves — client sends new request with approval-responded state\n// Stream 2: Anthropic throws\nconst stream2 = await createAgentUIStream({ agent, uiMessages: messagesWithApprovalResponded });\n// Error: \"tool_use ids were found without tool_result blocks immediately after\"\n```\n\n## Workaround\n\nWe manually intercept `approval-responded` parts before calling `createAgentUIStream`, execute the tool directly, and transition the state to `output-available`. This replicates what the Core API does natively:\n\n```typescript\nasync function resolveApprovalResponses(uiMessages, tools) {\n  const lastMessage = uiMessages[uiMessages.length - 1];\n  if (!lastMessage?.parts) return uiMessages;\n\n  const resolvedMessage = JSON.parse(JSON.stringify(lastMessage));\n\n  for (const part of resolvedMessage.parts) {\n    if (part.state !== 'approval-responded') continue;\n\n    const toolName = part.toolName ?? part.type?.slice(5);\n    \n    if (!part.approval?.approved) {\n      part.state = 'output-denied';\n      continue;\n    }\n\n    const tool = tools[toolName];\n    if (tool?.execute) {\n      const output = await tool.execute(part.input, { toolCallId: part.toolCallId, messages: [], abortSignal: new AbortController().signal });\n      part.state = 'output-available';\n      part.output = output;\n    }\n  }\n\n  return [...uiMessages.slice(0, -1), resolvedMessage];\n}\n```\n\nThis works but has a secondary limitation: because the tool executes outside the SDK's normal stream, `output-available` state is never streamed back to the client for the previous message's tool part. Tool-specific rendering that depends on `output-available` (e.g. a \"View created resource\" button) only appears on page reload, not during the live session.\n\n## Impact\n\nAny application using `ToolLoopAgent` + `createAgentUIStream` + `needsApproval: true` with the Anthropic provider will encounter this error. The Core API workaround is non-trivial and creates secondary UX limitations.\n\n## Notes\n\n- The fix would be to implement the same `tool-approval-response` interception in the UI API path that exists in the Core API — intercept before the Anthropic provider, execute the tool, produce a `tool_result`\n- Related issue: #10980"
+	},
+	"runs": 1,
+	"expect": {
+		"added": [
+			"bug",
+			"ai/ui",
+			"ai/provider",
+			"provider/anthropic",
+			"reproduction provided"
+		],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": [
+		"bug",
+		"ai/ui",
+		"ai/provider",
+		"provider/anthropic",
+		"reproduction provided"
+	]
+}

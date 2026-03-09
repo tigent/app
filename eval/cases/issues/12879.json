@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 12879,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/12879"
+	},
+	"subject": {
+		"title": "`generateObject` and `generateText` with output bursts CPU usage of tslanguageserver to 150%",
+		"body": "### Description\n\nI am not sure exactly what weird breaking overload i am facing - but both `generateObject` and `generateText` with `output` specified completely breaks my cursor instance by spiking the language server CPU to 150-200%. \n\nSpecifically removing `output` from `generateText` fixes the issue. \n\nWhat can i do??\nThis is completely breaking as i need structured output. \n\nHere is my file:\n\n```typescript\nimport { createOpenAI } from '@ai-sdk/openai';\nimport { Injectable, Logger } from '@nestjs/common';\nimport { ConfigService } from '@nestjs/config';\nimport { generateObject } from 'ai';\nimport z from 'zod';\nimport { ProfileService } from '../../profile/service/profile.service';\nimport { buildSystemPrompt, PromptContext } from './prompts';\nimport { ChatBotOutput } from './schema';\nimport { buildTools } from './tools';\n\nexport type ChatBotInput = {\n  promptContext: PromptContext;\n};\n\n@Injectable()\nexport class DoubbleAiChatBotService {\n  private readonly logger = new Logger(DoubbleAiChatBotService.name);\n\n  constructor(\n    private readonly configService: ConfigService,\n    private readonly profileService: ProfileService,\n  ) {}\n\n  async run(input: ChatBotInput): Promise<ChatBotOutput> {\n    const apiKey = this.configService.get<string>('OPENAI_API_KEY');\n    const modelName = this.configService.get<string>('DOUBBLE_AI_MODEL', 'gpt-4o');\n\n    const openai = createOpenAI({ apiKey });\n    const model = openai(modelName);\n\n    const output = z.object({\n      messages: z.array(z.string()),\n    });\n\n    const result = await generateObject({\n      model,\n      system: buildSystemPrompt(input.promptContext),\n      prompt: 'Generate the messages now.',\n      tools: buildTools(this.profileService),\n      schema: output,\n      maxRetries: 1,\n    });\n\n    this.logger.log(`Generated ${result.object.messages.length} message(s) for chat`);\n\n    return result.object;\n  }\n}\n```\n\nBut removing the schema / output fixes it like so:\n```typescript\nconst result = await generateText({\n      model,\n      system: buildSystemPrompt(input.promptContext),\n      prompt: 'Generate the messages now.',\n      tools: buildTools(this.profileService),\n// THiS FIXES THE ISSUE\n      // output: Output.object({\n      //   schema: z.object({\n      //     messages: z.array(z.string()),\n      //   }),\n      // }),\n      maxRetries: 1,\n    });\n```\n\nWhat can i do???\n\n\n### AI SDK Version\n\n\"@ai-sdk/openai\": \"^3.0.34\",\n\"ai\": \"^6.0.101\",\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": ["ai/core", "support"],
+	"expect": {
+		"added": ["ai/core", "support"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	}
+}

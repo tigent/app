@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13005,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13005"
+	},
+	"subject": {
+		"title": "Add native support for AWS FIPS endpoints in Bedrock",
+		"body": "### Description\n\nMany AWS services offer FIPS endpoint variations (https://aws.amazon.com/compliance/fips/).\nUse of these variations is a requirement for building products in highly secure environments, particularly in the context of US/Canada's federal contractors. \n\nAWS services support this by allowing a standardized env var (AWS_USE_FIPS_ENDPOINT) in most of their libraries. While it's possible to use these endpoints in bedrock in the current ai-sdk using the baseURL override in the options, it would be preferable to offer a cloud-native and AWS-compatible route for this, too.\n\nFeature request:\n- ai-sdk to use FIPS endpoint for Bedrock if AWS_USE_FIPS_ENDPOINT is true\n- ai-sdk to use FIPS endpoint for Bedrock if option is explicitly passed in\n\n### AI SDK Version\n\n_No response_\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["feature", "ai/provider", "provider/amazon-bedrock"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["feature", "ai/provider", "support", "provider/amazon-bedrock"]
+}

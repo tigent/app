@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 12670,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/12670"
+	},
+	"subject": {
+		"title": "processUIMessageStream drops providerMetadata from file chunks",
+		"body": "## Description\n\nIn `processUIMessageStream`, the `\"file\"` chunk handler does not pass through `providerMetadata` to the resulting `FileUIPart`, even though the SSE stream includes it and the `FileUIPart` type supports it.\n\n## Current behavior\n\n```js\n// processUIMessageStream - case \"file\" (index.js ~line 5278)\ncase \"file\": {\n  state.message.parts.push({\n    type: \"file\",\n    mediaType: chunk.mediaType,\n    url: chunk.url\n    // providerMetadata is dropped!\n  });\n  write();\n  break;\n}\n```\n\nOther chunk types like `source-url`, `source-document`, `text-start`, `text-delta`, `text-end`, and `reasoning-*` all correctly pass through `chunk.providerMetadata`, but `file` does not.\n\n## Expected behavior\n\n```js\ncase \"file\": {\n  state.message.parts.push({\n    type: \"file\",\n    mediaType: chunk.mediaType,\n    url: chunk.url,\n    ...chunk.providerMetadata != null ? { providerMetadata: chunk.providerMetadata } : {}\n  });\n  write();\n  break;\n}\n```\n\n## Use case\n\nWe use a custom backend that streams file parts (generated images) with `providerMetadata` containing a `fileId`. This allows the frontend to build a download URL for the file. Without `providerMetadata` on `FileUIPart`, this metadata is lost during streaming and the download button cannot be shown.\n\n## Additional context\n\n- The `FileUIPart` TypeScript type already includes `providerMetadata?: ProviderMetadata` — it's just not populated from the stream chunk.\n- The server-side `toUIMessageStreamPart` for file parts (around line 7463) also strips `providerMetadata` when serializing to the stream. This is a second place that would need fixing for end-to-end support when using the SDK's built-in server utilities.\n- Version: `ai@6.0.90`"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["bug", "ai/ui", "reproduction provided"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["bug", "ai/ui", "reproduction provided"]
+}

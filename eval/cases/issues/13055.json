@@ -1,0 +1,29 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13055,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13055"
+	},
+	"subject": {
+		"title": "[ai v5][gateway][gemini-3.1-pro-preview] Intermittent 400 function-call turn ordering error, while gemini-3-pro-preview works with same code",
+		"body": "### Description\n\n## Summary\n\nWith `ai` v5 and **AI Gateway**, `google/gemini-3.1-pro-preview` intermittently fails with:\n\n`Please ensure that function call turn comes immediately after a user turn or after a function response turn.`\n\nThe same code path works with `google/gemini-3-pro-preview`.\n\n## Environment\n\n- ai: 5.0.142\n- @ai-sdk/gateway: 2.0.48\n- Node: v20.17.0\n- npm: 10.8.2\n- Next.js: 15.5.9\n\n## Provider setup\n\nWe use **AI Gateway** (not provider SDK clients directly in app code), with:\n\n```ts\nstreamText({\n  model: 'google/gemini-3.1-pro-preview',\n  // ...\n})\n```\n\n## Error\n\nIntermittent `400` during streaming:\n\n```text\nPlease ensure that function call turn comes immediately after a user turn or after a function response turn.\n```\n\nFrom gateway metadata in one failed request:\n\n- Vertex attempt failed with `503`\n- Fallback to Google customtools endpoint failed with `400` and the same message above\n\n## Behavior Difference by Model\n\n- `google/gemini-3-pro-preview`: works in the same flow\n- `google/gemini-3.1-pro-preview`: intermittent ordering error\n\n## Why This Is Unexpected\n\nThere was no clearly announced Google docs change for this flow (unlike thought-signature rollout, which was explicitly documented with clear migration guidance).\n\n## App Flow\n\nUsing `streamText(..., tools, onFinish)` and persisting turn data from `steps`:\n\n1. Persist `step.text` as assistant message\n2. Persist `step.toolCalls` as assistant tool-call messages\n3. Persist `step.toolResults` as tool messages\n\nThis pattern has been stable with previous Gemini model IDs.\n\n## Request\n\nPlease consider this a high-priority compatibility regression in the SDK/Gateway path for `gemini-3.1-pro-preview`, and ship a fix in the v5 line.\n\nThis same integration pattern has been stable with `gemini-3-pro-preview`, and we have not seen a corresponding Google migration notice that would explain a required application-side change here.\n\nGiven the precedent of earlier Gemini compatibility fixes (including thought-signature/tooling handling for `2.5`/`3`), we believe the issue is on the ai-sdk layer\n\n\n### AI SDK Version\n\n- ai: 5.0.142\n- @ai-sdk/gateway: 2.0.48\n\nUsing AI Gateway model IDs (e.g., google/gemini-3.1-pro-preview); not using provider SDK directly in app code.\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": [
+		"bug",
+		"reproduction needed",
+		"ai/provider",
+		"support",
+		"provider/google",
+		"provider/gateway"
+	],
+	"expect": {
+		"added": ["ai/provider", "provider/google", "provider/gateway"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["support", "bug"]]
+	}
+}

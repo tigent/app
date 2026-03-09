@@ -1,38 +1,31 @@
-import type { LogEntry } from '@/app/lib/logging';
+import type { Counts } from '@/app/lib/logging';
 
-function labelcount(log: LogEntry): number {
-  if (!log.labels) return 0;
-  return log.labels.length;
-}
-
-export function Stats({ logs }: { logs: LogEntry[] }) {
-  const issues = logs.filter(l => l.type === 'issue').length;
-  const prs = logs.filter(l => l.type === 'pr').length;
-  const labels = logs.reduce((acc, l) => acc + labelcount(l), 0);
-  const skipped = logs.filter(l => l.skipped).length;
-
+export function Stats({ counts }: { counts: Counts }) {
   const items = [
-    { value: logs.length, label: 'TRIAGED', desc: 'Total' },
-    { value: issues, label: 'ISSUES', desc: 'Labeled' },
-    { value: prs, label: 'PULL REQUESTS', desc: 'Labeled' },
-    { value: labels, label: 'LABELS APPLIED', desc: 'Total' },
+    { value: counts.triage, label: 'triaged', desc: 'Issue and PR events' },
+    { value: counts.feedback, label: 'feedback', desc: 'Maintainer actions' },
+    {
+      value: counts.blocked,
+      label: 'blocked',
+      desc: 'Labels stopped by blocklist',
+    },
+    { value: counts.memories, label: 'memory', desc: 'Precedents referenced' },
   ];
 
-  if (skipped > 0) {
-    items.push({ value: skipped, label: 'SKIPPED', desc: 'No labels' });
-  }
-
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-2xl overflow-hidden">
+    <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:grid-cols-2 md:gap-3 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4">
       {items.map(item => (
-        <div key={item.label} className="bg-bg p-4 md:p-6">
-          <p className="text-3xl font-semibold tracking-tight">
-            {item.value || '\u2013'}
+        <div
+          key={item.label}
+          className="min-w-[8rem] shrink-0 rounded-[1.45rem] border border-border bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0))] px-3.5 py-3 md:min-w-0 md:rounded-[1.6rem] md:px-5 md:py-5"
+        >
+          <p className="text-[1.75rem] font-semibold leading-none tracking-tight md:text-[2rem]">
+            {item.value}
           </p>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted mt-1">
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">
             {item.label}
           </p>
-          <p className="text-sm text-muted mt-0.5">{item.desc}</p>
+          <p className="mt-1 hidden text-sm text-muted md:block">{item.desc}</p>
         </div>
       ))}
     </div>

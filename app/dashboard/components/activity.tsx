@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import type { LogEntry } from '@/app/lib/logging';
+import type { Counts, LogEntry } from '@/app/lib/logging';
+import { label } from '@/app/lib/model';
 import { Stats } from './stats';
 
-function timeago(ts: number) {
-  const diff = Date.now() - ts;
+function timeago(timestamp: number) {
+  const diff = Date.now() - timestamp;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'now';
   if (mins < 60) return `${mins}m`;
@@ -15,221 +16,285 @@ function timeago(ts: number) {
   return `${days}d`;
 }
 
-function ms(val: number) {
-  if (!val) return '';
-  if (val < 1000) return `${val}ms`;
-  return `${(val / 1000).toFixed(1)}s`;
+function ms(value?: number) {
+  if (!value) return '';
+  if (value < 1000) return `${value}ms`;
+  return `${(value / 1000).toFixed(1)}s`;
 }
 
-function modelname(model: string) {
+function modelname(model?: string) {
   if (!model) return '';
-  const parts = model.split('/');
-  return parts[parts.length - 1] || model;
+  return label(model);
 }
 
 function islight(hex: string) {
-  const r = Number.parseInt(hex.slice(0, 2), 16);
-  const g = Number.parseInt(hex.slice(2, 4), 16);
-  const b = Number.parseInt(hex.slice(4, 6), 16);
-  return r * 0.299 + g * 0.587 + b * 0.114 > 150;
+  const red = Number.parseInt(hex.slice(0, 2), 16);
+  const green = Number.parseInt(hex.slice(2, 4), 16);
+  const blue = Number.parseInt(hex.slice(4, 6), 16);
+  return red * 0.299 + green * 0.587 + blue * 0.114 > 150;
 }
 
-function labeldata(log: LogEntry): { name: string; color: string }[] {
-  if (!log.labels) return [];
-  if (typeof log.labels[0] === 'string')
-    return (log.labels as unknown as string[]).map(n => ({
-      name: n,
-      color: '',
-    }));
-  return log.labels.map(l => ({ name: l.name, color: l.color || '' }));
+function badge(name: string, color?: string) {
+  if (!color) {
+    return (
+      <span
+        key={name}
+        className="text-xs bg-warm text-muted px-2 py-0.5 rounded-full"
+      >
+        {name}
+      </span>
+    );
+  }
+  return (
+    <span
+      key={name}
+      className="text-xs px-2 py-0.5 rounded-full"
+      style={{
+        backgroundColor: `#${color}`,
+        color: islight(color) ? '#000' : '#fff',
+      }}
+    >
+      {name}
+    </span>
+  );
 }
 
-export function Activity({ logs }: { logs: LogEntry[] }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
+function tone(log: LogEntry) {
+  if (log.type === 'feedback') return 'feedback';
+  if (log.blocked.length > 0 && log.labels.length === 0) return 'blocked';
+  if (log.skipped) return 'skip';
+  return log.type;
+}
+
+export function Activity({
+  logs,
+  counts,
+}: {
+  logs: LogEntry[];
+  counts: Counts;
+}) {
+  const [open, setopen] = useState<string | null>(null);
 
   return (
-    <div className="space-y-8">
-      <Stats logs={logs} />
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-        {logs.length === 0 ? (
-          <div className="border border-border rounded-2xl p-8 text-center">
-            <p className="text-muted text-sm">No activity yet</p>
+    <div className="flex h-full min-h-0 flex-col gap-4 md:gap-5">
+      <section className="order-1 flex min-h-[15rem] flex-1 flex-col overflow-hidden rounded-[1.85rem] border border-border bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0))] md:order-2 md:min-h-0 md:rounded-[2rem]">
+        <div className="flex items-end justify-between gap-4 border-b border-border px-4 py-3.5 md:px-6 md:py-4">
+          <div>
+            <h3 className="text-lg font-semibold">Recent Activity</h3>
+            <p className="mt-1 hidden text-sm text-muted md:block">
+              the console stays fixed while this feed scrolls
+            </p>
           </div>
-        ) : (
-          <div className="border border-border rounded-2xl overflow-hidden divide-y divide-border">
-            {logs.map(log => {
-              const key = `${log.number}-${log.timestamp}`;
-              const open = expanded === key;
-              const ld = labeldata(log);
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setExpanded(open ? null : key)}
-                  className="w-full text-left px-4 md:px-5 py-3 md:py-4 hover:bg-warm/50 transition-colors"
-                >
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <span
-                      className={`hidden md:inline w-14 text-xs font-mono font-medium uppercase ${log.skipped ? 'text-muted' : 'text-fg/50'}`}
-                    >
-                      {log.skipped ? 'skip' : log.type}
-                    </span>
-                    <span className="text-xs md:text-sm font-medium tabular-nums shrink-0">
-                      #{log.number}
-                    </span>
-                    <span className="text-xs md:text-sm text-fg truncate flex-1">
-                      {log.title}
-                    </span>
-                    <div className="hidden md:flex gap-1.5 shrink-0">
-                      {ld.map(l =>
-                        l.color ? (
+          <div className="rounded-full border border-border bg-bg/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">
+            {logs.length} recent rows
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {logs.length === 0 ? (
+            <div className="grid h-full place-items-center px-6 py-6 text-center md:px-8 md:py-12">
+              <p className="text-muted text-sm">No activity yet</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {logs.map(log => {
+                const key = `${log.number}-${log.timestamp}-${log.action || log.type}`;
+                const expanded = open === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setopen(expanded ? null : key)}
+                    className="w-full text-left px-4 py-3 transition-colors hover:bg-warm/50 md:px-5 md:py-4"
+                  >
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <span className="hidden w-18 text-xs font-mono font-medium uppercase text-fg/50 md:inline">
+                        {tone(log)}
+                      </span>
+                      <span className="text-xs md:text-sm font-medium tabular-nums shrink-0">
+                        #{log.number}
+                      </span>
+                      <span className="text-xs md:text-sm text-fg truncate flex-1">
+                        {log.title}
+                      </span>
+                      <div className="hidden md:flex gap-1.5 shrink-0 flex-wrap justify-end max-w-[40%]">
+                        {log.labels
+                          .slice(0, 3)
+                          .map(label => badge(label.name, label.color))}
+                        {log.blocked.slice(0, 2).map(label => (
                           <span
-                            key={l.name}
-                            className="text-xs px-2 py-0.5 rounded-full"
-                            style={{
-                              backgroundColor: `#${l.color}`,
-                              color: islight(l.color) ? '#000' : '#fff',
-                            }}
+                            key={label.name}
+                            className="rounded-full bg-fg px-2 py-0.5 text-xs text-bg"
                           >
-                            {l.name}
+                            {label.name}
                           </span>
-                        ) : (
-                          <span
-                            key={l.name}
-                            className="text-xs bg-warm text-muted px-2 py-0.5 rounded-full"
-                          >
-                            {l.name}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                    <span className="text-xs text-muted shrink-0 w-8 text-right tabular-nums">
-                      {timeago(log.timestamp)}
-                    </span>
-                  </div>
-
-                  {ld.length > 0 && (
-                    <div className="flex md:hidden gap-1.5 flex-wrap mt-2 ml-0">
-                      {ld.map(l =>
-                        l.color ? (
-                          <span
-                            key={l.name}
-                            className="text-[10px] px-1.5 py-0.5 rounded-full"
-                            style={{
-                              backgroundColor: `#${l.color}`,
-                              color: islight(l.color) ? '#000' : '#fff',
-                            }}
-                          >
-                            {l.name}
-                          </span>
-                        ) : (
-                          <span
-                            key={l.name}
-                            className="text-[10px] bg-warm text-muted px-1.5 py-0.5 rounded-full"
-                          >
-                            {l.name}
-                          </span>
-                        ),
-                      )}
-                    </div>
-                  )}
-
-                  {open && (
-                    <div className="mt-4 md:ml-[4.25rem] space-y-4">
-                      {log.summary && (
-                        <p className="text-sm text-fg/80">{log.summary}</p>
-                      )}
-
-                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">
-                        {log.author && (
-                          <span>
-                            by{' '}
-                            <span className="text-fg font-medium">
-                              {log.author}
-                            </span>
-                          </span>
-                        )}
-                        {log.confidence && (
-                          <span
-                            className={
-                              log.confidence === 'high'
-                                ? 'text-fg/60'
-                                : log.confidence === 'medium'
-                                  ? 'text-muted'
-                                  : 'text-muted/60'
-                            }
-                          >
-                            {log.confidence} confidence
-                          </span>
-                        )}
-                        {log.model && <span>{modelname(log.model)}</span>}
-                        {log.duration > 0 && <span>{ms(log.duration)}</span>}
-                        {log.available > 0 && (
-                          <span>
-                            {ld.length} of {log.available} labels
-                          </span>
-                        )}
-                        {log.url && (
-                          <a
-                            href={log.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="text-fg/60 hover:text-fg transition-colors underline underline-offset-2"
-                          >
-                            view on github
-                          </a>
-                        )}
+                        ))}
                       </div>
+                      <span className="text-xs text-muted shrink-0 w-8 text-right tabular-nums">
+                        {timeago(log.timestamp)}
+                      </span>
+                    </div>
 
-                      {log.labels?.length > 0 &&
-                        typeof log.labels[0] !== 'string' && (
+                    {(log.labels.length > 0 || log.blocked.length > 0) && (
+                      <div className="flex md:hidden gap-1.5 flex-wrap mt-2">
+                        {log.labels.map(label =>
+                          badge(label.name, label.color),
+                        )}
+                        {log.blocked.map(label => (
+                          <span
+                            key={label.name}
+                            className="rounded-full bg-fg px-1.5 py-0.5 text-[10px] text-bg"
+                          >
+                            {label.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {expanded && (
+                      <div className="mt-4 md:ml-[5.25rem] space-y-4">
+                        {log.summary && (
+                          <p className="text-sm text-fg/80 whitespace-pre-wrap">
+                            {log.summary}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">
+                          {log.author && (
+                            <span>
+                              by{' '}
+                              <span className="text-fg font-medium">
+                                {log.author}
+                              </span>
+                            </span>
+                          )}
+                          {log.action && <span>{log.action}</span>}
+                          {log.confidence && (
+                            <span>{log.confidence} confidence</span>
+                          )}
+                          {log.model && <span>{modelname(log.model)}</span>}
+                          {log.duration ? (
+                            <span>{ms(log.duration)}</span>
+                          ) : null}
+                          {log.available ? (
+                            <span>
+                              {log.labels.length} of {log.available} labels
+                            </span>
+                          ) : null}
+                          {log.url && (
+                            <a
+                              href={log.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={event => event.stopPropagation()}
+                              className="text-fg/60 hover:text-fg transition-colors underline underline-offset-2"
+                            >
+                              View on GitHub
+                            </a>
+                          )}
+                        </div>
+
+                        {log.message ? (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                              Message
+                            </p>
+                            <p className="text-xs text-muted">{log.message}</p>
+                          </div>
+                        ) : null}
+
+                        {log.labels.length > 0 ? (
                           <div className="space-y-1.5">
                             <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
                               Applied
                             </p>
-                            {log.labels.map(l => (
-                              <div key={l.name} className="flex gap-2 text-xs">
+                            {log.labels.map(label => (
+                              <div
+                                key={label.name}
+                                className="flex gap-2 text-xs"
+                              >
                                 <span className="text-fg font-medium shrink-0">
-                                  {l.name}
+                                  {label.name}
                                 </span>
-                                <span className="text-muted">{l.reason}</span>
+                                <span className="text-muted">
+                                  {label.reason}
+                                </span>
                               </div>
                             ))}
                           </div>
-                        )}
+                        ) : null}
 
-                      {log.rejected?.length > 0 && (
-                        <div className="space-y-1.5">
-                          <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
-                            Considered
-                          </p>
-                          {log.rejected.map(l => (
-                            <div key={l.name} className="flex gap-2 text-xs">
-                              <span className="text-muted/80 shrink-0">
-                                {l.name}
-                              </span>
-                              <span className="text-muted/60">{l.reason}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                        {log.blocked.length > 0 ? (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                              Blocked
+                            </p>
+                            {log.blocked.map(label => (
+                              <div
+                                key={label.name}
+                                className="flex gap-2 text-xs"
+                              >
+                                <span className="text-fg font-medium shrink-0">
+                                  {label.name}
+                                </span>
+                                <span className="text-muted">
+                                  {label.reason}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
 
-                      {'reasoning' in log &&
-                        typeof log.reasoning === 'string' && (
-                          <p className="text-xs text-muted leading-relaxed">
-                            {log.reasoning}
-                          </p>
-                        )}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+                        {log.rejected.length > 0 ? (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                              Considered
+                            </p>
+                            {log.rejected.map(label => (
+                              <div
+                                key={label.name}
+                                className="flex gap-2 text-xs"
+                              >
+                                <span className="text-muted/80 shrink-0">
+                                  {label.name}
+                                </span>
+                                <span className="text-muted/60">
+                                  {label.reason}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {log.memories.length > 0 ? (
+                          <div className="space-y-1.5">
+                            <p className="text-xs font-medium text-fg/60 uppercase tracking-wide">
+                              Memory
+                            </p>
+                            {log.memories.map(memory => (
+                              <div
+                                key={memory.id}
+                                className="flex gap-2 text-xs"
+                              >
+                                <span className="text-fg font-medium shrink-0">
+                                  {memory.title}
+                                </span>
+                                <span className="text-muted">
+                                  {memory.summary}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+      <div className="order-2 md:order-1">
+        <Stats counts={counts} />
       </div>
     </div>
   );

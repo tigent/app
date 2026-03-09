@@ -1,0 +1,28 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 12965,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/12965"
+	},
+	"subject": {
+		"title": "Messages with type: 'file' and mime type: text/... are encoded incorrectly by the OpenAI Compatible provider",
+		"body": "### Description\n\nWhen sending messages of { type: 'file', mediaType: 'text/plain', data: '....string of base 64 encoded data...' } using generateText or streamText, the base 64 encoded string is passed verbatim to the OpenAI Compatible API, inside a {\"type\":\"text\",\"text\":\"...base 64 encoded data...\"} message. Passing the data as base64 is correct when the message to the server is inside a type: 'file' message, but is incorrect when the message to the server is type: 'text'\n\nThis contradicts the documentation, which indicates that the data field in FilePart messages is supposed to be a base64 encoded string, as seen here:\nhttps://ai-sdk.dev/docs/reference/ai-sdk-core/generate-text#messages.user-model-message.content.file-part\n\nThe incorrect code is on line 122 of this file:\nhttps://github.com/vercel/ai/blob/ed17fe86d13bed87a21dc0264178bd2417f999ce/packages/openai-compatible/src/chat/convert-to-openai-compatible-chat-messages.ts\n\nThe textContent should be Base64 decoded when using type: 'text' messages\n\n### AI SDK Version\n\nLatest Git\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": [
+		"bug",
+		"reproduction needed",
+		"ai/provider",
+		"support",
+		"provider/openai-compatible"
+	],
+	"expect": {
+		"added": ["ai/provider", "provider/openai-compatible"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["support", "bug"]]
+	}
+}

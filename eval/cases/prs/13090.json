@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13090,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/13090"
+	},
+	"subject": {
+		"title": "Backport: Backport: fix(security): add URL validation to prevent SSRF in download functions",
+		"body": "\nThis is an automated backport of #13086 to the release-v4.3 branch. FYI @vercel-ai-sdk[bot]\nThis backport has conflicts that need to be resolved manually.\n\n### `git cherry-pick` output\n\n```\nCONFLICT (modify/delete): packages/ai/src/util/download/download.test.ts deleted in HEAD and modified in 6a2f01b14 (Backport: fix(security): add URL validation to prevent SSRF in download functions (#13086)).  Version 6a2f01b14 (Backport: fix(security): add URL validation to prevent SSRF in download functions (#13086)) of packages/ai/src/util/download/download.test.ts left in tree.\nCONFLICT (modify/delete): packages/ai/src/util/download/download.ts deleted in HEAD and modified in 6a2f01b14 (Backport: fix(security): add URL validation to prevent SSRF in download functions (#13086)).  Version 6a2f01b14 (Backport: fix(security): add URL validation to prevent SSRF in download functions (#13086)) of packages/ai/src/util/download/download.ts left in tree.\nAuto-merging packages/provider-utils/src/index.ts\nerror: could not apply 6a2f01b14... Backport: fix(security): add URL validation to prevent SSRF in download functions (#13086)\nhint: After resolving the conflicts, mark them with\nhint: \"git add/rm <pathspec>\", then run\nhint: \"git cherry-pick --continue\".\nhint: You can instead skip this commit with \"git cherry-pick --skip\".\nhint: To abort and get back to the state before \"git cherry-pick\",\nhint: run \"git cherry-pick --abort\".\nhint: Disable this message with \"git config set advice.mergeConflict false\"\n```\n",
+		"extra": "pr summary:\n- backports a security fix into the release-v4.3 branch\n- adds download url validation and tests around ssrf prevention\n- touches ai core download helpers and shared provider utility validation code\n\nchanged files:\n- .changeset/fix-ssrf-download-validation.md (+6 -0)\n- packages/ai/src/util/download/download.test.ts (+140 -0)\n- packages/ai/src/util/download/download.ts (+69 -0)\n- packages/provider-utils/src/index.ts (+1 -0)\n- packages/provider-utils/src/validate-download-url.test.ts (+196 -0)\n- packages/provider-utils/src/validate-download-url.ts (+143 -0)"
+	},
+	"runs": 3,
+	"expect": {
+		"added": ["ai/core"],
+		"excluded": ["backport", "reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": [["bug", "maintenance"]]
+	}
+}

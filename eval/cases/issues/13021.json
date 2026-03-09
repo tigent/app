@@ -1,0 +1,29 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13021,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13021"
+	},
+	"subject": {
+		"title": "@ai-sdk/vue / Chat: tool-input-delta for OpenAI customTool({ format: { type: 'text' } }) does not live-update tool input (stays undefined   until final tool call)",
+		"body": "### Description\n\nI’m seeing a streaming UI mismatch with OpenAI custom freeform tools (text format).\n\nWhen using @ai-sdk/openai openai.tools.customTool({ format: { type: 'text' } }) and rendering with @ai-sdk/vue Chat, the browser network\nstream clearly contains tool-input-delta chunks, but the tool input in the UI does not update live during input-streaming.\n\nIt only appears when the final tool-call / tool-input-available arrives.\n\nExpected behavior\nDuring input-streaming, tool input should update progressively for freeform text tools (for example raw HTML, SQL, shell text), not only\nfor JSON-like inputs.\n\nActual behavior\npart.input remains undefined while deltas stream, then jumps to final value at the end.\n\nMinimal repro\nBackend:\n```ts\nconst tools = {\nsetHtml: openai.tools.customTool({\n  name: 'setHtml',\n  description: 'freeform html input',\n  format: { type: 'text' },\n}),\n};\n```\nFrontend:\n```ts\nconst chat = new Chat({\ntransport: new DefaultChatTransport({ api: '/api/chat' }),\n});\n```\nRender tool part input during input-streaming:\n\n```\n<ToolInput v-if=\"part.input !== undefined\" :input=\"part.input\" />\n```\n\n\n**Observed stream**\ntool-input-delta chunks are present in network/devtools (for example \"SELECT * \", \"FROM users \" or raw HTML fragments).\n\n**Why this seems to happen**\nprocess-ui-message-stream currently parses accumulated tool-input-delta via partial JSON parsing and assigns parsed value to input. For\nnon-JSON freeform text deltas, parse result is often undefined until the end.\n\n**Suggested fix**\nFor non-JSON/freeform tool inputs, preserve streaming raw text in UI state (for example fallback to raw text when partial JSON parse\nfails), so input-streaming is actually visible for text tools.\n\n### AI SDK Version\n\nai: 6.0.105\n@ai-sdk/vue: 3.0.105\n@ai-sdk/openai: 3.0.37\nVue 3 app, OpenAI Responses API custom tools (format: { type: 'text' })\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": [
+		"bug",
+		"ai/core",
+		"ai/provider",
+		"support",
+		"provider/openai",
+		"reproduction provided"
+	],
+	"expect": {
+		"added": ["ai/provider", "provider/openai", "reproduction provided"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["support", "bug"], ["ai/core", "ai/ui"]]
+	}
+}

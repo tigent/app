@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 10380,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/10380"
+	},
+	"subject": {
+		"title": "fix(gateway): bump `@vercel/oidc` to 3.0.5",
+		"body": "",
+		"extra": "pr summary:\n- bumps the @vercel/oidc dependency in the gateway package\n- updates lockfile and changeset metadata for the provider package release\n- maintenance change focused on gateway internals rather than a user-facing feature\n\nchanged files:\n- .changeset/tasty-humans-glow.md (+5 -0)\n- packages/gateway/package.json (+1 -1)\n- pnpm-lock.yaml (+29 -29)"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["maintenance", "ai/provider", "provider/gateway"],
+		"excluded": ["reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

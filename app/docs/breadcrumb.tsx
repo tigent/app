@@ -41,22 +41,26 @@ export function Breadcrumb() {
   const page = getpage(pathname);
 
   return (
-    <div className="flex items-center">
+    <div className="flex min-w-0 items-center">
       <a
         href="/"
-        className="group flex items-center gap-2 px-3 py-1.5 -ml-3 rounded-lg hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="group flex min-w-0 items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:-ml-3 md:px-3"
       >
-        <div className="w-6 h-6 rounded-md bg-accent/10 flex items-center justify-center">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent/10">
           {homeIcon}
         </div>
-        <span className="font-medium text-sm text-white">Tigent</span>
+        <span className="hidden truncate font-medium text-sm text-white md:inline">
+          Tigent
+        </span>
       </a>
-      {chevron}
-      <span className="px-2 py-1 text-sm text-white/40">
-        {sectionNames[page.section]}
-      </span>
-      {chevron}
-      <span className="px-2 py-1 text-sm font-medium text-accent">
+      <div className="hidden items-center md:flex">
+        {chevron}
+        <span className="px-2 py-1 text-sm text-white/40">
+          {sectionNames[page.section]}
+        </span>
+      </div>
+      <div className="hidden md:block">{chevron}</div>
+      <span className="truncate px-2 py-1 text-sm font-medium text-accent">
         {page.title}
       </span>
     </div>

@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 11382,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/11382"
+	},
+	"subject": {
+		"title": "fix(gateway): major version bump for AI SDK v6",
+		"body": "",
+		"extra": "pr summary:\n- changeset-only release metadata update for the v6 major release\n- release metadata change rather than a user-facing feature or bug fix\n- gateway naming appears in the title, but the diff is a maintenance-oriented release marker\n\nchanged files:\n- .changeset/quiet-maps-poke.md (+5 -0)"
+	},
+	"runs": 3,
+	"expect": {
+		"added": ["maintenance"],
+		"excluded": ["major", "reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

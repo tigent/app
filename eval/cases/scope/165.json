@@ -1,0 +1,27 @@
+{
+	"suite": "scope",
+	"source": {
+		"owner": "tigent",
+		"repo": "app",
+		"number": 165,
+		"kind": "issue",
+		"url": "https://github.com/tigent/app/issues/165"
+	},
+	"checks": [
+		{
+			"owner": "vercel",
+			"repo": "ai",
+			"expect": true
+		},
+		{
+			"owner": "tigent",
+			"repo": "app",
+			"expect": true
+		},
+		{
+			"owner": "someone",
+			"repo": "else",
+			"expect": false
+		}
+	]
+}

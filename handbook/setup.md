@@ -30,7 +30,16 @@ GITHUB_APP_ID=123456
 GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 GITHUB_WEBHOOK_SECRET=your-webhook-secret
 AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
+# or
+VERCEL_OIDC_TOKEN=your-vercel-oidc-token
 ```
+
+use one ai gateway auth path:
+
+- `AI_GATEWAY_API_KEY` for a static gateway key
+- `VERCEL_OIDC_TOKEN` for vercel oidc auth
+
+if both are present, the api key wins.
 
 ## local dev
 
@@ -38,6 +47,7 @@ AI_GATEWAY_API_KEY=your-vercel-ai-gateway-key
 2. go to smee.io and create a new channel
 3. set your github app webhook url to your smee channel url
 4. configure credentials in `.env.local`
+   - use either `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN`
 5. start dev server and smee in separate terminals:
 
 ```bash
@@ -57,6 +67,9 @@ vercel
 ```
 
 then add env vars in vercel dashboard.
+
+on vercel deployments, oidc is the cleanest default. you can rely on
+`VERCEL_OIDC_TOKEN` instead of storing an ai gateway api key.
 
 ## configure webhook
 

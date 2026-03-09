@@ -1,0 +1,32 @@
+{
+  "suite": "feedback",
+  "source": {
+    "owner": "vercel",
+    "repo": "ai",
+    "number": 12657,
+    "kind": "issue",
+    "url": "https://github.com/vercel/ai/issues/12657"
+  },
+  "subject": {
+    "kind": "pr",
+    "title": "provider and release maintenance change",
+    "body": "pull request touching provider labels and release workflow labels."
+  },
+  "current": ["ai/provider", "provider/amazon-bedrock"],
+  "available": ["major", "ai/provider", "provider/amazon-bedrock"],
+  "message": "add the major label",
+  "expect": {
+    "add": ["major"],
+    "remove": [],
+    "block": [],
+    "explain": false,
+    "learn": false,
+    "clarify": false
+  },
+  "runtime": {
+    "reaction": "-1",
+    "reply": "i didn't add major because it is in this repo's blocklist.",
+    "added": [],
+    "removed": []
+  }
+}

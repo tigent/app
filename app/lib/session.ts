@@ -2,10 +2,14 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 
 export interface Session {
-  token: string;
-  username: string;
-  avatar: string;
-  id: number;
+  token?: string;
+  refresh?: string;
+  expires?: number;
+  refreshexpires?: number;
+  state?: string;
+  username?: string;
+  avatar?: string;
+  id?: number;
 }
 
 const options = {

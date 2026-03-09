@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13064,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/13064"
+	},
+	"subject": {
+		"title": "fix(ai): fix missing support for image thought signatures (e.g. for Gemini image models)",
+		"body": "## Summary\n\nThis fixes a few problems:\n\n* Image thought signatures were not supported by `ai` at all when streaming, including in UI / `useChat` transformations.\n* Image thought signatures were therefore also not being processed when received in a Gemini API response.\n* When using Gemini to produce multimodal output (e.g. text and images together), the order of output parts was not respected - images were always displayed after all text, even when in the original response they were in between text paragraphs.\n\n## Manual Verification\n\nUse the new UI example `google-gemini-images` in `examples/ai-e2e-next` to verify.\n\n## Related Issues\n\nFixes #12988\nFixes #11461\nFixes #10595",
+		"extra": "pr summary:\n- fixes missing support for Gemini image thought signatures during streaming and follow-up messages\n- updates ai core streaming and ui transformation code so multimodal output ordering is preserved\n- also updates the google provider implementation and tests to process the Gemini responses correctly\n\nchanged files:\n- .changeset/young-ducks-rush.md (+6 -0)\n- examples/ai-e2e-next/app/api/chat/google-gemini-image/route.ts (+24 -0)\n- examples/ai-e2e-next/app/chat/google-gemini-image/page.tsx (+51 -0)\n- packages/ai/src/generate-text/run-tools-transformation.test.ts (+144 -0)\n- packages/ai/src/generate-text/run-tools-transformation.ts (+4 -2)\n- packages/ai/src/generate-text/stream-text-result.ts (+1 -1)\n- packages/ai/src/generate-text/stream-text.test.ts (+99 -0)\n- packages/ai/src/generate-text/stream-text.ts (+10 -1)\n- packages/ai/src/ui/convert-to-model-messages.test.ts (+34 -0)\n- packages/ai/src/ui/convert-to-model-messages.ts (+3 -0)\n- packages/ai/src/ui/process-ui-message-stream.test.ts (+69 -0)\n- packages/ai/src/ui/process-ui-message-stream.ts (+3 -0)\n- ...and 2 more files"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["bug", "ai/core", "ai/provider", "provider/google"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["ai/ui", "reproduction provided"]]
+	}
+}

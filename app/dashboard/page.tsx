@@ -6,5 +6,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <Empty hasrepos />;
+  return (
+    <div className="h-full min-h-0">
+      <Empty hasrepos />
+    </div>
+  );
 }

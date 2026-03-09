@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 12160,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/12160"
+	},
+	"subject": {
+		"title": "fix(mcp): support image returns in tool results",
+		"body": "## background\n\nwhen an mcp server returns image content via tool results, the ai sdk's `@ai-sdk/mcp` client stores the entire response as raw json instead of converting it to the ai sdk's content types, causing context explosion (200k+ tokens for large images as base64 text) and provider rejection on subsequent requests\n\n## summary\n\n- add `mcpToModelOutput` function to convert mcp content types to ai sdk format\n- wire `toModelOutput` property to both `dynamicTool` and `tool` calls in mcp client\n- add unit tests for content conversion (text, image, mixed, unknown types, fallbacks)\n\n## related issues\n\nfixes #11072\nfixes #12025",
+		"extra": "pr summary:\n- fixes mcp tool result handling so image content is converted into ai sdk content types instead of raw json blobs\n- updates the mcp client implementation, adds focused tests, and includes example coverage\n- bug fix centered on the mcp package rather than a new capability\n\nchanged files:\n- .changeset/red-pens-fetch.md (+5 -0)\n- examples/mcp/src/image-content/client.ts (+49 -0)\n- examples/mcp/src/image-content/server.mjs (+52 -0)\n- packages/mcp/src/tool/mcp-client.test.ts (+345 -0)\n- packages/mcp/src/tool/mcp-client.ts (+36 -1)"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["bug", "ai/mcp"],
+		"excluded": ["reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

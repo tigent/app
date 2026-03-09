@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13245,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/13245"
+	},
+	"subject": {
+		"title": "feat(provider/xai): support multiple input images for image editing",
+		"body": "## Background\n\nThe xAI `/images/edits` endpoint supports an `images` array for multi-reference editing with up to 3 images, but the provider previously only sent the first image and warned that additional images were ignored.\n\n## Summary\n\nWhen multiple files are provided to the xai image model, they are now sent as an `images` array instead of dropping all but the first. Single-image edits continue to use the existing `image` field for backward compatibility.\n\n- `maxImagesPerCall` changed from `1` to `3`\n- Single file → `body.image` (unchanged behavior)\n- Multiple files → `body.images` array\n- Removed the \"additional images are ignored\" warning\n- Added `ai-functions` example for multi-image editing\n- Added `ai-e2e-next` example with iterative image editing including multi-image support\n- Updated docs",
+		"extra": "pr summary:\n- adds multi-image editing support to the xai provider instead of dropping all but the first image\n- updates the xai provider implementation and tests, with examples and docs to match\n- provider feature work focused on xai image editing support\n\nchanged files:\n- .changeset/wicked-nails-prove.md (+5 -0)\n- content/providers/01-ai-sdk-providers/01-xai.mdx (+22 -1)\n- examples/ai-e2e-next/app/api/chat/xai-image-edit/route.ts (+85 -0)\n- examples/ai-e2e-next/app/chat/xai-image-edit/page.tsx (+106 -0)\n- examples/ai-functions/src/generate-image/xai/edit-multi-image.ts (+27 -0)\n- packages/xai/src/xai-image-model.test.ts (+95 -7)\n- packages/xai/src/xai-image-model.ts (+8 -16)"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["feature", "ai/provider", "provider/xai"],
+		"excluded": ["reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

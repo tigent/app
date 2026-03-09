@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 10754,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/10754"
+	},
+	"subject": {
+		"title": "chore(ai): deprecate generateObject and streamObject",
+		"body": "## Background\n\nFor a long time, `generateObject` and `streamObject` had limitations in comparison with `generateText` and `streamText`, e.g. when it comes to tool calling. We have added output generation to `generateText` and `streamText` that should be used going forward.\n\n## Summary\n\nDeprecate `generateObject` and `streamObject`.\n\n## Related Issues\n\nCloses #10025",
+		"extra": "pr summary:\n- deprecates generateObject and streamObject in favor of the newer text-based output APIs\n- updates ai core source files and migration guide docs to steer users to the new path\n- deprecation work in the core sdk rather than a new feature or bug fix\n\nchanged files:\n- .changeset/friendly-crews-battle.md (+5 -0)\n- content/docs/08-migration-guides/27-migration-guide-6-0.mdx (+6 -0)\n- packages/ai/src/generate-object/generate-object.ts (+2 -0)\n- packages/ai/src/generate-object/stream-object.ts (+2 -0)"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["deprecation", "ai/core"],
+		"excluded": ["reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

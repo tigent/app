@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 10372,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/10372"
+	},
+	"subject": {
+		"title": "On v5 I get a warning when using tools and experimental_output with sonnet models",
+		"body": "### Description\n\nAs the title says, I get this warning when using `tools` and `experimental_output` with sonnet 4.5 models, that says:\n```\nAI SDK Warning: The \"tools\" setting is not supported by this model - JSON response format does not support tools. The provided tools are ignored.\n```\n\nThe combination works fine on v4 though with the same model. Here's a reproduction repo https://github.com/cristianbote/ai-sdk-4-vs-5-claude-tools\n\n### AI SDK Version\n\n- ai: 4.3.16\n- @ai-sdk/anthropic@1.2.12\n\n- ai: 5.0.95\n- @ai-sdk/anthropic: 2.0.45\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["ai/provider", "provider/anthropic"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["ai/rsc", "ai/core"], ["support", "bug"]]
+	},
+	"gold": ["ai/rsc", "ai/provider", "support", "provider/anthropic"]
+}

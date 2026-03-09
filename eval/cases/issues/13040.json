@@ -1,0 +1,28 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13040,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13040"
+	},
+	"subject": {
+		"title": "Anthropic: fix multi-turn not functioning with new `web_fetch` and `web_search` tools",
+		"body": "Follow up to [#12688](https://github.com/vercel/ai/pull/12668). Specifically, see https://github.com/vercel/ai/pull/12668#issuecomment-3993668689\n\nIn a multi-turn situation, sending another message after a `web_fetch_20260209` or `web_search_20260209` invocation is currently failing with an error as follows, that appears to come directly from the Anthropic API:\n\n```\nmessages.1: `code_execution` tool use with id `srvtoolu_01HopAaXMHo9To3RavUYwqy7` was found without a corresponding `code_execution_tool_result` block\n```\n\nSince the `code_execution` tool call is injected by Anthropic and therefore considered dynamic and simply calls another tool, it's unclear what kind of tool result is expected here (the `code_execution` tool is not and per the API does not need to be explicitly provided).\n\ncc @aayush-kapoor "
+	},
+	"runs": 1,
+	"gold": [
+		"bug",
+		"reproduction needed",
+		"ai/core",
+		"ai/provider",
+		"provider/anthropic"
+	],
+	"expect": {
+		"added": ["bug", "ai/provider", "provider/anthropic"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["ai/core", "ai/provider"]]
+	}
+}
