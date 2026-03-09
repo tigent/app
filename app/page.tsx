@@ -22,13 +22,7 @@ export default function Page() {
             href="/docs"
             className="px-5 py-3 text-sm border border-border rounded-lg hover:bg-warm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            View Docs
-          </a>
-          <a
-            href="https://github.com/apps/tigent"
-            className="px-5 py-3 text-sm bg-fg text-bg rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Install Free
+            Check Out Our Docs
           </a>
         </div>
       </section>
@@ -162,12 +156,6 @@ model: google/gemini-2.5-flash`}
               >
                 GitHub
               </a>
-              <a
-                href="https://github.com/apps/tigent"
-                className="text-sm text-bg/70 hover:text-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-              >
-                Install
-              </a>
             </div>
           </div>
           <div className="flex justify-between items-end">
@@ -175,10 +163,10 @@ model: google/gemini-2.5-flash`}
               Automated issue labeling for GitHub powered by AI
             </p>
             <a
-              href="https://github.com/apps/tigent"
+              href="/docs"
               className="px-5 py-2.5 bg-bg text-fg rounded-full text-sm font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
-              Get Started
+              Check Out Our Docs
             </a>
           </div>
         </div>
