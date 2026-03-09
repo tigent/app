@@ -123,6 +123,7 @@ rules:
 - set explain to true when the maintainer asks why or asks for reasoning
 - use clarify when the maintainer says labels are wrong but the desired action is not clear enough to execute safely
 - use reply for unsupported requests or brief status text
+- reply should only address the unsupported or extra request, never claim that labels were added, removed, blocked, or changed
 - keep reply lowercase and short`,
     prompt: `kind: ${issue.kind}
 
@@ -336,7 +337,7 @@ export async function handlecomment(
     );
   }
 
-  if (actions.reply && blocked.length === 0) parts.push(actions.reply);
+  if (actions.reply) parts.push(actions.reply);
   if (parts.length === 0) {
     parts.push(
       'tell me which labels to add, remove, explain, or keep out of tigent.',
