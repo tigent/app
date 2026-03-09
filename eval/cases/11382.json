@@ -15,7 +15,7 @@
 	"runs": 3,
 	"expect": {
 		"added": ["maintenance"],
-		"excluded": ["major"],
+		"excluded": ["major", "reproduction needed", "reproduction provided"],
 		"blocked": [],
 		"one": []
 	},

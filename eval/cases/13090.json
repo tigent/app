@@ -15,7 +15,7 @@
 	"runs": 3,
 	"expect": {
 		"added": ["ai/core"],
-		"excluded": ["backport"],
+		"excluded": ["backport", "reproduction needed", "reproduction provided"],
 		"blocked": [],
 		"one": [["bug", "maintenance"]]
 	},

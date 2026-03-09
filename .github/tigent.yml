@@ -64,4 +64,4 @@ prompt: |
   questions about accepted file types, supported inputs, current provider capabilities, or whether a provider should already support something are support unless the issue clearly asks to build a brand new capability.
   automated provider model change issues belong to maintenance with ai/provider and the matching provider/* label. do not label them as feature just because they list new models.
   if the report is mostly user confusion or usage help, prefer support over bug.
-  if you apply reproduction needed or reproduction provided, only do so on bug reports.
+  if you apply reproduction needed or reproduction provided, only do so on bug report issues. never add reproduction labels to prs.

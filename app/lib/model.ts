@@ -32,10 +32,7 @@ export function call(model: string) {
 }
 
 export function label(model: string) {
-  if (model === primary) {
-    return 'sonnet 4.6';
-  }
-
   const parts = model.split('/');
-  return parts[parts.length - 1] || model;
+  const item = parts[parts.length - 1] || model;
+  return item.replace(/-/g, ' ');
 }
