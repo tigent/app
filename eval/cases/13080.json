@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13080,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13080"
+	},
+	"subject": {
+		"title": "Transient parts do appear on the messages array (useChat)",
+		"body": "### Description\n\nfollow this example with the transient part\nhttps://ai-sdk.dev/docs/ai-sdk-ui/streaming-data#types-of-streamable-data\n\ndocs specify the transient part will not appear on the messages parts, only on the ``onData`` callback,\nBut actually, they do appear as ``undefined``. which means unless dealt with, might break the ui.\n\n### AI SDK Version\n\n\"ai\": \"6.0.114\",\n\"@ai-sdk/react\": \"3.0.116\",\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": ["bug", "reproduction needed", "ai/ui", "support"],
+	"expect": {
+		"added": ["ai/ui"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["support", "bug"]]
+	}
+}

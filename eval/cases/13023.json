@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13023,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13023"
+	},
+	"subject": {
+		"title": "[MCPClientError]: Server's protocol version is not supported: 2025-11-25",
+		"body": "### Description\n\nTrying to connect to wrike mcp (https://www.wrike.com/app/mcp/sse) and received:\n```Server's protocol version is not supported: 2025-11-25```\n\nI saw there was an [issue](https://github.com/vercel/ai/issues/7575) regarding an earlier version.\n\nThe supported versions can be seen here: https://github.com/vercel/ai/blob/ccc5f51bcbc9116fe5430fe4de6bf2003f4f95a5/packages/mcp/src/tool/types.ts#L5-L10\n\n### AI SDK Version\n\nThis is in main, all `ai` packages are affected\n\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["ai/mcp"],
+		"excluded": [],
+		"blocked": [],
+		"one": [["bug", "support"]]
+	},
+	"gold": ["bug", "reproduction needed", "support", "ai/mcp"]
+}

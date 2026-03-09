@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13069,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13069"
+	},
+	"subject": {
+		"title": "Support full list of accepted file types for OpenAI file inputs",
+		"body": "### Description\n\nIf I'm [reading this code right](https://github.com/vercel/ai/blob/main/packages/openai-compatible/src/chat/convert-to-openai-compatible-chat-messages.ts#L60), this adapter will accept `part.mediaType` `image/`, `audio/`, and `application/pdf` as `type: 'image_url'`, `type: 'input_audio'`, and type `type: 'file'` respectively.\n\nBut `text/` will get stringified and collapsed down into a `type: 'text'` message. Other types (i.e. spreadsheets with `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`) will throw `UnsupportedFunctionalityError`.\n\nThat seems like a real limitation given that Open AI [treats spreadsheet files differently](https://developers.openai.com/api/docs/guides/file-inputs/#full-list-of-accepted-file-types):\n\n> Spreadsheet files (for example, .xlsx, .csv, .tsv): the API runs a spreadsheet-specific augmentation flow (described below).\n\nIs there a reason why this doesn't support [the full list of accepted file types from OpenAI](https://developers.openai.com/api/docs/guides/file-inputs/#full-list-of-accepted-file-types)? Or am I missing something, here? 🤔 \n\nThanks!\n\n### AI SDK Version\n\n- ai: 6.0.112\n- @ai-sdk/openai: 3.0.39\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["support", "ai/provider", "provider/openai"],
+		"excluded": ["bug"],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["ai/provider", "support", "provider/openai"]
+}

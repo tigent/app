@@ -1,27 +1,28 @@
-import { App } from 'octokit';
-import { getconfig, triageissue, triagepr, react } from './triage';
-import { handlecomment } from './feedback';
+import { getapp } from '@/app/lib/github';
 import { writelog } from '@/app/lib/logging';
+import { allowed } from '@/app/lib/scope';
+import { handlecomment } from './feedback';
+import { getconfig, react, triageissue, triagepr } from './triage';
 
-const app = new App({
-  appId: process.env.GITHUB_APP_ID!,
-  privateKey: process.env.GITHUB_APP_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-  webhooks: { secret: process.env.GITHUB_WEBHOOK_SECRET! },
-});
+const app = getapp();
 
 app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
   const owner = payload.repository.owner.login;
   const repo = payload.repository.name;
+  if (!allowed(owner, repo)) return;
   const gh = { octokit, owner, repo };
   try {
     const config = await getconfig(gh);
     const result = await triageissue(gh, config, payload.issue.number);
     await writelog(`${owner}/${repo}`, {
       type: 'issue',
+      action: 'triage',
       number: payload.issue.number,
       title: result.title,
       labels: result.labels,
       rejected: result.rejected,
+      blocked: result.blocked,
+      memories: result.memories,
       confidence: result.confidence,
       summary: result.summary,
       model: config.model,
@@ -39,22 +40,27 @@ app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
 app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
   const owner = payload.repository.owner.login;
   const repo = payload.repository.name;
+  if (!allowed(owner, repo)) return;
   const gh = { octokit, owner, repo };
   try {
     const config = await getconfig(gh);
     const result = await triagepr(gh, config, payload.pull_request.number);
     await writelog(`${owner}/${repo}`, {
       type: 'pr',
+      action: 'triage',
       number: payload.pull_request.number,
       title: result.title,
       labels: result.labels,
       rejected: result.rejected,
+      blocked: result.blocked,
+      memories: result.memories,
       confidence: result.confidence,
       summary: result.summary,
       model: config.model,
       duration: result.duration,
       author: result.author,
       url: result.url,
+      context: result.context,
       skipped: result.skipped,
       available: result.available,
     });
@@ -66,6 +72,7 @@ app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
 app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
   const owner = payload.repository.owner.login;
   const repo = payload.repository.name;
+  if (!allowed(owner, repo)) return;
   const gh = { octokit, owner, repo };
   try {
     const config = await getconfig(gh);

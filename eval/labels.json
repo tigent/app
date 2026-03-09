@@ -1,0 +1,272 @@
+[
+	{
+		"name": "ai/core",
+		"description": "core functions like generateText, streamText, etc. Provider utils, and provider spec.",
+		"color": "BFD4F2"
+	},
+	{
+		"name": "ai/mcp",
+		"description": "related to `@ai-sdk/mcp` package",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "ai/provider",
+		"description": "related to a provider package. Must be assigned together with at least one `provider/*` label",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "ai/rsc",
+		"description": "related to `@ai-sdk/rsc` package",
+		"color": "C5DEF5"
+	},
+	{
+		"name": "ai/ui",
+		"description": "anything UI related",
+		"color": "C5DEF5"
+	},
+	{
+		"name": "backport",
+		"description": "Admins only: add this label to a pull request in order to backport it to the prior version",
+		"color": "000000"
+	},
+	{
+		"name": "bug",
+		"description": "Something isn't working as documented",
+		"color": "d73a4a"
+	},
+	{
+		"name": "deprecation",
+		"description": "pull requests that introduced a deprecation",
+		"color": "0e8a16"
+	},
+	{
+		"name": "documentation",
+		"description": "Improvements or additions to documentation",
+		"color": "0075ca"
+	},
+	{
+		"name": "feature",
+		"description": "New feature or request",
+		"color": "0e8a16"
+	},
+	{
+		"name": "good first issue",
+		"description": "Interested to become a contributor to the AI SDK? These are for you",
+		"color": "663399"
+	},
+	{
+		"name": "maintenance",
+		"description": "CI, internal documentation, automations, etc",
+		"color": "000000"
+	},
+	{
+		"name": "major",
+		"description": "marker for PRs with major version bump",
+		"color": "000000"
+	},
+	{
+		"name": "minor",
+		"description": "marker for PRs with minor version bump",
+		"color": "000000"
+	},
+	{
+		"name": "provider/amazon-bedrock",
+		"description": "Issues related to the @ai-sdk/amazon-bedrock provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/anthropic",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/assemblyai",
+		"description": "Issues related to the @ai-sdk/assemblyai provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/azure",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/baseten",
+		"description": "Issues related to the @ai-sdk/baseten provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/black-forest-labs",
+		"description": "Issues related to the @ai-sdk/black-forst-labs provider. https://bfl.ai",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/cerebras",
+		"description": "Issues related to the @ai-sdk/cerebras provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/cohere",
+		"description": "Issues related to the @ai-sdk/cohere provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/community",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/deepgram",
+		"description": "Issues related to the @ai-sdk/deepgram provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/deepinfra",
+		"description": "Issues related to the @ai-sdk/deepinfra provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/deepseek",
+		"description": "Issues related to the @ai-sdk/deepseek provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/elevenlabs",
+		"description": "Issues related to the @ai-sdk/elevenlabs provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/fal",
+		"description": "Issues related to the @ai-sdk/fal provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/fireworks",
+		"description": "Issues related to the @ai-sdk/fireworks provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/gateway",
+		"description": "Issues related to the @ai-sdk/gateway provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/gladia",
+		"description": "Issues related to the @ai-sdk/gladia provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/google",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/google-vertex",
+		"description": "Issues related to the @ai-sdk/google-vertex provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/groq",
+		"description": "Issues related to the @ai-sdk/groq provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/huggingface",
+		"description": "Issues related to the @ai-sdk/huggingface provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/hume",
+		"description": "Issues related to the @ai-sdk/hume provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/lmnt",
+		"description": "Issues related to the @ai-sdk/lmnt provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/luma",
+		"description": "Issues related to the @ai-sdk/luma provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/mistral",
+		"description": "Issues related to the @ai-sdk/mistral provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/openai",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/openai-compatible",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/perplexity",
+		"description": "Issues related to the @ai-sdk/perplexity provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/replicate",
+		"description": "Issues related to the @ai-sdk/replicate provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/revai",
+		"description": "Issues related to the @ai-sdk/revai provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/togetherai",
+		"description": "Issues related to the @ai-sdk/togetherai provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/vercel",
+		"description": "Issues related to the @ai-sdk/vercel provider",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "provider/xai",
+		"description": "",
+		"color": "bfd4f2"
+	},
+	{
+		"name": "pull request welcome",
+		"description": "For issues with clear instructions that welcome community contirbutions",
+		"color": "663399"
+	},
+	{
+		"name": "reproduction needed",
+		"description": "",
+		"color": "fbca04"
+	},
+	{
+		"name": "reproduction provided",
+		"description": "",
+		"color": "fbca04"
+	},
+	{
+		"name": "support",
+		"description": "",
+		"color": "663399"
+	},
+	{
+		"name": "type:batch",
+		"description": "Admins only: assign to issues with sub tasks",
+		"color": "000000"
+	},
+	{
+		"name": "type:epic",
+		"description": "Admins only: assign to issues with sub issues that are batches of tasks",
+		"color": "000000"
+	},
+	{
+		"name": "wontfix",
+		"description": "This will not be worked on",
+		"color": "ffffff"
+	}
+]

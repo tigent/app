@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import type { Repo } from '@/app/lib/github';
 
 export function Mobilenav({
@@ -23,15 +23,15 @@ export function Mobilenav({
 
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="absolute bottom-16 left-3 right-3 bg-bg rounded-2xl shadow-2xl p-4 max-h-[60vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}
-          >
+      {open ? (
+        <div className="fixed inset-0 z-40">
+          <button
+            type="button"
+            aria-label="close repo menu"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setOpen(false)}
+          />
+          <section className="absolute bottom-16 left-3 right-3 max-h-[60vh] overflow-y-auto rounded-2xl bg-bg p-4 shadow-2xl">
             {repos.length === 0 ? (
               <a
                 href="https://github.com/apps/tigent"
@@ -41,49 +41,54 @@ export function Mobilenav({
               </a>
             ) : (
               <ul className="space-y-1">
-                {repos.map(r => {
-                  const full = `${r.owner}/${r.name}`;
+                {repos.map(item => {
+                  const full = `${item.owner}/${item.name}`;
                   const active = selected === full;
                   return (
-                    <li key={r.id}>
+                    <li key={item.id}>
                       <Link
-                        href={`/dashboard/${r.owner}/${r.name}`}
+                        href={`/dashboard/${item.owner}/${item.name}`}
                         onClick={() => {
                           setOpen(false);
                           if (!active) navigate();
                         }}
-                        className={`block px-3 py-2.5 text-sm rounded-xl transition-colors capitalize ${
+                        className={`block rounded-xl px-3 py-2.5 text-sm capitalize transition-colors ${
                           active ? 'bg-warm font-medium text-fg' : 'text-fg/70'
                         }`}
                       >
-                        {r.owner}/{r.name}
+                        {item.owner}/{item.name}
                       </Link>
                     </li>
                   );
                 })}
               </ul>
             )}
-          </div>
+          </section>
         </div>
-      )}
+      ) : null}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-fg rounded-t-2xl flex items-center justify-around px-4 py-3 safe-bottom">
-        <a href="/" className="p-2">
+      <nav className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-[1.45rem] border border-border/70 bg-fg/96 px-3 py-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.42)] backdrop-blur">
+        <Link
+          href="/"
+          className="rounded-xl p-2 text-white/45 transition-colors hover:text-white"
+        >
+          <span className="sr-only">home</span>
           <svg
-            className="w-5 h-5 text-accent"
+            className="h-[18px] w-[18px] text-accent"
             viewBox="0 0 238.758 238.758"
             fill="currentColor"
             aria-hidden="true"
           >
             <path d="M238.389,91.942c-1.28-3.939-5.513-6.096-9.451-4.815l-89.925,29.219l21.004-28.91c2.435-3.351,1.691-8.041-1.66-10.476c-3.352-2.435-8.041-1.691-10.476,1.66l-21.002,28.908V12.976c0-4.142-3.358-7.5-7.5-7.5c-4.142,0-7.5,3.358-7.5,7.5v94.553L90.874,78.619c-2.435-3.351-7.124-4.094-10.476-1.659c-3.351,2.434-4.094,7.124-1.66,10.475l21.004,28.91L9.82,87.127c-3.944-1.281-8.171,0.876-9.451,4.815c-1.28,3.939,0.875,8.171,4.815,9.451l89.924,29.219l-33.987,11.043c-3.939,1.28-6.095,5.511-4.815,9.451c1.03,3.169,3.97,5.184,7.131,5.184c0.768,0,1.549-0.119,2.319-0.369l33.986-11.043l-55.577,76.496c-2.435,3.351-1.691,8.041,1.66,10.476c1.331,0.967,2.874,1.433,4.402,1.433c2.319,0,4.606-1.072,6.074-3.092l55.577-76.496v35.736c0,4.142,3.358,7.5,7.5,7.5c4.142,0,7.5-3.358,7.5-7.5v-35.735l55.577,76.495c1.467,2.02,3.754,3.092,6.074,3.092c1.528,0,3.071-0.466,4.402-1.433c3.351-2.435,4.094-7.125,1.66-10.476l-55.578-76.496l33.985,11.042c0.771,0.251,1.551,0.369,2.319,0.369c3.162,0,6.101-2.015,7.131-5.184c1.28-3.939-0.876-8.171-4.815-9.451l-33.986-11.043l89.925-29.219C237.513,100.113,239.669,95.881,238.389,91.942z" />
           </svg>
-        </a>
+        </Link>
         <Link
           href={repo ? `/dashboard/${repo}` : '/dashboard'}
-          className={`p-2 rounded-xl ${repo && !onconfig ? 'bg-white/10 text-white' : 'text-white/40'}`}
+          className={`rounded-xl p-2 transition-colors ${repo && !onconfig ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'}`}
         >
+          <span className="sr-only">console</span>
           <svg
-            className="w-5 h-5"
+            className="h-[18px] w-[18px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -97,13 +102,13 @@ export function Mobilenav({
             />
           </svg>
         </Link>
-
         <Link
           href={repo ? `/dashboard/${repo}/config` : '/dashboard'}
-          className={`p-2 rounded-xl ${onconfig ? 'bg-white/10 text-white' : 'text-white/40'}`}
+          className={`rounded-xl p-2 transition-colors ${onconfig ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'}`}
         >
+          <span className="sr-only">config</span>
           <svg
-            className="w-5 h-5"
+            className="h-[18px] w-[18px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -122,14 +127,14 @@ export function Mobilenav({
             />
           </svg>
         </Link>
-
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className={`p-2 rounded-xl ${open ? 'bg-white/10 text-white' : 'text-white/40'}`}
+          className={`rounded-xl p-2 transition-colors ${open ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'}`}
         >
+          <span className="sr-only">repos</span>
           <svg
-            className="w-5 h-5"
+            className="h-[18px] w-[18px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -143,10 +148,13 @@ export function Mobilenav({
             />
           </svg>
         </button>
-
-        <a href="/docs" className="p-2 rounded-xl text-white/40">
+        <Link
+          href="/docs"
+          className="rounded-xl p-2 text-white/40 transition-colors hover:text-white"
+        >
+          <span className="sr-only">docs</span>
           <svg
-            className="w-5 h-5"
+            className="h-[18px] w-[18px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -159,7 +167,7 @@ export function Mobilenav({
               strokeLinejoin="round"
             />
           </svg>
-        </a>
+        </Link>
       </nav>
     </>
   );

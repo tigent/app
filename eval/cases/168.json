@@ -1,0 +1,25 @@
+{
+	"suite": "feedback",
+	"source": {
+		"owner": "tigent",
+		"repo": "app",
+		"number": 168,
+		"kind": "issue",
+		"url": "https://github.com/tigent/app/issues/168"
+	},
+	"subject": {
+		"kind": "pr",
+		"title": "provider and release maintenance change",
+		"body": "pull request touching provider labels and release workflow labels."
+	},
+	"current": ["major", "ai/provider", "provider/amazon-bedrock"],
+	"message": "never apply the labels minor or major. leave that to humans. please update your config accordingly.",
+	"expect": {
+		"add": [],
+		"remove": ["major"],
+		"block": ["major", "minor"],
+		"explain": false,
+		"learn": true,
+		"clarify": false
+	}
+}

@@ -1,0 +1,23 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 11382,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/11382"
+	},
+	"subject": {
+		"title": "fix(gateway): major version bump for AI SDK v6",
+		"body": "",
+		"extra": "pr summary:\n- changeset-only release metadata update\n- tied to the ai sdk v6 major release\n- maintenance workflow change rather than user-facing feature work"
+	},
+	"runs": 3,
+	"expect": {
+		"added": ["maintenance"],
+		"excluded": ["major"],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["major", "maintenance"]
+}

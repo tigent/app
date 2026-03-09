@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13109,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13109"
+	},
+	"subject": {
+		"title": "Anthropic documentation should include adaptive thinking.",
+		"body": "### Description\n\nDocumentation includes the deprecated or soon-to-be deprecated thinking configuration, and it should also include how to specify adaptive thinking. \n\nhttps://ai-sdk.dev/providers/ai-sdk-providers/anthropic#reasoning\n\n### AI SDK Version\n\n_No response_\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["documentation", "ai/provider", "provider/anthropic"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["documentation", "ai/provider", "support", "provider/anthropic"]
+}

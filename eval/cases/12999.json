@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 12999,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/12999"
+	},
+	"subject": {
+		"title": "v7 Pre-Release Checklist",
+		"body": "# AI SDK v7 Pre-Release\n\nTracking issue for the v7 pre-release cycle. See [contributing/pre-release-cycle.md](https://github.com/vercel/ai/blob/main/contributing/pre-release-cycle.md) for the full process documentation.\n\n## Pre-release setup\n\n- [x] Add pre-release cycle documentation (#12998)\n- [x] Create `release-v6.0` maintenance branch from current `main` HEAD\n- [x] Enter beta mode: `pnpm changeset pre enter beta`\n- [x] Create major changeset for all published packages\n- [x] Create V4 spec skeleton in `@ai-sdk/provider` (copy V3, rename types)\n- [x] Create V4 mock test utilities in `packages/ai/src/test/`\n- [ ] Merge pre-release PR (https://github.com/vercel/ai/pull/13001) — first `ai@7.0.0-beta.1` publishes automatically\n\n## Documentation site (ai-sdk.dev)\n\n- [x] Update `.github/workflows/update-sdk-submodule-v6.yml` — track `release-v6.0` instead of `main`\n- [x] Create `.github/workflows/update-sdk-submodule-v7.yml` — fetch `main`, check out `sdk/v7`, push to `origin sdk/v7`\n- [ ] Create `sdk/v7` branch in `ai-studio` (default branch stays `sdk/v6`)\n- [ ] Vercel: create v7 preview deployment on `sdk/v7` branch (`v7.ai-sdk.dev`)\n\n## During pre-release\n\n- [ ] All feature PRs target `main` as usual\n- [ ] Use `backport` label to port fixes to `release-v6.0`\n- [ ] Iterate on V4 spec changes\n- [ ] Update `packages/ai` core functions to support V4 spec alongside V3\n- [ ] Update providers to implement V4 spec\n- [ ] Migration guide (`content/docs/08-migration-guides`)\n- [ ] Codemods (`packages/codemod`)\n\n## Stable release\n\n- [ ] Exit beta mode: `pnpm changeset pre exit`\n- [ ] Merge Version Packages PR to publish `ai@7.0.0`\n- [ ] Archive `release-v6.0` branch"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["maintenance"],
+		"excluded": ["backport"],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["maintenance"]
+}

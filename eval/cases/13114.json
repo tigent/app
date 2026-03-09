@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13114,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13114"
+	},
+	"subject": {
+		"title": "🤖 Provider model changes - openai",
+		"body": "**Provider:** `openai`\n**Type:** Model list diff\n\n### New models\n- `gpt-5.4`\n- `gpt-5.4-2026-03-05`\n- `gpt-5.4-pro`\n- `gpt-5.4-pro-2026-03-05`\n"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["maintenance", "ai/provider", "provider/openai"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["ai/provider", "provider/openai", "maintenance"]
+}

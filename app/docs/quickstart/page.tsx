@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Header, Section, Prevnext } from '../components';
+import { Card, Code, Header, Note, Prevnext, Section } from '../components';
 
 export const metadata: Metadata = {
   title: 'Quickstart',
-  description: 'Get Tigent running on your GitHub repository in 2 minutes.',
+  description:
+    'get tigent running with labels, blocklist, and the operator console.',
 };
 
 export default function Quickstart() {
@@ -12,41 +13,55 @@ export default function Quickstart() {
       <Header
         section="Get Started"
         title="Quickstart"
-        description="Get Tigent running in 2 minutes."
+        description="Set up label descriptions, add a blocklist, and watch the operator console after the first issue or pull request lands."
       />
 
-      <Section id="install" title="1. Install the app">
-        <p className="text-white/60 mb-6 max-w-2xl">
-          Install the Tigent GitHub App on your repository.
-        </p>
-        <a
-          href="https://github.com/apps/tigent"
-          className="inline-flex items-center gap-2 px-5 py-3 bg-accent text-fg rounded-xl hover:opacity-90 transition-opacity font-medium"
-        >
-          Install GitHub App
-        </a>
+      <Section id="steps" title="Four-Step Setup">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <Card
+            title="1. Install"
+            description="install the github app on the target repository."
+          />
+          <Card
+            title="2. Describe Labels"
+            description="add clear descriptions to your existing labels in github settings."
+          />
+          <Card
+            title="3. Add Blocklist"
+            description="protect workflow labels before the first automated triage run."
+          />
+          <Card
+            title="4. Review Console"
+            description="open the dashboard after a new issue or pr to inspect the result."
+          />
+        </div>
       </Section>
 
-      <Section id="add-descriptions" title="2. Add label descriptions">
-        <p className="text-white/60 mb-4 max-w-2xl">
-          Go to your repository settings and add descriptions to your labels.
-          Tigent uses these descriptions to understand when to apply each label.
-        </p>
-        <p className="text-white/60 max-w-2xl">
-          <span className="text-white/40">Example:</span> For a label named{' '}
-          <code className="bg-white/10 px-2 py-1 rounded text-sm text-accent">
-            bug
-          </code>
-          , add a description like &quot;Something is not working as
-          expected&quot;.
-        </p>
+      <Section id="auth" title="Gateway Auth">
+        <Note title="Auth Options">
+          use either <code className="text-accent">AI_GATEWAY_API_KEY</code> or{' '}
+          <code className="text-accent">VERCEL_OIDC_TOKEN</code>. if both are
+          set, tigent will use the api key.
+        </Note>
       </Section>
 
-      <Section id="test" title="3. Test it out">
-        <p className="text-white/60 max-w-2xl">
-          Create a new issue in your repository. Tigent will analyze it and
-          apply matching labels within a few seconds.
-        </p>
+      <Section id="config" title="Starting Config">
+        <Code>{`blocklist:
+  - backport
+  - major
+  - minor
+
+prompt: |
+  when in doubt, add support.
+  provider-specific issues get ai/provider and the matching provider label.`}</Code>
+      </Section>
+
+      <Section id="review" title="What To Review After The First Run">
+        <Note title="Operator Checklist">
+          look at the applied labels, any blocked labels, whether memory was
+          used, and whether the maintainer would have made the same decision
+          manually.
+        </Note>
       </Section>
 
       <Prevnext />

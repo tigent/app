@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { getprevnext } from './config';
 
-const linkIcon = (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+const linkicon = (
+  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path
       d="M6.5 9.5l3-3M7 11.5l-1.5 1.5a2.121 2.121 0 01-3-3L4 8.5M9 4.5l1.5-1.5a2.121 2.121 0 013 3L12 7.5"
       stroke="currentColor"
@@ -17,8 +17,8 @@ const linkIcon = (
   </svg>
 );
 
-const copyIcon = (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+const copyicon = (
+  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <rect
       x="5"
       y="5"
@@ -36,8 +36,8 @@ const copyIcon = (
   </svg>
 );
 
-const checkIcon = (
-  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+const checkicon = (
+  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path
       d="M3 8l4 4 6-8"
       stroke="currentColor"
@@ -49,7 +49,7 @@ const checkIcon = (
 );
 
 function Anchor({ id }: { id?: string }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setcopied] = useState(false);
   const pathname = usePathname();
 
   if (!id) return null;
@@ -57,20 +57,22 @@ function Anchor({ id }: { id?: string }) {
   const copy = async () => {
     const url = `${window.location.origin}${pathname}#${id}`;
     await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setcopied(true);
+    setTimeout(() => setcopied(false), 2000);
   };
 
   return (
     <button
       type="button"
       onClick={copy}
-      className={`opacity-0 group-hover/heading:opacity-100 p-1 rounded transition-all ${
-        copied ? 'text-accent opacity-100' : 'text-white/30 hover:text-white/60'
+      className={`rounded-full border p-2 transition-all ${
+        copied
+          ? 'border-accent/40 bg-accent/10 text-accent opacity-100'
+          : 'border-white/10 bg-white/5 text-white/30 opacity-0 group-hover/heading:opacity-100 hover:border-white/20 hover:text-white/60'
       }`}
-      title="Copy link"
+      title="copy link"
     >
-      {copied ? checkIcon : linkIcon}
+      {copied ? checkicon : linkicon}
     </button>
   );
 }
@@ -87,18 +89,46 @@ export function Header({
   id?: string;
 }) {
   return (
-    <div className="mb-12">
-      <p className="text-sm text-white/40 mb-2">{section}</p>
-      <div className="flex items-center gap-2 group/heading">
+    <header className="mb-14 overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(212,228,92,0.2),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0))] px-6 py-8 md:px-8 md:py-10">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+        <span className="h-2 w-2 rounded-full bg-accent" />
+        {section}
+      </div>
+      <div className="group/heading mt-5 flex items-start gap-3">
         <h1
           id={id}
-          className="text-5xl font-semibold tracking-tight text-white"
+          className="text-4xl font-semibold tracking-tight text-white md:text-5xl"
         >
           {title}
         </h1>
         <Anchor id={id} />
       </div>
-      <p className="text-xl text-white/60 max-w-2xl mt-6">{description}</p>
+      <p className="mt-4 max-w-5xl text-lg leading-8 text-white/62 md:text-xl">
+        {description}
+      </p>
+    </header>
+  );
+}
+
+export function Grid({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{children}</div>
+  );
+}
+
+export function Note({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-accent/20 bg-accent/10 px-5 py-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">
+        {title}
+      </p>
+      <div className="mt-2 text-sm leading-6 text-white/72">{children}</div>
     </div>
   );
 }
@@ -110,29 +140,39 @@ export function Code({
   children: string;
   className?: string;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setcopied] = useState(false);
 
   const copy = async () => {
     await navigator.clipboard.writeText(children);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setcopied(true);
+    setTimeout(() => setcopied(false), 2000);
   };
 
   return (
-    <div className={`relative group/code ${className}`}>
-      <button
-        type="button"
-        onClick={copy}
-        className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${
-          copied
-            ? 'text-accent bg-accent/10'
-            : 'text-white/30 hover:text-white/60 hover:bg-white/5 opacity-0 group-hover/code:opacity-100'
-        }`}
-        title="Copy code"
-      >
-        {copied ? checkIcon : copyIcon}
-      </button>
-      <pre className="bg-white/5 border border-white/10 text-white/90 p-8 rounded-2xl text-sm font-mono leading-relaxed overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div
+      className={`relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.03] ${className}`}
+    >
+      <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/35">
+          tigent.yml
+        </p>
+        <button
+          type="button"
+          onClick={copy}
+          className={`inline-flex min-h-10 items-center justify-center rounded-xl border px-3 py-0 text-xs font-medium leading-none transition-all ${
+            copied
+              ? 'border-accent/40 bg-accent/10 text-accent'
+              : 'border-white/10 bg-white/5 text-white/45 hover:border-white/20 hover:text-white'
+          }`}
+          title="copy code"
+        >
+          <span className="inline-flex items-center justify-center gap-2 leading-none">
+            {copied ? checkicon : copyicon}
+            {copied ? 'copied' : 'copy'}
+          </span>
+        </button>
+      </div>
+      <pre className="overflow-x-auto px-5 py-5 font-mono text-sm leading-7 text-white/88 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {children}
       </pre>
     </div>
@@ -148,7 +188,7 @@ export function Codeinline({
 }) {
   return (
     <pre
-      className={`bg-white/5 border border-white/10 text-white/90 p-4 rounded-xl text-sm font-mono w-fit ${className}`}
+      className={`inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-mono text-sm text-white/88 ${className}`}
     >
       {children}
     </pre>
@@ -160,26 +200,32 @@ export function Prevnext() {
   const { prev, next } = getprevnext(pathname);
 
   return (
-    <div className="flex items-center justify-between pt-8 border-t border-white/10">
+    <div className="grid gap-4 border-t border-white/10 pt-8 md:grid-cols-2">
       {prev ? (
         <Link
           href={prev.href}
-          className="text-sm text-white/50 hover:text-white transition-colors"
+          className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
         >
-          ← {prev.title}
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/35">
+            previous
+          </p>
+          <p className="mt-2 text-base font-medium text-white">{prev.title}</p>
         </Link>
       ) : (
-        <span />
+        <div />
       )}
       {next ? (
         <Link
           href={next.href}
-          className="text-sm text-white/50 hover:text-white transition-colors"
+          className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-4 text-left transition-colors hover:border-white/20 hover:bg-white/[0.05] md:justify-self-end md:w-full"
         >
-          {next.title} →
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/35">
+            next
+          </p>
+          <p className="mt-2 text-base font-medium text-white">{next.title}</p>
         </Link>
       ) : (
-        <span />
+        <div />
       )}
     </div>
   );
@@ -195,12 +241,18 @@ export function Card({
   code?: string;
 }) {
   return (
-    <div className="p-4 border border-white/10 rounded-xl">
-      {code && <code className="text-sm text-accent">{code}</code>}
-      {title && (
-        <h4 className="text-sm font-medium text-white mb-1">{title}</h4>
-      )}
-      <p className={`text-white/50 ${code ? 'text-xs mt-1' : 'text-sm'}`}>
+    <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-5">
+      {code ? (
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">
+          {code}
+        </p>
+      ) : null}
+      {title ? (
+        <h4 className="mt-3 text-lg font-semibold text-white">{title}</h4>
+      ) : null}
+      <p
+        className={`leading-6 text-white/62 ${title || code ? 'mt-2 text-sm' : 'text-base'}`}
+      >
         {description}
       </p>
     </div>
@@ -217,14 +269,14 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mb-16 overflow-hidden">
-      <div className="flex items-center gap-2 mb-6 group/heading">
+    <section className="mb-16 border-t border-white/10 pt-8 first:border-t-0 first:pt-0">
+      <div className="group/heading mb-6 flex items-center gap-3">
         <h2 id={id} className="text-3xl font-semibold text-white">
           {title}
         </h2>
         <Anchor id={id} />
       </div>
-      {children}
+      <div className="space-y-5">{children}</div>
     </section>
   );
 }

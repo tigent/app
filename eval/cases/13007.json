@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13007,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13007"
+	},
+	"subject": {
+		"title": "feat(google): support external URLs natively now that Gemini API accepts them",
+		"body": "## Description\n\nThe Gemini API now natively supports external URLs (public HTTPS, signed URLs like S3 presigned, GCS URLs) passed directly via `fileUri` without needing to upload through the File API first.\n\n**Announcement:** https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-new-file-limits/  \n**Docs:** https://ai.google.dev/gemini-api/docs/file-input-methods\n\nValid Gemini API request:\n\n```json\n{\n  \"file_data\": {\n    \"mime_type\": \"image/jpeg\",\n    \"file_uri\": \"https://example.com/photo.jpg\"\n  }\n}\n```\n\nHowever, `@ai-sdk/google` currently hardcodes `supportedUrls` to only pass through:\n1. Google Files API URLs (`generativelanguage.googleapis.com/v1beta/files/*`)\n2. YouTube URLs\n\nAny other URL is downloaded by the core `ai` package and re-sent as base64 `inlineData`. This:\n- Adds unnecessary latency (download + base64 encoding)\n- Increases request payload size significantly\n- Breaks for large files exceeding the 20MB inline limit\n- Is no longer necessary since Gemini accepts external URLs directly\n\n### Proposed change\n\nExpand the `supportedUrls` configuration in the Google provider to include external HTTPS URLs so they are passed through as `fileUri` instead of being downloaded.\n\n**Caveat from Google's docs:** External URL support is only available on **Gemini 2.5+ models** (not Gemini 2.0 family), so the implementation may need to be model-aware.\n\n### Related issues\n\n- #6558 — Previously `https://*` was used but removed because Gemini didn't support external URLs at the time. Now it does.\n- #10692 — AI Gateway `fileUri` failures related to the same underlying `supportedUrls` limitation.\n- #11402 — Gemini File API support PR (complementary — File API is for uploads, this is for direct URL passthrough).\n\n### Use case\n\nApplications with media already hosted on CDNs (CloudFront, Cloudflare) or using presigned URLs (S3, Azure Blob Storage) would benefit significantly — avoiding the round-trip download improves performance and reduces costs.\n\n## AI SDK Version\n\n- ai: 5.0.142\n- @ai-sdk/google: 3.0.6\n\n## Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"expect": {
+		"added": ["feature", "ai/provider", "provider/google"],
+		"excluded": [],
+		"blocked": [],
+		"one": []
+	},
+	"gold": ["feature", "ai/provider", "provider/google"]
+}

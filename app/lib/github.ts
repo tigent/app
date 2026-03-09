@@ -1,4 +1,5 @@
 import { App, Octokit } from 'octokit';
+import { allowed } from './scope';
 
 let cached: App | null = null;
 
@@ -29,22 +30,26 @@ export async function fetchrepos(token: string): Promise<Repo[]> {
     const { data } =
       await octokit.rest.apps.listInstallationsForAuthenticatedUser();
     const results = await Promise.all(
-      data.installations.map(i =>
+      data.installations.map(installation =>
         octokit.rest.apps
           .listInstallationReposForAuthenticatedUser({
-            installation_id: i.id,
+            installation_id: installation.id,
           })
-          .then(res => ({ installation: i, repos: res.data.repositories })),
+          .then(result => ({
+            installation,
+            repos: result.data.repositories,
+          })),
       ),
     );
     const repos: Repo[] = [];
-    for (const { installation, repos: repolist } of results) {
-      for (const r of repolist) {
+    for (const result of results) {
+      for (const repo of result.repos) {
+        if (!allowed(repo.owner.login, repo.name)) continue;
         repos.push({
-          id: r.id,
-          name: r.name,
-          owner: r.owner.login,
-          installationid: installation.id,
+          id: repo.id,
+          name: repo.name,
+          owner: repo.owner.login,
+          installationid: result.installation.id,
         });
       }
     }

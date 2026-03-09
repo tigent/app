@@ -1,11 +1,29 @@
 import type { Metadata } from 'next';
-import { Header, Section, Prevnext } from '../components';
+import { Card, Grid, Header, Note, Prevnext, Section } from '../components';
 
 export const metadata: Metadata = {
   title: 'Labels',
   description:
-    'How Tigent uses your GitHub labels and descriptions for classification.',
+    'write better label descriptions and separate semantic labels from workflow labels.',
 };
+
+const labels = [
+  {
+    title: 'bug',
+    text: 'something is not working as expected in the product or sdk.',
+    style: 'bg-red-500/15 text-red-300',
+  },
+  {
+    title: 'feature',
+    text: 'new functionality, requested capability, or meaningful enhancement.',
+    style: 'bg-emerald-500/15 text-emerald-300',
+  },
+  {
+    title: 'documentation',
+    text: 'changes or gaps in guides, api docs, examples, or reference material.',
+    style: 'bg-sky-500/15 text-sky-300',
+  },
+];
 
 export default function Labels() {
   return (
@@ -13,74 +31,60 @@ export default function Labels() {
       <Header
         section="Reference"
         title="Labels"
-        description="How Tigent uses your existing labels."
+        description="Tigent works best when labels are descriptive, semantic, and clearly separated from workflow-only markers that belong in the blocklist."
       />
 
-      <Section id="how-it-works" title="How it works">
-        <p className="text-white/60 mb-4 max-w-2xl">
-          Tigent reads all labels from your repository, including their
-          descriptions. When an issue or PR is opened, the AI uses this
-          information to decide which labels to apply.
+      <Section
+        id="descriptions"
+        title="Write Descriptions That Teach The Model"
+      >
+        <p className="text-base leading-7 text-white/62">
+          Tigent reads label descriptions from github every time it triages.
+          better descriptions mean better classification without bloating the
+          prompt.
         </p>
-        <p className="text-white/60 max-w-2xl">
-          Labels with good descriptions get better classification results.
-        </p>
-      </Section>
-
-      <Section id="descriptions" title="Writing descriptions">
-        <p className="text-white/60 mb-6 max-w-2xl">
-          Add descriptions to your labels in GitHub: Settings &rarr; Labels
-          &rarr; Edit.
-        </p>
-        <div className="space-y-4 max-w-2xl">
-          <div className="border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-sm font-medium">
-                bug
+        <div className="grid gap-4 md:grid-cols-3">
+          {labels.map(item => (
+            <div
+              key={item.title}
+              className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-5"
+            >
+              <span
+                className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${item.style}`}
+              >
+                {item.title}
               </span>
+              <p className="mt-4 text-sm leading-6 text-white/62">
+                {item.text}
+              </p>
             </div>
-            <p className="text-white/50 text-sm">
-              Something is not working as expected
-            </p>
-          </div>
-          <div className="border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-sm font-medium">
-                feature
-              </span>
-            </div>
-            <p className="text-white/50 text-sm">
-              New functionality or enhancement request
-            </p>
-          </div>
-          <div className="border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-sm font-medium">
-                documentation
-              </span>
-            </div>
-            <p className="text-white/50 text-sm">
-              Improvements or additions to docs
-            </p>
-          </div>
+          ))}
         </div>
       </Section>
 
-      <Section id="tips" title="Tips">
-        <ul className="space-y-3 max-w-2xl text-white/60">
-          <li className="flex gap-3">
-            <span className="text-accent">-</span>
-            Be specific in descriptions so the AI knows when to apply each label
-          </li>
-          <li className="flex gap-3">
-            <span className="text-accent">-</span>
-            Use consistent terminology across your labels
-          </li>
-          <li className="flex gap-3">
-            <span className="text-accent">-</span>
-            Labels without descriptions will still work but may be less accurate
-          </li>
-        </ul>
+      <Section id="semantic" title="Semantic Labels Versus Workflow Labels">
+        <Grid>
+          <Card
+            title="Semantic"
+            description="labels like bug, support, documentation, or provider/openai can usually be inferred from content."
+          />
+          <Card
+            title="Workflow"
+            description="labels like backport, major, or good first issue usually depend on release process or maintainer judgment."
+          />
+        </Grid>
+        <Note title="Best Practice">
+          keep semantic labels available to the model and move workflow labels
+          into <code className="text-accent">blocklist</code>.
+        </Note>
+      </Section>
+
+      <Section id="tips" title="Label Design Tips">
+        <Grid>
+          <Card description="use consistent nouns and verbs across descriptions so related labels cluster naturally." />
+          <Card description="avoid vague descriptions like misc or general unless you really want a catch-all label." />
+          <Card description="if two labels overlap heavily, clarify the boundary in the descriptions or in the prompt." />
+        </Grid>
       </Section>
 
       <Prevnext />

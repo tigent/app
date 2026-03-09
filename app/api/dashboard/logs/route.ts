@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
   const repo = req.nextUrl.searchParams.get('repo');
   if (!repo) return NextResponse.json([]);
 
-  const logs = await readlogs(repo);
+  const limit = Number.parseInt(
+    req.nextUrl.searchParams.get('limit') || '100',
+    10,
+  );
+  const logs = await readlogs(repo, 0, Number.isNaN(limit) ? 100 : limit);
   return NextResponse.json(logs);
 }

@@ -1,0 +1,34 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13017,
+		"kind": "issue",
+		"url": "https://github.com/vercel/ai/issues/13017"
+	},
+	"subject": {
+		"title": "gemini-2.5-flash-lite returns empty text and stops immediately after receiving tool results (finishReason: 'stop')",
+		"body": "When using the gemini-2.5-flash-lite model with the Vercel AI SDK (generateText) and tools enabled, the model exhibits a critical failure during the multi-step maxSteps tool loop.\n\nSpecifically, the model successfully identifies the need to call a tool and halts execution correctly in Step 1 (finishReason: 'tool-calls'). However, once the tool executes and passes the exact results back into the model for synthesis (Step 2), the model completely fails to generate the final text response. It immediately terminates with finishReason: 'stop' without returning a single text token.\n\nThis issue is exclusively isolated to gemini-2.5-flash-lite. Running the exact same code with gemini-2.5-flash resolves perfectly, successfully synthesizing the tool results into the final output.\n\nCode:\n\n```\nimport { generateText, tool } from 'ai';\nimport { google } from '@ai-sdk/google';\nimport { z } from 'zod';\nasync function run() {\n  const { text, steps } = await generateText({\n    // Fails on Lite. Changing this to 'gemini-2.5-flash' completely fixes the bug.\n    model: google('gemini-2.5-flash-lite'),\n    system: 'You are a helpful assistant. Provide the answer in JSON format.',\n    prompt: 'What are the available exams?',\n    tools: {\n      getExams: tool({\n        description: 'Get exams',\n        parameters: z.object({}),\n        execute: async () => ({ exams: [\"Math\", \"Science\"] })\n      })\n    },\n    maxSteps: 5,\n    temperature: 0\n  });\n  console.log(\"FINAL TEXT:\", text);\n  for (const [i, step] of steps.entries()) {\n    console.log(`Step ${i+1}: finishReason=${step.finishReason}`);\n    console.log(`Text: ${step.text}`);\n    if (step.toolCalls) console.log(\"Tool calls:\", JSON.stringify(step.toolCalls));\n    if (step.toolResults) console.log(\"Tool results:\", JSON.stringify(step.toolResults));\n  }\n}\nrun().catch(console.error);\n\n```\n\nOutput Log (Actual Behavior on 2.5 Flash Lite):\n\nFINAL TEXT: \nStep 1: finishReason=tool-calls\nText: \nTool calls: [{\"type\":\"tool-call\",\"toolCallId\":\"Kg1KqhiIzMdKi0VQ\",\"toolName\":\"getExams\",\"args\":{}}]\nTool results: [{\"type\":\"tool-result\",\"toolCallId\":\"Kg1KqhiIzMdKi0VQ\",\"toolName\":\"getExams\",\"args\":{},\"result\":{\"exams\":[\"Math\",\"Science\"]}}]\nStep 2: finishReason=stop\nText:                    <--- CRITICAL BUG: Completely empty empty response\nTool calls: []\nTool results: []\n\n### AI SDK Version\n\n- ai: 4.3.16\n- @ai-sdk/google: 1.2.19\n\n### Code of Conduct\n\n- [x] I agree to follow this project's Code of Conduct"
+	},
+	"runs": 1,
+	"gold": [
+		"bug",
+		"ai/core",
+		"ai/provider",
+		"support",
+		"provider/google",
+		"reproduction provided"
+	],
+	"expect": {
+		"added": [
+			"ai/core",
+			"ai/provider",
+			"provider/google",
+			"reproduction provided"
+		],
+		"excluded": [],
+		"blocked": [],
+		"one": [["support", "bug"]]
+	}
+}
