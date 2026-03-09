@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { token } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 
 function seededrandom(seed: number) {
@@ -13,7 +14,7 @@ const grid = Array.from({ length: 12 * 20 }).map((_, i) => {
 
 export default async function Page() {
   const session = await getsession();
-  if (session.token) redirect('/dashboard');
+  if (await token(session)) redirect('/dashboard');
 
   return (
     <div className="h-screen bg-fg flex items-center justify-center relative overflow-hidden">

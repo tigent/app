@@ -1,11 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { token } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 import { readlogs } from '@/app/lib/logging';
 
 export async function GET(req: NextRequest) {
   const session = await getsession();
-  if (!session.token) return NextResponse.json([], { status: 401 });
+  if (!(await token(session))) return NextResponse.json([], { status: 401 });
 
   const repo = req.nextUrl.searchParams.get('repo');
   if (!repo) return NextResponse.json([]);

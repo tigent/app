@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
+import { token } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
-import { fetchrepos } from '@/app/lib/github';
+import { Autherror, fetchrepos } from '@/app/lib/github';
 
 export async function GET() {
   const session = await getsession();
-  if (!session.token) return NextResponse.json([], { status: 401 });
+  const value = await token(session);
+  if (!value) return NextResponse.json([], { status: 401 });
 
-  const repos = await fetchrepos(session.token);
-  return NextResponse.json(repos);
+  try {
+    const repos = await fetchrepos(value);
+    return NextResponse.json(repos);
+  } catch (error) {
+    if (!(error instanceof Autherror)) throw error;
+    session.destroy();
+    return NextResponse.json([], { status: 401 });
+  }
 }

@@ -3,6 +3,19 @@ import { allowed } from './scope';
 
 let cached: App | null = null;
 
+export class Autherror extends Error {}
+
+function status(error: unknown) {
+  if (!error || typeof error !== 'object' || !('status' in error)) return null;
+  const value = (error as { status?: unknown }).status;
+  return typeof value === 'number' ? value : null;
+}
+
+function denied(error: unknown) {
+  const value = status(error);
+  return value === 401 || value === 403;
+}
+
 export function getapp() {
   if (cached) return cached;
   cached = new App({
@@ -54,7 +67,8 @@ export async function fetchrepos(token: string): Promise<Repo[]> {
       }
     }
     return repos;
-  } catch {
+  } catch (error) {
+    if (denied(error)) throw new Autherror();
     return [];
   }
 }

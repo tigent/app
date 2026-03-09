@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
+import { token } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
-import { fetchrepos } from '@/app/lib/github';
+import { Autherror, fetchrepos } from '@/app/lib/github';
 import { Shell } from './components/shell';
 
 export default async function Layout({
@@ -9,16 +10,26 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const session = await getsession();
-  if (!session.token) redirect('/login');
+  const value = await token(session);
+  if (!value) redirect('/login');
 
-  const repos = await fetchrepos(session.token);
-  const user = { username: session.username, avatar: session.avatar };
+  try {
+    const repos = await fetchrepos(value);
+    const user = {
+      username: session.username || '',
+      avatar: session.avatar || '',
+    };
 
-  return (
-    <div className="h-screen bg-warm flex overflow-hidden p-0 md:p-3 gap-0 md:gap-3">
-      <Shell repos={repos} user={user}>
-        {children}
-      </Shell>
-    </div>
-  );
+    return (
+      <div className="h-screen bg-warm flex overflow-hidden p-0 md:p-3 gap-0 md:gap-3">
+        <Shell repos={repos} user={user}>
+          {children}
+        </Shell>
+      </div>
+    );
+  } catch (error) {
+    if (!(error instanceof Autherror)) throw error;
+    session.destroy();
+    redirect('/login');
+  }
 }
