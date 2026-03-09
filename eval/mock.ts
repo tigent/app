@@ -49,6 +49,17 @@ export function mock(
         createRef: async () => ({}),
       },
       pulls: {
+        get: async () => ({
+          data: {
+            title: 'mock pull request',
+            body: 'mock pull request body',
+            html_url: `https://github.com/${owner}/${repo}/pull/1`,
+            user: { login: 'maintainer' },
+          },
+        }),
+        listFiles: async () => ({
+          data: [],
+        }),
         create: async (input: {
           title: string;
           body: string;

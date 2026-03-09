@@ -1,8 +1,7 @@
 import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import type { Config } from '@/app/lib/config';
-import { readcontext } from '@/app/lib/logging';
-import { writelog } from '@/app/lib/logging';
+import { readcontext, writelog } from '@/app/lib/logging';
 import { writememory } from '@/app/lib/memory';
 import { call } from '@/app/lib/model';
 import { filterlabels } from '@/app/lib/policy';
@@ -337,7 +336,7 @@ export async function handlecomment(
     );
   }
 
-  if (actions.reply) parts.push(actions.reply);
+  if (actions.reply && blocked.length === 0) parts.push(actions.reply);
   if (parts.length === 0) {
     parts.push(
       'tell me which labels to add, remove, explain, or keep out of tigent.',
