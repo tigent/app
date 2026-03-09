@@ -343,9 +343,18 @@ export async function handlecomment(
     );
   }
 
-  const reply = parts.join('\n\n');
   await live.react(gh, comment.id, blocked.length > 0 ? '-1' : 'eyes');
-  await live.reply(gh, issue.number, reply);
+  const needsreply =
+    blocked.length > 0 ||
+    actions.explain ||
+    Boolean(actions.clarify) ||
+    actions.learn ||
+    block.length > 0 ||
+    Boolean(actions.reply);
+  const reply = parts.join('\n\n');
+  if (needsreply) {
+    await live.reply(gh, issue.number, reply);
+  }
 
   if (
     allowed.length > 0 ||
