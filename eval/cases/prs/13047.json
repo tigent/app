@@ -1,0 +1,22 @@
+{
+	"suite": "triage",
+	"source": {
+		"owner": "vercel",
+		"repo": "ai",
+		"number": 13047,
+		"kind": "pr",
+		"url": "https://github.com/vercel/ai/pull/13047"
+	},
+	"subject": {
+		"title": "docs: add provider options documentation page",
+		"body": "## Summary\n\nAdd comprehensive documentation for provider options, covering configuration, setup, and best practices for providers in the system.\n\n## Changes\n\n**Documentation (`content/docs/02-foundations/06-provider-options.mdx`)**\n\n- Create new provider options documentation page with detailed explanations\n- Include provider configuration examples and use cases\n- Document available options and their purposes\n- Add best practices and implementation guidelines\n\n**Documentation Index (`content/docs/02-foundations/index.mdx`)**\n\n- Register new provider options documentation page in the foundations section navigation",
+		"extra": "pr summary:\n- adds a new documentation page covering provider options and provider setup guidance\n- updates docs navigation to surface the new provider options reference\n- docs-only change, but the subject matter is provider configuration rather than core runtime behavior\n\nchanged files:\n- content/docs/02-foundations/06-provider-options.mdx (+337 -0)\n- content/docs/02-foundations/index.mdx (+6 -0)"
+	},
+	"runs": 2,
+	"expect": {
+		"added": ["documentation", "ai/provider"],
+		"excluded": ["reproduction needed", "reproduction provided"],
+		"blocked": [],
+		"one": []
+	}
+}

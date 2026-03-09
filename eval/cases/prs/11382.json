@@ -10,7 +10,7 @@
 	"subject": {
 		"title": "fix(gateway): major version bump for AI SDK v6",
 		"body": "",
-		"extra": "pr summary:\n- changeset-only release metadata update\n- tied to the ai sdk v6 major release\n- maintenance workflow change rather than user-facing feature work"
+		"extra": "pr summary:\n- changeset-only release metadata update for the v6 major release\n- release metadata change rather than a user-facing feature or bug fix\n- gateway naming appears in the title, but the diff is a maintenance-oriented release marker\n\nchanged files:\n- .changeset/quiet-maps-poke.md (+5 -0)"
 	},
 	"runs": 3,
 	"expect": {
@@ -18,6 +18,5 @@
 		"excluded": ["major", "reproduction needed", "reproduction provided"],
 		"blocked": [],
 		"one": []
-	},
-	"gold": ["major", "maintenance"]
+	}
 }

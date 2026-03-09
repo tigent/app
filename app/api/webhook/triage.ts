@@ -1,8 +1,8 @@
 import { generateText, Output } from 'ai';
 import type { Octokit } from 'octokit';
 import { z } from 'zod';
-import { parseconfig } from '@/app/lib/config';
 import type { Config } from '@/app/lib/config';
+import { parseconfig } from '@/app/lib/config';
 import { matchmemory } from '@/app/lib/memory';
 import { call } from '@/app/lib/model';
 import { filterlabels } from '@/app/lib/policy';
@@ -113,6 +113,14 @@ export async function summarizepr(gh: Gh, config: Config, number: number) {
       return `${file.filename} (+${file.additions} -${file.deletions})${patch}`;
     })
     .join('\n\n');
+  const changed = files.data
+    .slice(0, 12)
+    .map(file => `- ${file.filename} (+${file.additions} -${file.deletions})`)
+    .join('\n');
+  const more =
+    files.data.length > 12
+      ? `\n- ...and ${files.data.length - 12} more files`
+      : '';
 
   const { text } = await generateText({
     ...call(config.model),
@@ -126,7 +134,7 @@ export async function summarizepr(gh: Gh, config: Config, number: number) {
     body: pr.data.body || '',
     url: pr.data.html_url,
     author: pr.data.user?.login || '',
-    context: `pr summary:\n${text}`,
+    context: `pr summary:\n${text}\n\nchanged files:\n${changed}${more}`,
   };
 }
 

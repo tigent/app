@@ -2,7 +2,11 @@
 
 ## structure
 
-- `cases/<number>.json`: numbered issue or pr cases with source data, current repo labels, and curated expectations
+- `cases/issues/<number>.json`: issue triage regressions
+- `cases/prs/<number>.json`: pr triage regressions
+- `cases/feedback/<number>.json`: natural maintainer comment flows
+- `cases/learn/<number>.json`: learning and verification flows
+- `cases/scope/<number>.json`: allow-list enforcement
 - `labels.json`: current `vercel/ai` label snapshot used during triage evals
 - `load.ts`: schema validation and case loading
 - `mock.ts`: github write stubs for feedback and learning evals
@@ -30,3 +34,8 @@ pnpm eval -- --name=13069
 - `expect.blocked`: blocked labels that must be surfaced
 - `expect.one`: grouped alternatives where at least one label in each group must appear
 - `runtime`: optional executed feedback assertions for reaction, reply text, and label writes
+
+## pr context
+
+- pr evals should include both a concise summary and a `changed files` section in `subject.extra`
+- changed file paths are high-signal input for `ai/*` and `provider/*` labels and should be treated as first-class context

@@ -108,21 +108,32 @@ export async function readlabels() {
   return z.array(labelschema).parse(JSON.parse(text)) as Labelrow[];
 }
 
+async function list(folder: string): Promise<string[]> {
+  const rows = await readdir(folder, { withFileTypes: true });
+  const files = await Promise.all(
+    rows.map(async row => {
+      const item = path.join(folder, row.name);
+      if (row.isDirectory()) return list(item);
+      if (row.isFile() && row.name.endsWith('.json')) return [item];
+      return [];
+    }),
+  );
+  return files.flat();
+}
+
 export async function readcases() {
   const folder = path.join(process.cwd(), 'eval/cases');
-  const rows = await readdir(folder, { withFileTypes: true });
-  const files = rows
-    .filter(row => row.isFile() && row.name.endsWith('.json'))
-    .map(row => row.name)
-    .sort(
-      (left, right) => Number.parseInt(left, 10) - Number.parseInt(right, 10),
-    );
+  const files = (await list(folder)).sort((left, right) => {
+    const one = Number.parseInt(path.basename(left), 10);
+    const two = Number.parseInt(path.basename(right), 10);
+    return one - two;
+  });
   const items: Evalcase[] = [];
 
-  for (const name of files) {
-    const file = path.join(folder, name);
+  for (const file of files) {
     const text = await readFile(file, 'utf8');
     const item = caseschema.parse(JSON.parse(text)) as Evalcase;
+    const name = path.basename(file);
     const id = name.replace(/\.json$/, '');
     if (String(item.source.number) !== id) {
       throw new Error(
