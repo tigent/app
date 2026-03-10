@@ -12,10 +12,26 @@ const grid = Array.from({ length: 12 * 20 }).map((_, i) => {
   return r > 0.85 ? Math.round(r * 100) / 100 : 0;
 });
 
-export default async function Page() {
+function message(value?: string) {
+  if (value === 'expired') {
+    return 'your github session expired. sign in again to reload your repos.';
+  }
+  if (value === 'auth') {
+    return 'github sign-in failed. try again.';
+  }
+  return '';
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
   const session = await getsession();
+  const params = await searchParams;
   if (stale(session)) redirect('/api/auth/refresh?next=/dashboard');
   if (peek(session)) redirect('/dashboard');
+  const notice = message(params.reason);
 
   return (
     <div className="h-screen bg-fg flex items-center justify-center relative overflow-hidden">
@@ -52,6 +68,11 @@ export default async function Page() {
         <p className="text-white/40 text-center mb-10 max-w-sm">
           See activity, manage repos, and review labeling decisions
         </p>
+        {notice ? (
+          <p className="mb-6 max-w-sm rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm text-white/70">
+            {notice}
+          </p>
+        ) : null}
 
         <a
           href="/api/auth/login"
