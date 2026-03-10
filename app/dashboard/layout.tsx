@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { token } from '@/app/lib/oauth';
+import { peek, stale } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 import { Autherror, fetchrepos } from '@/app/lib/github';
 import { Shell } from './components/shell';
@@ -10,7 +10,8 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const session = await getsession();
-  const value = await token(session);
+  if (stale(session)) redirect('/api/auth/refresh?next=/dashboard');
+  const value = peek(session);
   if (!value) redirect('/login');
 
   try {
@@ -29,7 +30,6 @@ export default async function Layout({
     );
   } catch (error) {
     if (!(error instanceof Autherror)) throw error;
-    session.destroy();
-    redirect('/login');
+    redirect('/api/auth/refresh?next=/dashboard');
   }
 }

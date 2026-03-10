@@ -132,3 +132,12 @@ export async function token(session?: Store) {
   await value.save();
   return value.token || null;
 }
+
+export function peek(session: Store) {
+  if (!session.token || due(session)) return null;
+  return session.token;
+}
+
+export function stale(session: Store) {
+  return Boolean(session.token) && due(session);
+}
