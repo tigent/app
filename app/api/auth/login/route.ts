@@ -1,7 +1,9 @@
 import type { NextRequest } from 'next/server';
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 import { login } from '@/app/lib/oauth';
 
 export async function GET(req: NextRequest) {
-  redirect(await login(req));
+  return NextResponse.redirect(await login(req), {
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }

@@ -1,11 +1,16 @@
 import type { NextRequest } from 'next/server';
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 import { callback } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 
 export async function GET(req: NextRequest) {
   const token = await callback(req);
-  if (!token) redirect('/login');
+  const headers = { 'Cache-Control': 'no-store' };
+  if (!token) {
+    return NextResponse.redirect(new URL('/login?reason=auth', req.url), {
+      headers,
+    });
+  }
 
   const userres = await fetch('https://api.github.com/user', {
     headers: { Authorization: `Bearer ${token}` },
@@ -13,7 +18,9 @@ export async function GET(req: NextRequest) {
   if (!userres.ok) {
     const session = await getsession();
     session.destroy();
-    redirect('/login');
+    return NextResponse.redirect(new URL('/login?reason=auth', req.url), {
+      headers,
+    });
   }
 
   const user = await userres.json();
@@ -24,5 +31,5 @@ export async function GET(req: NextRequest) {
   session.id = user.id;
   await session.save();
 
-  redirect('/dashboard');
+  return NextResponse.redirect(new URL('/dashboard', req.url), { headers });
 }
