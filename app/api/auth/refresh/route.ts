@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 import { token } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 
@@ -12,9 +12,10 @@ export async function GET(req: NextRequest) {
   const session = await getsession();
   const next = path(req.nextUrl.searchParams.get('next'));
   const value = await token(session);
+  const headers = { 'Cache-Control': 'no-store' };
   if (!value) {
     session.destroy();
-    redirect('/login');
+    return NextResponse.redirect(new URL('/login', req.url), { headers });
   }
-  redirect(next);
+  return NextResponse.redirect(new URL(next, req.url), { headers });
 }
