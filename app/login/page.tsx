@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { token } from '@/app/lib/oauth';
+import { peek, stale } from '@/app/lib/oauth';
 import { getsession } from '@/app/lib/session';
 
 function seededrandom(seed: number) {
@@ -14,7 +14,8 @@ const grid = Array.from({ length: 12 * 20 }).map((_, i) => {
 
 export default async function Page() {
   const session = await getsession();
-  if (await token(session)) redirect('/dashboard');
+  if (stale(session)) redirect('/api/auth/refresh?next=/dashboard');
+  if (peek(session)) redirect('/dashboard');
 
   return (
     <div className="h-screen bg-fg flex items-center justify-center relative overflow-hidden">

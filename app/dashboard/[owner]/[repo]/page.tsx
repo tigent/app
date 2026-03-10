@@ -4,7 +4,7 @@ import { parseconfig } from '@/app/lib/config';
 import { counts, readlogs } from '@/app/lib/logging';
 import { readmemory } from '@/app/lib/memory';
 import { label } from '@/app/lib/model';
-import { token } from '@/app/lib/oauth';
+import { peek, stale } from '@/app/lib/oauth';
 import { readconfig } from '@/app/lib/repos';
 import { getsession } from '@/app/lib/session';
 import { Autherror } from '@/app/lib/github';
@@ -19,7 +19,11 @@ export default async function Page({
   const { owner, repo } = await params;
   const full = `${owner}/${repo}`;
   const session = await getsession();
-  const value = await token(session);
+  const next = `/dashboard/${owner}/${repo}`;
+  if (stale(session))
+    redirect(`/api/auth/refresh?next=${encodeURIComponent(next)}`);
+  const value = peek(session);
+  if (!value) redirect('/login');
 
   try {
     const [logs, stats, items, content] = await Promise.all([
@@ -96,7 +100,6 @@ export default async function Page({
     );
   } catch (error) {
     if (!(error instanceof Autherror)) throw error;
-    session.destroy();
-    redirect('/login');
+    redirect(`/api/auth/refresh?next=${encodeURIComponent(next)}`);
   }
 }
